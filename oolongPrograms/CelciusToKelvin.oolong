@@ -1,0 +1,8 @@
+class CelciusToKelvin is
+    var offset := -273.15
+
+    this(temperature: Float) is
+        var in_kelvin := temperature.plus(offset)
+        in_kelvin.print-line()
+    end
+end

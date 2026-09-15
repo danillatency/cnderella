@@ -1,0 +1,584 @@
+#include <iostream>
+#include <stdexcept>
+#include <fstream>
+#include <vector>
+#include <string>
+
+
+using namespace std;
+
+
+enum TokenCode {
+	TokenInteger,
+	TokenBoolean,
+	TokenCharacter,
+	TokenFloat,
+	TokenIdentifier,
+	
+	TokenClass,
+	TokenDot,
+	TokenBase,
+	TokenMethod,
+	TokenWhile,
+	TokenLoop,
+	TokenReturn,
+	TokenArrow,
+	TokenIs,
+	TokenEnd,
+	TokenNewLine,
+	TokenVar,
+	TokenColon,
+	TokenAssignment,
+	TokenThis,
+	TokenOpeningParenthesis,
+	TokenClosingParenthesis,
+	TokenComma,
+	TokenDoubleQuote,
+	TokenOpeningSqureBracket,
+	TokenClosingSqureBracket,
+	TokenOpeningCurlyBrace,
+	TokenClosingCurlyBrace
+};
+
+string TokenName[] = {
+	"LiteralInteger",
+	"LiteralBoolean",
+	"LiteralCharacter",
+	"LiteralFloat",
+	"LiteralIdentifier",
+
+	"class",
+	".",
+	"base",
+	"method",
+	"while",
+	"loop",
+	"return",
+	"=>",
+	"is",
+	"end",
+	"NewLine",
+	"var",
+	":",
+	":=",
+	"this",
+	"(",
+	")",
+	",",
+	"\"",
+	"[",
+	"]",
+	"{",
+	"}"
+};
+
+
+class Span {
+public:
+	unsigned long row;
+	unsigned int beginPosition;
+	unsigned int endPosition;
+
+	Span(unsigned long row, unsigned int beginPosition, unsigned int endPosition) {
+		this->row = row;
+		this->beginPosition = beginPosition;
+		this->endPosition = endPosition;
+
+	}
+};
+
+
+class Token {
+public:
+	unsigned int code;
+	Span span;
+
+	Token(unsigned int code, Span span): code(code), span(span) {}
+
+	virtual ~Token() = default;
+};
+
+
+class Identifier : public Token {
+public:
+	string value;
+
+	Identifier(Span span, string value) : Token(TokenIdentifier, span) {
+		this->value = value;
+	}
+};
+
+
+class Integer : public Token {
+public:
+	int value;
+
+	Integer(Span span, int value) : Token(TokenInteger, span) {
+		this->value = value;
+	}
+};
+
+
+class Float : public Token {
+public:
+	double value;
+
+	Float(Span span, double value) : Token(TokenFloat, span) {
+		this->value = value;
+	}
+};
+
+
+class Boolean : public Token {
+public:
+	bool value;
+
+	Boolean(Span span, bool value) : Token(TokenBoolean, span) {
+		this->value = value;
+	}
+};
+
+
+class Character : public Token {
+public:
+	char value;
+
+	Character(Span span, char value) : Token(TokenCharacter, span) {
+		this->value = value;
+	}
+};
+
+
+class OolongLexicalAnalyzer {
+private:
+	string programPath;
+	ifstream file;
+	vector<Token*> tokenStorage;
+	unsigned long currentRow = 0;
+	int currentColumn = -1;
+	char currentCharacter;
+	string accumulator = "";
+
+	char& further() {
+		this->currentColumn++;
+		if (this->currentCharacter == '\n')
+			this->currentColumn = 0;
+		if(!this->file.get(this->currentCharacter)) {
+			if (this->currentCharacter != '\n')
+				this->currentCharacter = '\n';
+			else
+				this->currentCharacter = NULL;
+			return this->currentCharacter;
+		}
+		if (this->currentCharacter == '\n')
+			this->currentRow++;
+		this->accumulator += this->currentCharacter;
+		return this->currentCharacter;
+	}
+
+	bool correctIntegerCharacter(char& character) {
+		return (character > 47) && (character < 58);
+	}
+
+	bool correctIdentifierCharacter(char& character) {
+		return (character > 64) && (character < 91)
+			||
+			(character > 96) && (character < 123)
+			||
+			(character > 47) && (character < 58)
+			||
+			(character == '-') || (character == '_');
+	}
+
+	bool nonSpace() {
+		return !isspace(this->currentCharacter) || this->currentCharacter == '\n';
+	}
+
+public:
+	OolongLexicalAnalyzer(string programPath): currentCharacter('a') {
+		this->programPath = programPath;
+		this->file.open(programPath);
+		if (!this->file.is_open()) {
+			throw runtime_error("Failed to open the file");
+		}
+	}
+
+	~OolongLexicalAnalyzer() {
+		this->file.close();
+	}
+
+	void analyze() {
+		bool immediatelyFurther = false;
+		while (immediatelyFurther || this->further()) {
+			immediatelyFurther = false;
+			Span span(this->currentRow, this->currentColumn, this->currentColumn + 1);
+
+			switch (this->currentCharacter) {
+			case 'c':
+				if (this->further() == 'l')
+					if (this->further() == 'a')
+						if (this->further() == 's')
+							if (this->further() == 's')
+								if (!this->correctIdentifierCharacter(this->further())) {
+									span.endPosition = this->currentColumn;
+									this->tokenStorage.push_back(new Token(TokenClass, span));
+									this->accumulator = "";
+									if (this->nonSpace()) {
+										immediatelyFurther = true;
+										this->accumulator += this->currentCharacter;
+									}
+									continue;
+								}
+				break;
+
+			case '.':
+				this->tokenStorage.push_back(new Token(TokenDot, span));
+				this->accumulator = "";
+				continue;
+
+			case 'b':
+				if (this->further() == 'a')
+					if (this->further() == 's')
+						if (this->further() == 'e')
+							if (!this->correctIdentifierCharacter(this->further())) {
+								span.endPosition = this->currentColumn;
+								this->tokenStorage.push_back(new Token(TokenBase, span));
+								this->accumulator = "";
+								if (this->nonSpace()) {
+									immediatelyFurther = true;
+									this->accumulator += this->currentCharacter;
+								}
+								continue;
+							}
+				break;
+
+			case 'm':
+				if (this->further() == 'e')
+					if (this->further() == 't')
+						if (this->further() == 'h')
+							if (this->further() == 'o')
+								if (this->further() == 'd')
+									if (!this->correctIdentifierCharacter(this->further())) {
+										span.endPosition = this->currentColumn;
+										this->tokenStorage.push_back(new Token(TokenMethod, span));
+										this->accumulator = "";
+										if (this->nonSpace()) {
+											immediatelyFurther = true;
+											this->accumulator += this->currentCharacter;
+										}
+										continue;
+									}
+				break;
+
+			case 'w':
+				if (this->further() == 'h')
+					if (this->further() == 'i')
+						if (this->further() == 'l')
+							if (this->further() == 'e')
+								if (!this->correctIdentifierCharacter(this->further())) {
+									span.endPosition = this->currentColumn;
+									this->tokenStorage.push_back(new Token(TokenWhile, span));
+									this->accumulator = "";
+									if (this->nonSpace()) {
+										immediatelyFurther = true;
+										this->accumulator += this->currentCharacter;
+									}
+									continue;
+								}
+				break;
+
+			case 'l':
+				if (this->further() == 'o')
+					if (this->further() == 'o')
+						if (this->further() == 'p')
+							if (!this->correctIdentifierCharacter(this->further())) {
+								span.endPosition = this->currentColumn;
+								this->tokenStorage.push_back(new Token(TokenLoop, span));
+								this->accumulator = "";
+								if (this->nonSpace()) {
+									immediatelyFurther = true;
+									this->accumulator += this->currentCharacter;
+								}
+								continue;
+							}
+				break;
+
+			case 'r':
+				if (this->further() == 'e')
+					if (this->further() == 't')
+						if (this->further() == 'u')
+							if (this->further() == 'r')
+								if (this->further() == 'n')
+									if (!this->correctIdentifierCharacter(this->further())) {
+										span.endPosition = this->currentColumn;
+										this->tokenStorage.push_back(new Token(TokenReturn, span));
+										this->accumulator = "";
+										if (this->nonSpace()) {
+											immediatelyFurther = true;
+											this->accumulator += this->currentCharacter;
+										}
+										continue;
+									}
+				break;
+
+			case '=':
+				if (this->further() != '>') 
+					throw domain_error("Unknown token on the line: " + to_string(span.row) + 
+						" from: " + to_string(span.beginPosition) + " to: " + to_string(span.endPosition));
+				span.endPosition = this->currentColumn;
+				this->tokenStorage.push_back(new Token(TokenArrow, span));
+				this->accumulator = "";
+				continue;
+
+			case 'i':
+				if (this->further() == 's')
+					if (!this->correctIdentifierCharacter(this->further())) {
+						span.endPosition = this->currentColumn;
+						this->tokenStorage.push_back(new Token(TokenIs, span));
+						this->accumulator = "";
+						if (this->nonSpace()) {
+							immediatelyFurther = true;
+							this->accumulator += this->currentCharacter;
+						}
+						continue;
+					}
+				break;
+
+			case 'e':
+				if (this->further() == 'n')
+					if (this->further() == 'd')
+						if (!this->correctIdentifierCharacter(this->further())) {
+							span.endPosition = this->currentColumn;
+							this->tokenStorage.push_back(new Token(TokenEnd, span));
+							this->accumulator = "";
+							if (this->nonSpace()) {
+								immediatelyFurther = true;
+								this->accumulator += this->currentCharacter;
+							}
+							continue;
+						}
+				break;
+
+			case '\n':
+				if (this->tokenStorage.back()->code != TokenNewLine)
+					this->tokenStorage.push_back(new Token(TokenNewLine, span));
+				this->accumulator = "";
+				continue;
+
+			case 'v':
+				if (this->further() == 'a')
+					if (this->further() == 'r')
+						if (!this->correctIdentifierCharacter(this->further())) {
+							span.endPosition = this->currentColumn;
+							this->tokenStorage.push_back(new Token(TokenVar, span));
+							this->accumulator = "";
+							if (this->nonSpace()) {
+								immediatelyFurther = true;
+								this->accumulator += this->currentCharacter;
+							}
+							continue;
+						}
+				break;
+
+			case ':':
+				if (this->further() == '=') {
+					span.endPosition = this->currentColumn;
+					this->tokenStorage.push_back(new Token(TokenAssignment, span));
+					this->accumulator = "";
+				}
+				else {
+					this->tokenStorage.push_back(new Token(TokenColon, span));
+					this->accumulator = "";
+					if (this->nonSpace()) {
+						immediatelyFurther = true;
+						this->accumulator += this->currentCharacter;
+					}
+				}
+				continue;
+
+			case 't':
+				if (this->further() == 'h') {
+					if (this->further() == 'i')
+						if (this->further() == 's')
+							if (!this->correctIdentifierCharacter(this->further())) {
+								span.endPosition = this->currentColumn;
+								this->tokenStorage.push_back(new Token(TokenThis, span));
+								this->accumulator = "";
+								if (this->nonSpace()) {
+									immediatelyFurther = true;
+									this->accumulator += this->currentCharacter;
+								}
+								continue;
+							}
+				} else if (this->currentCharacter == 'r')
+					if (this->further() == 'u')
+						if (this->further() == 'e')
+							if (!this->correctIdentifierCharacter(this->further())) {
+								span.endPosition = this->currentColumn;
+								this->tokenStorage.push_back(new Boolean(span, true));
+								this->accumulator = "";
+								if (this->nonSpace()) {
+									immediatelyFurther = true;
+									this->accumulator += this->currentCharacter;
+								}
+								continue;
+							}
+				break;
+
+			case 'f':
+				if (this->further() == 'a')
+					if (this->further() == 'l')
+						if (this->further() == 's')
+							if (this->further() == 'e')
+								if (!this->correctIdentifierCharacter(this->further())) {
+									span.endPosition = this->currentColumn;
+									this->tokenStorage.push_back(new Boolean(span, false));
+									this->accumulator = "";
+									if (this->nonSpace()) {
+										immediatelyFurther = true;
+										this->accumulator += this->currentCharacter;
+									}
+									continue;
+								}
+				break;
+
+			case '(':
+				this->tokenStorage.push_back(new Token(TokenOpeningParenthesis, span));
+				this->accumulator = "";
+				continue;
+
+			case ')':
+				this->tokenStorage.push_back(new Token(TokenClosingParenthesis, span));
+				this->accumulator = "";
+				continue;
+
+			case '{':
+				this->tokenStorage.push_back(new Token(TokenOpeningCurlyBrace, span));
+				this->accumulator = "";
+				continue;
+
+			case '}':
+				this->tokenStorage.push_back(new Token(TokenClosingCurlyBrace, span));
+				this->accumulator = "";
+				continue;
+
+			case '[':
+				this->tokenStorage.push_back(new Token(TokenOpeningSqureBracket, span));
+				this->accumulator = "";
+				continue;
+
+			case ']':
+				this->tokenStorage.push_back(new Token(TokenClosingSqureBracket, span));
+				this->accumulator = "";
+				continue;
+
+			case ',':
+				this->tokenStorage.push_back(new Token(TokenComma, span));
+				this->accumulator = "";
+				continue;
+
+			case '"':
+				this->tokenStorage.push_back(new Token(TokenDoubleQuote, span));
+				while (this->further() != '"') {
+					span.endPosition = this->currentColumn;
+					if (this->currentCharacter == '\n')
+						throw domain_error("Unclosed string on the line: " + to_string(span.row) + 
+							" from: " + to_string(span.beginPosition) + " to: " + to_string(span.endPosition));
+					this->tokenStorage.push_back(new Character(span, this->currentCharacter));
+				}
+				this->tokenStorage.push_back(new Token(TokenDoubleQuote, span));
+				this->accumulator = "";
+				continue;
+
+			case '-': case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
+				do {
+					this->further();
+				} while (this->correctIntegerCharacter(this->currentCharacter));
+				span.endPosition = this->currentColumn;
+				if (this->currentCharacter == '-')
+					throw domain_error("Mixed minuses: " + to_string(span.row) +
+						" from: " + to_string(span.beginPosition) + " to: " + to_string(span.endPosition));
+				if (this->currentCharacter == '.') {
+					while (this->correctIntegerCharacter(this->further())) continue;
+					span.endPosition = this->currentColumn;
+					this->tokenStorage.push_back(new Float(span, stod(this->accumulator)));
+				}
+				else {
+					span.endPosition = this->currentColumn;
+					this->tokenStorage.push_back(new Integer(span, stoi(this->accumulator)));
+				}
+				this->accumulator = "";
+				if (this->nonSpace()) {
+					immediatelyFurther = true;
+					this->accumulator += this->currentCharacter;
+				}
+				continue;
+			}
+
+			if (isspace(this->currentCharacter)) {
+				this->accumulator = "";
+				continue;
+			}
+			while (this->correctIdentifierCharacter(this->currentCharacter))
+				this->further();
+			span.endPosition = this->currentColumn;
+			this->tokenStorage.push_back(new Identifier(span, this->accumulator.erase(this->accumulator.length() - 1)));
+			this->accumulator = "";
+			if (this->nonSpace()) {
+				immediatelyFurther = true;
+				this->accumulator += this->currentCharacter;
+			}
+		}
+	}
+
+	vector<Token*>& getTokenStorage() {
+		return this->tokenStorage;
+	}
+};
+
+int main() {
+	OolongLexicalAnalyzer* lexer;
+
+	try {
+		lexer = new OolongLexicalAnalyzer("oolongPrograms/Cindecast.oolong");
+	}
+	catch (const runtime_error& e) {
+		cout << e.what() << "\n";
+		exit(1);
+	}
+
+	try {
+		lexer->analyze();
+	}
+	catch (const domain_error& e) {
+		cout << e.what() << "\n";
+		exit(1);
+	}
+	for (int i = 0; i < lexer->getTokenStorage().size(); i++) {
+		Token* token = lexer->getTokenStorage()[i];
+		switch (token->code) {
+		case TokenInteger:
+			cout << "Integer literal:   " << dynamic_cast<Integer*>(token)->value << "\n";
+			break;
+		case TokenBoolean:
+			cout << "Boolean literal:   " << dynamic_cast<Boolean*>(token)->value << "\n";
+			break;
+		case TokenCharacter:
+			cout << "Character literal: " << dynamic_cast<Character*>(token)->value << "\n";
+			break;
+		case TokenFloat:
+			cout << "Float literal:     " << dynamic_cast<Float*>(token)->value << "\n";
+			break;
+		case TokenIdentifier:
+			cout << "Identifier:        " << dynamic_cast<Identifier*>(token)->value << "\n";
+			break;
+
+		default:
+			cout << "Reserved word:     " << TokenName[token->code] << "\n";
+		}
+
+	}
+
+	cout << "\n";
+	// cin.ignore();
+}

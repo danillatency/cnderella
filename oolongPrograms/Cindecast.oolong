@@ -1,0 +1,32 @@
+class Character is
+    var x := Integer(0)
+    var y := Integer(0)
+
+    this(x: Integer, y: Integer) is
+        this.x := x
+        this.y := y
+    end
+
+    method greet() => "Hello, I'm a basis character".print-line()
+end
+
+
+class Cinderella: Character is
+    this(x: Integer, y: Integer) is
+        base(x, y)
+    end
+
+    method greet() is
+        base.greet()
+        "In fact, I'm Cinderella".print-line()
+    end
+end
+
+
+class Cindecast is
+    this() is
+        character := Character(0, 0)
+        character := Cinderella(4, 4)
+        character.greet()
+    end
+end

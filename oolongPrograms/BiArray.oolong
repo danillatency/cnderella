@@ -1,0 +1,8 @@
+class BiArray is
+    this() is
+        var mixed_array := AnyValueArray(2)
+        mixed_array.set(0) := 30
+        mixed_array.set(1) := 6.6
+        mixed_array.print-line()
+    end
+end

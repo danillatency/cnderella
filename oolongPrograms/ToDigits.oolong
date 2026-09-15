@@ -1,0 +1,22 @@
+class Math is
+    method to-digits(number: Integer): IntegerList is
+        var digits := IntegerList()
+        while number.greater(0) loop
+            digits.append(number.division-reminder(10))
+            number := number.division(10)
+        end
+        return digits.reversed()
+    end
+
+    method to-digits(number: Float): IntegerList =>
+        return this.to-digits(number.to-integer())
+end
+
+
+class ToDigits is
+    this() is
+        var number := Integer(0).input()
+        var math := Math()
+        math.to-digits(number).print-line()
+    end
+end

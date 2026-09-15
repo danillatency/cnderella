@@ -1,0 +1,15 @@
+class IsSimple is
+    this(number: Integer) => is-simple(number).print-line()
+
+    method is-simple(number: Integer) is
+        var i := number.minus(1)
+        while i.greater(1) loop
+            if number.division-reminder(i).equals(0) then
+                return false
+            else
+                i := i.minus(1)
+            end
+        end
+        return true
+    end
+end

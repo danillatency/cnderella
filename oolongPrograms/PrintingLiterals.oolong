@@ -1,0 +1,12 @@
+class PrintingLiterals is
+    this() is
+        true.print-line()
+        false.print-line()
+        [9, 1, 1].print-line()
+        [[0.1, 0.2], [0.3, 0.4]].print-line()
+        {1, 1, 2}.print-line()
+        {{4.0, 3.0}, {2.0, 1.0}}.print-line()
+        Integer(404).print()
+        Float(36.6).print()
+    end
+end
