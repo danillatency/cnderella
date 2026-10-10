@@ -36,6 +36,8 @@ public:
 
 	void analyze();
 
+	void printTokens();
+
 	vector<Token*>& getTokenStorage();
 };
 

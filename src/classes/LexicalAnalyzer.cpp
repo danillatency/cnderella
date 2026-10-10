@@ -1,4 +1,5 @@
 #include <stdexcept>
+#include <iostream>
 
 #include "../classHeaders/LexicalAnalyzer.h"
 
@@ -375,6 +376,33 @@ void OolongLexicalAnalyzer::analyze() {
 			immediatelyFurther = true;
 			this->accumulator += this->currentCharacter;
 		}
+	}
+}
+
+void OolongLexicalAnalyzer::printTokens() {
+	for (int i = 0; i < this->tokenStorage.size(); i++) {
+		Token* token = this->tokenStorage[i];
+		switch (token->code) {
+		case TokenInteger:
+			cout << "Integer literal:   " << dynamic_cast<Integer*>(token)->value << "\n";
+			break;
+		case TokenBoolean:
+			cout << "Boolean literal:   " << dynamic_cast<Boolean*>(token)->value << "\n";
+			break;
+		case TokenCharacter:
+			cout << "Character literal: " << dynamic_cast<Character*>(token)->value << "\n";
+			break;
+		case TokenFloat:
+			cout << "Float literal:     " << dynamic_cast<Float*>(token)->value << "\n";
+			break;
+		case TokenIdentifier:
+			cout << "Identifier:        " << dynamic_cast<Identifier*>(token)->value << "\n";
+			break;
+
+		default:
+			cout << "Reserved word:     " << TokenName[token->code] << "\n";
+		}
+
 	}
 }
 
