@@ -1,5 +1,5 @@
-#ifndef lexicalanalyzer
-#define lexicalanalyzer
+#ifndef lexicalanalyzerheader
+#define lexicalanalyzerheader
 
 #include <vector>
 #include <string>

@@ -25,7 +25,7 @@ end
 
 class Cindecast is
     this() is
-        character := Character(0, 0)
+        var character := Character(0, 0)
         character := Cinderella(4, 4)
         character.greet()
     end
