@@ -2,6 +2,7 @@
 
 #include "classHeaders/Tokens.h"
 #include "classHeaders/LexicalAnalyzer.h"
+#include "classHeaders/TreeGround.h"
 
 
 using namespace std;
@@ -27,6 +28,9 @@ int main() {
 	}
 
 	lexer->printTokens();
+
+	TreeGround ground(lexer->getTokenStorage());
+	ground.grow();
 
 	cout << "\n";
 	// cin.ignore();
