@@ -2,6 +2,7 @@
 #define treegroundheader
 
 #include <vector>
+#include <string>
 
 #include "Tokens.h"
 
@@ -9,137 +10,315 @@
 using namespace std;
 
 
+class ClassDeclarations;
+class ClassDeclaration;
+class TreeGround;
+class ClassHead;
+class Body;
+class Statements;
+class Statement;
+class Expressions;
+class Expression;
+class LocalDeclaration;
+class MethodHead;
+class ConstructorHead;
+class ParameterDeclarations;
+class ParameterDeclaration;
+
+
 class Program {
 public:
-	static Program parse(TreeGround* treeGround);
+	ClassDeclarations* classDeclarations;
+
+	Program(ClassDeclarations* classDeclarations);
+
+	static Program* parse(TreeGround* treeGround);
 };
 
 
 class ClassDeclarations {
 public:
-	static ClassDeclarations parse(TreeGround* treeGround);
+	ClassDeclaration* classDeclaration;
+	ClassDeclarations* classDeclarations;
+
+	ClassDeclarations(ClassDeclaration* classDeclaration, ClassDeclarations* classDeclarations);
+
+	static ClassDeclarations* parse(TreeGround* treeGround);
 };
 
 
 class ClassDeclaration {
 public:
-	static ClassDeclaration parse(TreeGround* treeGround);
+	ClassHead* classHead;
+	Body* body;
+
+	ClassDeclaration(ClassHead* classHead, Body* body);
+
+	static ClassDeclaration* parse(TreeGround* treeGround);
 };
 
 
 class ClassHead {
 public:
-	static ClassHead parse(TreeGround* treeGround);
+	string name;
+	string baseName;
+
+	ClassHead(string name, string baseName);
+	ClassHead(string name);
+
+	static ClassHead* parse(TreeGround* treeGround);
 };
 
 
 class Body {
 public:
-	static Body parse(TreeGround* treeGround);
+	Statements* statements;
+
+	Body(Statements* statements);
+
+	static Body* parse(TreeGround* treeGround);
 };
 
 
 class Statements {
 public:
-	static Statements parse(TreeGround* treeGround);
+	Statement* statement;
+	Statements* statements;
+
+	Statements(Statement* statement);
+
+	Statements(Statement* statement, Statements* statements);
+
+	static Statements* parse(TreeGround* treeGround);
 };
 
 
 class Statement {
 public:
-	static Statement parse(TreeGround* treeGround);
+	Statement* statement;
+
+	Statement();
+
+	Statement(Statement* statement);
+
+	static Statement* parse(TreeGround* treeGround);
 };
 
 
-class LocalDeclaration {
+class LocalDeclaration : public Statement {
 public:
-	static LocalDeclaration parse(TreeGround* treeGround);
+	string name;
+	Expression* expression;
+
+	LocalDeclaration(string name, Expression* expression);
+
+	static LocalDeclaration* parse(TreeGround* treeGround);
 };
 
 
-class Literal {
+class Literal : public Statement {
 public:
-	static Literal parse(TreeGround* treeGround);
+	static Literal* parse(TreeGround* treeGround);
 };
 
 
-class MethodDeclaration {
+class IntegerLiteral : public Literal {
 public:
-	static MethodDeclaration parse(TreeGround* treeGround);
+	int value;
+
+	IntegerLiteral(int value);
+
+	static IntegerLiteral* parse(TreeGround* treeGround);
+};
+
+
+class BooleanLiteral : public Literal {
+public:
+	bool value;
+
+	BooleanLiteral(bool value);
+
+	static BooleanLiteral* parse(TreeGround* treeGround);
+};
+
+
+class FloatLiteral : public Literal {
+public:
+	double value;
+
+	FloatLiteral(double value);
+
+	static FloatLiteral* parse(TreeGround* treeGround);
+};
+
+
+class CharacterLiteral : public Literal {
+public:
+	char value;
+
+	CharacterLiteral(char value);
+
+	static CharacterLiteral* parse(TreeGround* treeGround);
+};
+
+
+class MethodDeclaration : public Statement {
+public:
+	MethodHead* methodHead;
+	Body* body;
+
+	MethodDeclaration(MethodHead* methodHead, Body* body);
+
+	static MethodDeclaration* parse(TreeGround* treeGround);
 };
 
 
 class MethodHead {
 public:
-	static MethodHead parse(TreeGround* treeGround);
+	string name;
+	ParameterDeclarations* parameterDeclarations;
+
+	MethodHead(string name, ParameterDeclarations* parameterDeclarations);
+
+	static MethodHead* parse(TreeGround* treeGround);
 };
 
 
 class ParameterDeclarations {
 public:
-	static ParameterDeclarations parse(TreeGround* treeGround);
+	ParameterDeclaration* parameterDeclaration;
+	ParameterDeclarations* parameterDeclarations;
+
+	ParameterDeclarations();
+
+	ParameterDeclarations(ParameterDeclaration* parameterDeclaration);
+
+	ParameterDeclarations(ParameterDeclaration* parameterDeclaration, ParameterDeclarations* parameterDeclarations);
+
+	static ParameterDeclarations* parse(TreeGround* treeGround);
 };
 
 
 class ParameterDeclaration {
 public:
-	static ParameterDeclaration parse(TreeGround* treeGround);
+	string name;
+	string baseName;
+
+	ParameterDeclaration(string name, string baseName);
+
+	static ParameterDeclaration* parse(TreeGround* treeGround);
 };
 
 
-class ConstructorDeclaration {
+class ConstructorDeclaration : public Statement {
 public:
-	static ConstructorDeclaration parse(TreeGround* treeGround);
+	ConstructorHead* constructorHead;
+	Body* body;
+
+	ConstructorDeclaration(ConstructorHead* constructorHead, Body* body);
+
+	static ConstructorDeclaration* parse(TreeGround* treeGround);
 };
 
 
 class ConstructorHead {
 public:
-	static ConstructorHead parse(TreeGround* treeGround);
+	ParameterDeclarations* parameterDeclarations;
+
+	ConstructorHead(ParameterDeclarations* parameterDeclarations);
+
+	static ConstructorHead* parse(TreeGround* treeGround);
 };
 
 
 class Expressions {
 public:
-	static Expressions parse(TreeGround* treeGround);
+	Expression* expression;
+	Expressions* expressions;
+
+	Expressions();
+
+	Expressions(Expression* expression);
+
+	Expressions(Expression* expression, Expressions* expressions);
+
+	static Expressions* parse(TreeGround* treeGround);
 };
 
 
-class Expression {
+class Expression : public Statement {
 public:
-	static Expression parse(TreeGround* treeGround);
+	Literal* leftPartLiteral;
+	string leftPartIdentifier;
+	Expressions* callExpressions;
+	Expression* rightPartExpression;
+
+	Expression(Literal* leftPartLiteral, Expression* rightPartExpression);
+
+	Expression(Literal* leftPartLiteral);
+
+	Expression(string leftPartIdentifier, Expression* rightPartExpression);
+
+	Expression(string leftPartIdentifier, Expressions* callExpressions);
+
+	Expression(string leftPartIdentifier, Expressions* callExpressions, Expression* rightPartExpression);
+
+	static Expression* parse(TreeGround* treeGround);
 };
 
 
-class Assignment {
+class Assignment : public Statement {
 public:
-	static Assignment parse(TreeGround* treeGround);
+	Expression* expression1;
+	Expression* expression2;
+
+	Assignment(Expression* expression1, Expression* expression2);
+
+	static Assignment* parse(TreeGround* treeGround);
 };
 
 
-class IfStatement {
+class IfStatement : public Statement {
 public:
-	static IfStatement parse(TreeGround* treeGround);
+	Expression* condition;
+	Statements* trueStatemenets;
+	Statements* falseStatements;
+
+	IfStatement(Expression* condition, Statements* trueStatements);
+
+	IfStatement(Expression* condition, Statements* trueStatements, Statements* falseStatements);
+
+	static IfStatement* parse(TreeGround* treeGround);
 };
 
 
-class WhileStatement {
+class WhileStatement : public Statement {
 public:
-	static WhileStatement parse(TreeGround* treeGround);
+	Expression* condition;
+	Statements* statements;
+
+	WhileStatement(Expression* condition, Statements* statements);
+
+	static WhileStatement* parse(TreeGround* treeGround);
 };
 
 
-class ReturnStatement {
+class ReturnStatement : public Statement {
 public:
-	static ReturnStatement parse(TreeGround* treeGround);
+	Expression* expression;
+
+	ReturnStatement(Expression* expression);
+
+	static ReturnStatement* parse(TreeGround* treeGround);
 };
 
 
 class TreeGround {
 private:
-	Program program;
+	Program* program;
 	vector<Token*>& tokens;
 	long int currentTokenIndex;
+	long int savedTokenIndex;
 
 public:
 	TreeGround(vector<Token*>& tokens);
@@ -153,6 +332,10 @@ public:
 	Token* nextToken();
 
 	void back();
+
+	void saveCurrentIndex();
+
+	void restoreCurrentIndex();
 };
 
 
