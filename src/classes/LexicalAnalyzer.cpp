@@ -178,7 +178,7 @@ void OolongLexicalAnalyzer::analyze() {
 			continue;
 
 		case 'i':
-			if (this->further() == 's')
+			if (this->further() == 's') {
 				if (!this->correctIdentifierCharacter(this->further())) {
 					span.endPosition = this->currentColumn;
 					this->tokenStorage.push_back(new Token(TokenIs, span));
@@ -189,10 +189,21 @@ void OolongLexicalAnalyzer::analyze() {
 					}
 					continue;
 				}
+			} else if (this->currentCharacter == 'f')
+				if (!this->correctIdentifierCharacter(this->further())) {
+					span.endPosition = this->currentColumn;
+					this->tokenStorage.push_back(new Token(TokenIf, span));
+					this->accumulator = "";
+					if (this->nonSpace()) {
+						immediatelyFurther = true;
+						this->accumulator += this->currentCharacter;
+					}
+					continue;
+				}
 			break;
 
 		case 'e':
-			if (this->further() == 'n')
+			if (this->further() == 'n') {
 				if (this->further() == 'd')
 					if (!this->correctIdentifierCharacter(this->further())) {
 						span.endPosition = this->currentColumn;
@@ -204,6 +215,19 @@ void OolongLexicalAnalyzer::analyze() {
 						}
 						continue;
 					}
+			} else if (this->currentCharacter == 'l')
+				if (this->further() == 's')
+					if (this->further() == 'e')
+						if (!this->correctIdentifierCharacter(this->further())) {
+							span.endPosition = this->currentColumn;
+							this->tokenStorage.push_back(new Token(TokenElse, span));
+							this->accumulator = "";
+							if (this->nonSpace()) {
+								immediatelyFurther = true;
+								this->accumulator += this->currentCharacter;
+							}
+							continue;
+						}
 			break;
 
 		case '\n':
@@ -245,11 +269,24 @@ void OolongLexicalAnalyzer::analyze() {
 
 		case 't':
 			if (this->further() == 'h') {
-				if (this->further() == 'i')
+				if (this->further() == 'i') {
 					if (this->further() == 's')
 						if (!this->correctIdentifierCharacter(this->further())) {
 							span.endPosition = this->currentColumn;
 							this->tokenStorage.push_back(new Token(TokenThis, span));
+							this->accumulator = "";
+							if (this->nonSpace()) {
+								immediatelyFurther = true;
+								this->accumulator += this->currentCharacter;
+							}
+							continue;
+						}
+				}
+				else if (this->currentCharacter == 'e')
+					if (this->further() == 'n')
+						if (!this->correctIdentifierCharacter(this->further())) {
+							span.endPosition = this->currentColumn;
+							this->tokenStorage.push_back(new Token(TokenThen, span));
 							this->accumulator = "";
 							if (this->nonSpace()) {
 								immediatelyFurther = true;
