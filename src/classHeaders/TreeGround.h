@@ -26,7 +26,13 @@ class ParameterDeclarations;
 class ParameterDeclaration;
 
 
-class Program {
+class Entity {
+public:
+	virtual ~Entity() = default;
+};
+
+
+class Program : public Entity {
 public:
 	ClassDeclarations* classDeclarations;
 
@@ -36,7 +42,7 @@ public:
 };
 
 
-class ClassDeclarations {
+class ClassDeclarations : public Entity {
 public:
 	ClassDeclaration* classDeclaration;
 	ClassDeclarations* classDeclarations;
@@ -49,7 +55,7 @@ public:
 };
 
 
-class ClassDeclaration {
+class ClassDeclaration : public Entity {
 public:
 	ClassHead* classHead;
 	Body* body;
@@ -60,7 +66,7 @@ public:
 };
 
 
-class ClassHead {
+class ClassHead : public Entity {
 public:
 	string name;
 	string baseName;
@@ -72,7 +78,7 @@ public:
 };
 
 
-class Body {
+class Body : public Entity {
 public:
 	Statements* statements;
 
@@ -82,7 +88,7 @@ public:
 };
 
 
-class Statements {
+class Statements : public Entity {
 public:
 	Statement* statement;
 	Statements* statements;
@@ -95,13 +101,15 @@ public:
 };
 
 
-class Statement {
+class Statement : public Entity {
 public:
 	Statement* statement;
 
 	Statement();
 
 	Statement(Statement* statement);
+
+	virtual ~Statement() = default;
 
 	static Statement* parse(TreeGround* treeGround);
 };
@@ -175,7 +183,7 @@ public:
 };
 
 
-class MethodHead {
+class MethodHead : public Entity {
 public:
 	string name;
 	ParameterDeclarations* parameterDeclarations;
@@ -186,7 +194,7 @@ public:
 };
 
 
-class ParameterDeclarations {
+class ParameterDeclarations : public Entity {
 public:
 	ParameterDeclaration* parameterDeclaration;
 	ParameterDeclarations* parameterDeclarations;
@@ -201,7 +209,7 @@ public:
 };
 
 
-class ParameterDeclaration {
+class ParameterDeclaration : public Entity {
 public:
 	string name;
 	string baseName;
@@ -223,7 +231,7 @@ public:
 };
 
 
-class ConstructorHead {
+class ConstructorHead : public Entity {
 public:
 	ParameterDeclarations* parameterDeclarations;
 
@@ -233,7 +241,7 @@ public:
 };
 
 
-class Expressions {
+class Expressions : public Entity {
 public:
 	Expression* expression;
 	Expressions* expressions;
@@ -338,7 +346,12 @@ public:
 	void back();
 
 	bool enoughTokensForClassDeclaration();
+
+	void visualize(long int depth, Entity* entity);
 };
+
+
+void printSpace(int times);
 
 
 #endif

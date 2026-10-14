@@ -23,7 +23,7 @@ ClassDeclarations* ClassDeclarations::parse(TreeGround* treeGround) {
 	return new ClassDeclarations(classDeclaration);
 }
 ClassDeclarations::ClassDeclarations(ClassDeclaration* classDeclaration, ClassDeclarations* classDeclarations) : classDeclaration(classDeclaration), classDeclarations(classDeclarations) {}
-ClassDeclarations::ClassDeclarations(ClassDeclaration* classDeclaration) : classDeclaration(classDeclaration) {}
+ClassDeclarations::ClassDeclarations(ClassDeclaration* classDeclaration) : classDeclaration(classDeclaration), classDeclarations(nullptr) {}
 
 
 ClassDeclaration* ClassDeclaration::parse(TreeGround* treeGround) {
@@ -408,9 +408,16 @@ ReturnStatement* ReturnStatement::parse(TreeGround* treeGround) {
 ReturnStatement::ReturnStatement(Expression* expression) : expression(expression) {}
 
 
+void printSpace(int times) {
+	for (int i = 0; i < times; i++)
+		cout << ' ';
+}
+
+
 TreeGround::TreeGround(vector<Token*>& tokens) : tokens(tokens), currentTokenIndex(-1) {}
 void TreeGround::grow() {
 	this->program = Program::parse(this);
+	this->visualize(0, this->program);
 }
 bool TreeGround::outOfTokens() {
 	return this->currentTokenIndex == this->tokens.size();
@@ -427,4 +434,21 @@ Token* TreeGround::nextToken() {
 }
 void TreeGround::back() {
 	this->currentTokenIndex--;
+}
+void TreeGround::visualize(long int depth, Entity* entity) {
+	if (dynamic_cast<Program*>(entity) != nullptr) {
+		cout << "Program\n";
+		return this->visualize(4, dynamic_cast<Program*>(entity)->classDeclarations);
+	}
+	if (dynamic_cast<ClassDeclarations*>(entity) != nullptr) {
+		this->visualize(4, dynamic_cast<ClassDeclarations*>(entity)->classDeclaration);
+		if (dynamic_cast<ClassDeclarations*>(entity)->classDeclarations != nullptr)
+			return this->visualize(4, dynamic_cast<ClassDeclarations*>(entity)->classDeclarations);
+	}
+	if (dynamic_cast<ClassDeclaration*>(entity) != nullptr) {
+		printSpace(depth);
+		cout << "Class_" << dynamic_cast<ClassDeclaration*>(entity)->classHead->name << "\n";
+		this->visualize(depth + 4, dynamic_cast<ClassDeclaration*>(entity)->classHead);
+		return this->visualize(depth + 4, dynamic_cast<ClassDeclaration*>(entity)->body);
+	}
 }
