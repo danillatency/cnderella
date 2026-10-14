@@ -43,6 +43,8 @@ public:
 
 	ClassDeclarations(ClassDeclaration* classDeclaration, ClassDeclarations* classDeclarations);
 
+	ClassDeclarations(ClassDeclaration* classDeclaration);
+
 	static ClassDeclarations* parse(TreeGround* treeGround);
 };
 
@@ -263,6 +265,8 @@ public:
 
 	Expression(string leftPartIdentifier, Expressions* callExpressions, Expression* rightPartExpression);
 
+	Expression(string leftPartIdentifier);
+
 	static Expression* parse(TreeGround* treeGround);
 };
 
@@ -317,10 +321,10 @@ class TreeGround {
 private:
 	Program* program;
 	vector<Token*>& tokens;
-	long int currentTokenIndex;
-	long int savedTokenIndex;
 
 public:
+	long int currentTokenIndex;
+
 	TreeGround(vector<Token*>& tokens);
 
 	void grow();
@@ -333,9 +337,7 @@ public:
 
 	void back();
 
-	void saveCurrentIndex();
-
-	void restoreCurrentIndex();
+	bool enoughTokensForClassDeclaration();
 };
 
 

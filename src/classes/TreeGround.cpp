@@ -16,10 +16,14 @@ Program::Program(ClassDeclarations* classDeclarations) : classDeclarations(class
 
 ClassDeclarations* ClassDeclarations::parse(TreeGround* treeGround) {
 	ClassDeclaration* classDeclaration = ClassDeclaration::parse(treeGround);
-	ClassDeclarations* classDeclarations = ClassDeclarations::parse(treeGround);
-	return new ClassDeclarations(classDeclaration, classDeclarations);
+	if (treeGround->enoughTokensForClassDeclaration()) {
+		ClassDeclarations* classDeclarations = ClassDeclarations::parse(treeGround);
+		return new ClassDeclarations(classDeclaration, classDeclarations);
+	}
+	return new ClassDeclarations(classDeclaration);
 }
 ClassDeclarations::ClassDeclarations(ClassDeclaration* classDeclaration, ClassDeclarations* classDeclarations) : classDeclaration(classDeclaration), classDeclarations(classDeclarations) {}
+ClassDeclarations::ClassDeclarations(ClassDeclaration* classDeclaration) : classDeclaration(classDeclaration) {}
 
 
 ClassDeclaration* ClassDeclaration::parse(TreeGround* treeGround) {
@@ -45,7 +49,7 @@ ClassHead* ClassHead::parse(TreeGround* treeGround) {
 				return new ClassHead(classIdentifier);
 			}
 		}
-
+	throw runtime_error("Failed to parse");
 }
 ClassHead::ClassHead(string name, string baseName) : name(name), baseName(baseName) {}
 ClassHead::ClassHead(string name) : name(name) {}
@@ -64,14 +68,19 @@ Body* Body::parse(TreeGround* treeGround) {
 		Statements* statements = new Statements(statement);
 		return new Body(statements);
 	}
+	throw runtime_error("Failed to parse");
 }
 Body::Body(Statements* statements) : statements(statements) {}
 
 
 Statements* Statements::parse(TreeGround* treeGround) {
 	Statement* statement = Statement::parse(treeGround);
-	Statements* statements = Statements::parse(treeGround);
-	return new Statements(statement, statements);
+	Statements* statements;
+	if (statement->statement != nullptr) {
+		Statements* statements = Statements::parse(treeGround);
+		return new Statements(statement, statements);
+	}
+	return new Statements(statement);
 }
 Statements::Statements(Statement* statement) : statement(statement) {}
 Statements::Statements(Statement* statement, Statements* statements) : statement(statement), statements(statements) {}
@@ -98,13 +107,13 @@ Statement* Statement::parse(TreeGround* treeGround) {
 	}
 	case TokenIdentifier: {
 		treeGround->back();
-		treeGround->saveCurrentIndex();
+		int savedTokenIndex = treeGround->currentTokenIndex;
 		try {
 			Assignment* assignment = Assignment::parse(treeGround);
 			return new Statement(assignment);
 		}
 		catch (const runtime_error& e) {
-			treeGround->restoreCurrentIndex();
+			treeGround->currentTokenIndex = savedTokenIndex;
 			Expression* expression = Expression::parse(treeGround);
 			return new Statement(expression);
 		}
@@ -125,15 +134,14 @@ Statement* Statement::parse(TreeGround* treeGround) {
 		return new Statement(returnStatement);
 	}
 	}
+	return new Statement();
 }
 Statement::Statement(Statement* statement) : statement(statement) {}
-Statement::Statement() {}
+Statement::Statement() : statement(nullptr) {}
 
 
 LocalDeclaration* LocalDeclaration::parse(TreeGround* treeGround) {
-	while (treeGround->nextToken()->code == TokenNewLine)
-		continue;
-	if (treeGround->currentToken()->code == TokenVar)
+	if (treeGround->nextToken()->code == TokenVar)
 		if (treeGround->nextToken()->code == TokenIdentifier) {
 			string identifier = dynamic_cast<Identifier*>(treeGround->currentToken())->value;
 			if (treeGround->nextToken()->code == TokenAssignment) {
@@ -141,6 +149,7 @@ LocalDeclaration* LocalDeclaration::parse(TreeGround* treeGround) {
 				return new LocalDeclaration(identifier, expression);
 			}
 		}
+	throw runtime_error("Failed to parse");
 }
 LocalDeclaration::LocalDeclaration(string name, Expression* expression) : name(name), expression(expression) {}
 
@@ -168,33 +177,38 @@ Literal* Literal::parse(TreeGround* treeGround) {
 		return literalFloat;
 	}
 	}
+	throw runtime_error("Failed to parse");
 }
 
 
 IntegerLiteral* IntegerLiteral::parse(TreeGround* treeGround) {
 	if (treeGround->nextToken()->code == TokenInteger)
-		return new IntegerLiteral(dynamic_cast<IntegerLiteral*>(treeGround->currentToken())->value);
+		return new IntegerLiteral(dynamic_cast<Integer*>(treeGround->currentToken())->value);
+	throw runtime_error("Failed to parse");
 }
 IntegerLiteral::IntegerLiteral(int value) : value(value) {}
 
 
 BooleanLiteral* BooleanLiteral::parse(TreeGround* treeGround) {
 	if (treeGround->nextToken()->code == TokenBoolean)
-		return new BooleanLiteral(dynamic_cast<BooleanLiteral*>(treeGround->currentToken())->value);
+		return new BooleanLiteral(dynamic_cast<Boolean*>(treeGround->currentToken())->value);
+	throw runtime_error("Failed to parse");
 }
 BooleanLiteral::BooleanLiteral(bool value) : value(value) {}
 
 
 CharacterLiteral* CharacterLiteral::parse(TreeGround* treeGround) {
 	if (treeGround->nextToken()->code == TokenCharacter)
-		return new CharacterLiteral(dynamic_cast<CharacterLiteral*>(treeGround->currentToken())->value);
+		return new CharacterLiteral(dynamic_cast<Character*>(treeGround->currentToken())->value);
+	throw runtime_error("Failed to parse");
 }
 CharacterLiteral::CharacterLiteral(char value) : value(value) {}
 
 
 FloatLiteral* FloatLiteral::parse(TreeGround* treeGround) {
 	if (treeGround->nextToken()->code == TokenFloat)
-		return new FloatLiteral(dynamic_cast<FloatLiteral*>(treeGround->currentToken())->value);
+		return new FloatLiteral(dynamic_cast<Float*>(treeGround->currentToken())->value);
+	throw runtime_error("Failed to parse");
 }
 FloatLiteral::FloatLiteral(double value) : value(value) {}
 
@@ -217,6 +231,7 @@ MethodHead* MethodHead::parse(TreeGround* treeGround) {
 					return new MethodHead(methodIdentifier, parameterDeclarations);
 			}
 		}
+	throw runtime_error("Failed to parse");
 }
 MethodHead::MethodHead(string name, ParameterDeclarations* parameterDeclarations) : name(name), parameterDeclarations(parameterDeclarations) {}
 
@@ -226,6 +241,7 @@ ParameterDeclarations* ParameterDeclarations::parse(TreeGround* treeGround) {
 		treeGround->back();
 		return new ParameterDeclarations();
 	}
+	treeGround->back();
 	ParameterDeclaration* parameterDeclaration = ParameterDeclaration::parse(treeGround);
 	if (treeGround->nextToken()->code == TokenComma) {
 		ParameterDeclarations* parameterDeclarations = ParameterDeclarations::parse(treeGround);
@@ -246,6 +262,7 @@ ParameterDeclaration* ParameterDeclaration::parse(TreeGround* treeGround) {
 			if (treeGround->nextToken()->code == TokenIdentifier)
 				return new ParameterDeclaration(parameterIdentifier, dynamic_cast<Identifier*>(treeGround->currentToken())->value);
 	}
+	throw runtime_error("Failed to parse");
 }
 ParameterDeclaration::ParameterDeclaration(string name, string baseName) : name(name), baseName(baseName) {}
 
@@ -265,6 +282,7 @@ ConstructorHead* ConstructorHead::parse(TreeGround* treeGround) {
 			if (treeGround->nextToken()->code == TokenClosingParenthesis)
 				return new ConstructorHead(parameterDeclarations);
 		}
+	throw runtime_error("Failed to parse");
 }
 ConstructorHead::ConstructorHead(ParameterDeclarations* parameterDeclarations) : parameterDeclarations(parameterDeclarations) {}
 
@@ -274,12 +292,15 @@ Expressions* Expressions::parse(TreeGround* treeGround) {
 		treeGround->back();
 		return new Expressions();
 	}
+	treeGround->back();
 	Expression* expression = Expression::parse(treeGround);
 	if (treeGround->nextToken()->code == TokenComma) {
 		Expressions* expressions = Expressions::parse(treeGround);
 		return new Expressions(expression, expressions);
 	}
 	treeGround->back();
+	if (treeGround->currentToken()->code == TokenClosingParenthesis)
+		treeGround->back();
 	return new Expressions(expression);
 }
 Expressions::Expressions(Expression* expression, Expressions* expressions) : expression(expression), expressions(expressions) {}
@@ -289,7 +310,7 @@ Expressions::Expressions() {}
 
 
 Expression* Expression::parse(TreeGround* treeGround) {
-	treeGround->saveCurrentIndex();
+	int savedTokenIndex = treeGround->currentTokenIndex;
 	try {
 		Literal* literal = Literal::parse(treeGround);
 		if (treeGround->nextToken()->code == TokenComma) {
@@ -299,7 +320,7 @@ Expression* Expression::parse(TreeGround* treeGround) {
 		return new Expression(literal);
 	}
 	catch (const runtime_error& e) {
-		treeGround->restoreCurrentIndex();
+		treeGround->currentTokenIndex = savedTokenIndex;
 	}
 	if (treeGround->nextToken()->code == TokenIdentifier) {
 		string identifier = dynamic_cast<Identifier*>(treeGround->currentToken())->value;
@@ -319,12 +340,13 @@ Expression* Expression::parse(TreeGround* treeGround) {
 					return new Expression(identifier, expressions);
 				}
 		}
-
+		return new Expression(identifier);
 	}
-
+	throw runtime_error("Failed to parse");
 }
 Expression::Expression(Literal* leftPartLiteral, Expression* rightPartExpression) : leftPartLiteral(leftPartLiteral), rightPartExpression(rightPartExpression) {}
 Expression::Expression(Literal* leftPartLiteral) : leftPartLiteral(leftPartLiteral) {}
+Expression::Expression(string leftPartIdentifier) : leftPartIdentifier(leftPartIdentifier) {}
 Expression::Expression(string leftPartIdentifier, Expression* rightPartExpression) : leftPartIdentifier(leftPartIdentifier), rightPartExpression(rightPartExpression) {}
 Expression::Expression(string leftPartIdentifier, Expressions* callExpressions) : leftPartIdentifier(leftPartIdentifier), callExpressions(callExpressions) {}
 Expression::Expression(string leftPartIdentifier, Expressions* callExpressions, Expression* rightPartExpression) : leftPartIdentifier(leftPartIdentifier), callExpressions(callExpressions), rightPartExpression(rightPartExpression) {}
@@ -337,6 +359,7 @@ Assignment* Assignment::parse(TreeGround* treeGround) {
 		Expression* expression2 = Expression::parse(treeGround);
 		return new Assignment(expression1, expression2);
 	}
+	throw runtime_error("Failed to parse");
 }
 Assignment::Assignment(Expression* expression1, Expression* expression2) : expression1(expression1), expression2(expression2) {}
 
@@ -355,6 +378,7 @@ IfStatement* IfStatement::parse(TreeGround* treeGround) {
 			}
 		}
 	}
+	throw runtime_error("Failed to parse");
 }
 IfStatement::IfStatement(Expression* condition, Statements* trueStatements) : condition(condition), trueStatemenets(trueStatemenets) {}
 IfStatement::IfStatement(Expression* condition, Statements* trueStatements, Statements* falseStatements) : condition(condition), trueStatemenets(trueStatemenets), falseStatements(falseStatements) {}
@@ -369,6 +393,7 @@ WhileStatement* WhileStatement::parse(TreeGround* treeGround) {
 				return new WhileStatement(expression, statement);
 		}
 	}
+	throw runtime_error("Failed to parse");
 }
 WhileStatement::WhileStatement(Expression* condition, Statements* statements) : condition(condition), statements(statements) {}
 
@@ -378,6 +403,7 @@ ReturnStatement* ReturnStatement::parse(TreeGround* treeGround) {
 		Expression* expression = Expression::parse(treeGround);
 		return new ReturnStatement(expression);
 	}
+	throw runtime_error("Failed to parse");
 }
 ReturnStatement::ReturnStatement(Expression* expression) : expression(expression) {}
 
@@ -389,6 +415,9 @@ void TreeGround::grow() {
 bool TreeGround::outOfTokens() {
 	return this->currentTokenIndex == this->tokens.size();
 }
+bool TreeGround::enoughTokensForClassDeclaration() {
+	return this->tokens.size() - this->currentTokenIndex - 1 > 4;
+}
 Token* TreeGround::currentToken() {
 	return this->tokens[this->currentTokenIndex];
 }
@@ -398,10 +427,4 @@ Token* TreeGround::nextToken() {
 }
 void TreeGround::back() {
 	this->currentTokenIndex--;
-}
-void TreeGround::saveCurrentIndex() {
-	this->savedTokenIndex = this->currentTokenIndex;
-}
-void TreeGround::restoreCurrentIndex() {
-	this->currentTokenIndex = this->savedTokenIndex;
 }
