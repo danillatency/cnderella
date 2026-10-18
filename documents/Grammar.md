@@ -22,6 +22,10 @@
 
 > Alternatives are either included to their non-terminal classes with nullptr's or represented by additional non-terminals, so the basic non-terminal contains a pointer to an instance of self
 
+**Identifier**  
+&nbsp;&nbsp;&nbsp;&nbsp;: *TokenIdentifier*  
+&nbsp;&nbsp;&nbsp;&nbsp;;
+
 **Body**  
 &nbsp;&nbsp;&nbsp;&nbsp;: *TokenIs* **Statements** *TokenEnd*  
 &nbsp;&nbsp;&nbsp;&nbsp;| *TokenArrow* **Statement**  
@@ -33,18 +37,14 @@
 &nbsp;&nbsp;&nbsp;&nbsp;;
 
 **Statement**  
-&nbsp;&nbsp;&nbsp;&nbsp;: **LocalDeclaration**  
-&nbsp;&nbsp;&nbsp;&nbsp;| **MethodDeclaration**  
+&nbsp;&nbsp;&nbsp;&nbsp;: **MethodDeclaration**  
 &nbsp;&nbsp;&nbsp;&nbsp;| **ConstructorDeclaration**  
+&nbsp;&nbsp;&nbsp;&nbsp;| **LocalDeclaration**  
 &nbsp;&nbsp;&nbsp;&nbsp;| **Assignment**  
 &nbsp;&nbsp;&nbsp;&nbsp;| **IfStatement**  
 &nbsp;&nbsp;&nbsp;&nbsp;| **WhileStatement**  
 &nbsp;&nbsp;&nbsp;&nbsp;| **ReturnStatement**  
 &nbsp;&nbsp;&nbsp;&nbsp;| **Expression**  
-&nbsp;&nbsp;&nbsp;&nbsp;;
-
-**LocalDeclaration**  
-&nbsp;&nbsp;&nbsp;&nbsp;: *TokenVar* **Identifier** *TokenAssignment* **Expression**  
 &nbsp;&nbsp;&nbsp;&nbsp;;
 
 **MethodDeclaration**  
@@ -73,6 +73,10 @@
 &nbsp;&nbsp;&nbsp;&nbsp;: *TokenThis TokenOpeningParenthesis* **ParameterDeclarations** *TokenClosingParenthesis*  
 &nbsp;&nbsp;&nbsp;&nbsp;;
 
+**LocalDeclaration**  
+&nbsp;&nbsp;&nbsp;&nbsp;: *TokenVar* **Identifier** *TokenAssignment* **Expression**  
+&nbsp;&nbsp;&nbsp;&nbsp;;
+
 **Expressions**  
 &nbsp;&nbsp;&nbsp;&nbsp;:  
 &nbsp;&nbsp;&nbsp;&nbsp;| **Expression**  
@@ -86,15 +90,11 @@
 &nbsp;&nbsp;&nbsp;&nbsp;| **Call**  
 &nbsp;&nbsp;&nbsp;&nbsp;;
 
-**Identifier**  
-&nbsp;&nbsp;&nbsp;&nbsp;: *TokenIdentifier*  
-&nbsp;&nbsp;&nbsp;&nbsp;;
-
 **Literal**  
 &nbsp;&nbsp;&nbsp;&nbsp;: **LiteralInteger**  
 &nbsp;&nbsp;&nbsp;&nbsp;| **LiteralBoolean**  
-&nbsp;&nbsp;&nbsp;&nbsp;| **LiteralCharacter**  
 &nbsp;&nbsp;&nbsp;&nbsp;| **LiteralFloat**  
+&nbsp;&nbsp;&nbsp;&nbsp;| **LiteralCharacter**  
 &nbsp;&nbsp;&nbsp;&nbsp;;
 
 **LiteralInteger**  
@@ -105,12 +105,12 @@
 &nbsp;&nbsp;&nbsp;&nbsp;: *TokenBoolean*  
 &nbsp;&nbsp;&nbsp;&nbsp;;
 
-**LiteralCharacter**  
-&nbsp;&nbsp;&nbsp;&nbsp;: *TokenCharacter*  
-&nbsp;&nbsp;&nbsp;&nbsp;;
-
 **LiteralFloat**  
 &nbsp;&nbsp;&nbsp;&nbsp;: *TokenFloat*  
+&nbsp;&nbsp;&nbsp;&nbsp;;
+
+**LiteralCharacter**  
+&nbsp;&nbsp;&nbsp;&nbsp;: *TokenCharacter*  
 &nbsp;&nbsp;&nbsp;&nbsp;;
 
 **Access**  

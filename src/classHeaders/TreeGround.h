@@ -10,20 +10,36 @@
 using namespace std;
 
 
+class Program;
 class ClassDeclarations;
 class ClassDeclaration;
-class TreeGround;
-class ClassHead;
+class Identifier;
 class Body;
 class Statements;
 class Statement;
-class Expressions;
-class Expression;
-class LocalDeclaration;
+class MethodDeclaration;
 class MethodHead;
-class ConstructorHead;
 class ParameterDeclarations;
 class ParameterDeclaration;
+class ConstructorDeclaration;
+class ConstructorHead;
+class LocalDeclaration;
+class Expressions;
+class Expression;
+class Literal;
+class LiteralInteger;
+class LiteralBoolean;
+class LiteralFloat;
+class LiteralCharacter;
+class Access;
+class IdentifierAccess;
+class CallResultAccess;
+class Call;
+class Assignment;
+class IfStatement;
+class WhileStatement;
+class ReturnStatement;
+class TreeGround;
 
 
 class Entity {
@@ -57,10 +73,10 @@ public:
 
 class ClassDeclaration : public Entity {
 public:
-	ClassHead* classHead;
+	ClassHead* head;
 	Body* body;
 
-	ClassDeclaration(ClassHead* classHead, Body* body);
+	ClassDeclaration(ClassHead* head, Body* body);
 
 	static ClassDeclaration* parse(TreeGround* treeGround);
 };
@@ -68,13 +84,23 @@ public:
 
 class ClassHead : public Entity {
 public:
-	string name;
-	string baseName;
+	Identifier* name;
+	Identifier* baseName;
 
-	ClassHead(string name, string baseName);
-	ClassHead(string name);
+	ClassHead(Identifier* name, Identifier* baseName);
+	ClassHead(Identifier* name);
 
 	static ClassHead* parse(TreeGround* treeGround);
+};
+
+
+class Identifier : public Expression {
+public:
+	string identifier;
+
+	Identifier(string identifier);
+
+	static Identifier* parse(TreeGround* treeGround);
 };
 
 
@@ -113,17 +139,6 @@ public:
 };
 
 
-class LocalDeclaration : public Statement {
-public:
-	string name;
-	Expression* expression;
-
-	LocalDeclaration(string name, Expression* expression);
-
-	static LocalDeclaration* parse(TreeGround* treeGround);
-};
-
-
 class MethodDeclaration : public Statement {
 public:
 	MethodHead* methodHead;
@@ -137,10 +152,10 @@ public:
 
 class MethodHead : public Entity {
 public:
-	string name;
+	Identifier* name;
 	ParameterDeclarations* parameterDeclarations;
 
-	MethodHead(string name, ParameterDeclarations* parameterDeclarations);
+	MethodHead(Identifier* name, ParameterDeclarations* parameterDeclarations);
 
 	static MethodHead* parse(TreeGround* treeGround);
 };
@@ -163,10 +178,10 @@ public:
 
 class ParameterDeclaration : public Entity {
 public:
-	string name;
-	string baseName;
+	Identifier* name;
+	Identifier* identifier;
 
-	ParameterDeclaration(string name, string baseName);
+	ParameterDeclaration(Identifier* name, Identifier* identifier);
 
 	static ParameterDeclaration* parse(TreeGround* treeGround);
 };
@@ -193,6 +208,17 @@ public:
 };
 
 
+class LocalDeclaration : public Statement {
+public:
+	Identifier* name;
+	Expression* expression;
+
+	LocalDeclaration(Identifier* name, Expression* expression);
+
+	static LocalDeclaration* parse(TreeGround* treeGround);
+};
+
+
 class Expressions : public Entity {
 public:
 	Expression* expression;
@@ -215,16 +241,6 @@ public:
 	Expression(Expression* expression);
 
 	static Expression* parse(TreeGround* treeGround);
-};
-
-
-class Identifier : public Expression {
-public:
-	string identifier;
-
-	Identifier(string identifier);
-
-	static Identifier* parse(TreeGround* treeGround);
 };
 
 
