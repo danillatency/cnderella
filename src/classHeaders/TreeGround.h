@@ -109,8 +109,6 @@ public:
 
 	Statement(Statement* statement);
 
-	virtual ~Statement() = default;
-
 	static Statement* parse(TreeGround* treeGround);
 };
 
@@ -123,52 +121,6 @@ public:
 	LocalDeclaration(string name, Expression* expression);
 
 	static LocalDeclaration* parse(TreeGround* treeGround);
-};
-
-
-class Literal : public Statement {
-public:
-	static Literal* parse(TreeGround* treeGround);
-};
-
-
-class IntegerLiteral : public Literal {
-public:
-	int value;
-
-	IntegerLiteral(int value);
-
-	static IntegerLiteral* parse(TreeGround* treeGround);
-};
-
-
-class BooleanLiteral : public Literal {
-public:
-	bool value;
-
-	BooleanLiteral(bool value);
-
-	static BooleanLiteral* parse(TreeGround* treeGround);
-};
-
-
-class FloatLiteral : public Literal {
-public:
-	double value;
-
-	FloatLiteral(double value);
-
-	static FloatLiteral* parse(TreeGround* treeGround);
-};
-
-
-class CharacterLiteral : public Literal {
-public:
-	char value;
-
-	CharacterLiteral(char value);
-
-	static CharacterLiteral* parse(TreeGround* treeGround);
 };
 
 
@@ -258,24 +210,114 @@ public:
 
 class Expression : public Statement {
 public:
-	Literal* leftPartLiteral;
-	string leftPartIdentifier;
-	Expressions* callExpressions;
-	Expression* rightPartExpression;
+	Expression* expression;
 
-	Expression(Literal* leftPartLiteral, Expression* rightPartExpression);
-
-	Expression(Literal* leftPartLiteral);
-
-	Expression(string leftPartIdentifier, Expression* rightPartExpression);
-
-	Expression(string leftPartIdentifier, Expressions* callExpressions);
-
-	Expression(string leftPartIdentifier, Expressions* callExpressions, Expression* rightPartExpression);
-
-	Expression(string leftPartIdentifier);
+	Expression(Expression* expression);
 
 	static Expression* parse(TreeGround* treeGround);
+};
+
+
+class Identifier : public Expression {
+public:
+	string identifier;
+
+	Identifier(string identifier);
+
+	static Identifier* parse(TreeGround* treeGround);
+};
+
+
+class Literal : public Expression {
+public:
+	Literal* literal;
+
+	Literal(Literal* literal);
+
+	static Literal* parse(TreeGround* treeGround);
+};
+
+
+class LiteralInteger : public Literal {
+public:
+	int value;
+
+	LiteralInteger(int value);
+
+	static LiteralInteger* parse(TreeGround* treeGround);
+};
+
+
+class LiteralBoolean : public Literal {
+public:
+	bool value;
+
+	LiteralBoolean(bool value);
+
+	static LiteralBoolean* parse(TreeGround* treeGround);
+};
+
+
+class LiteralFloat : public Literal {
+public:
+	double value;
+
+	LiteralFloat(double value);
+
+	static LiteralFloat* parse(TreeGround* treeGround);
+};
+
+
+class LiteralCharacter : public Literal {
+public:
+	char value;
+
+	LiteralCharacter(char value);
+
+	static LiteralCharacter* parse(TreeGround* treeGround);
+};
+
+
+class Access : public Expression {
+public:
+	Access* access;
+
+	Access(Access* access);
+
+	static Access* parse(TreeGround* treeGround);
+};
+
+
+class IdentifierAccess : public Access {
+public:
+	Identifier* identifier;
+	Expression* expression;
+
+	IdentifierAccess(Identifier* identifier, Expression* expression);
+
+	static IdentifierAccess* parse(TreeGround* treeGround);
+};
+
+
+class CallResultAccess : public Access {
+public:
+	Call* call;
+	Expression* expression;
+
+	CallResultAccess(Call* call, Expression* expression);
+
+	static CallResultAccess* parse(TreeGround* treeGround);
+};
+
+
+class Call : public Expression {
+public:
+	Expression* expression;
+	Expressions* expressions;
+
+	Call(Expression* expression, Expressions* expressions);
+
+	static Call* parse(TreeGround* treeGround);
 };
 
 
