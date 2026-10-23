@@ -53,6 +53,7 @@
 
 **MethodHead**  
 &nbsp;&nbsp;&nbsp;&nbsp;: *TokenMethod* **Id** *TokenOpeningParenthesis* **ParameterDeclarations** *TokenClosingParenthesis*  
+&nbsp;&nbsp;&nbsp;&nbsp;| *TokenMethod* **Id** *TokenOpeningParenthesis* **ParameterDeclarations** *TokenClosingParenthesis TokenColon* **Identifier**  
 &nbsp;&nbsp;&nbsp;&nbsp;;
 
 **ParameterDeclarations**  

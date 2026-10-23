@@ -160,8 +160,11 @@ class MethodHead : public Entity {
 public:
 	Id* name;
 	ParameterDeclarations* parameterDeclarations;
+	Id* returnType;
 
 	MethodHead(Id* name, ParameterDeclarations* parameterDeclarations);
+
+	MethodHead(Id* name, ParameterDeclarations* parameterDeclarations, Id* returnType);
 
 	void selfPrint(unsigned int depth) override;
 

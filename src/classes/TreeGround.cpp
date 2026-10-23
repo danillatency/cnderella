@@ -232,6 +232,11 @@ MethodHead* MethodHead::parse(TreeGround* treeGround) {
 		treeGround->currentTokenIndex = checkpoint;
 		throw runtime_error("closing parenthesis expected");
 	}
+	if (treeGround->nextToken()->code == TokenColon) {
+		Id* returnType = Id::parse(treeGround);
+		return new MethodHead(methodIdentifier, parameterDeclarations, returnType);
+	}
+	treeGround->back();
 	return new MethodHead(methodIdentifier, parameterDeclarations);
 }
 void MethodHead::selfPrint(unsigned int depth) {
@@ -239,7 +244,8 @@ void MethodHead::selfPrint(unsigned int depth) {
 	cout << "\n[parameters]\n";
 	this->parameterDeclarations->selfPrint(depth + printPadding);
 }
-MethodHead::MethodHead(Id* name, ParameterDeclarations* parameterDeclarations) : name(name), parameterDeclarations(parameterDeclarations) {}
+MethodHead::MethodHead(Id* name, ParameterDeclarations* parameterDeclarations) : name(name), parameterDeclarations(parameterDeclarations), returnType(nullptr) {}
+MethodHead::MethodHead(Id* name, ParameterDeclarations* parameterDeclarations, Id* returnType) : name(name), parameterDeclarations(parameterDeclarations), returnType(returnType) {}
 
 
 ParameterDeclarations* ParameterDeclarations::parse(TreeGround* treeGround) {
