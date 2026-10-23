@@ -80,30 +80,8 @@
 
 **Expression**  
 &nbsp;&nbsp;&nbsp;&nbsp;: **IdBeginningExpression**  
+&nbsp;&nbsp;&nbsp;&nbsp;| **ThisBeginningExpression**  
 &nbsp;&nbsp;&nbsp;&nbsp;| **LiteralBeginningExpression**  
-&nbsp;&nbsp;&nbsp;&nbsp;;
-
-**Literal**  
-&nbsp;&nbsp;&nbsp;&nbsp;: **LiteralInteger**  
-&nbsp;&nbsp;&nbsp;&nbsp;| **LiteralBoolean**  
-&nbsp;&nbsp;&nbsp;&nbsp;| **LiteralFloat**  
-&nbsp;&nbsp;&nbsp;&nbsp;| **LiteralCharacter**  
-&nbsp;&nbsp;&nbsp;&nbsp;;
-
-**LiteralInteger**  
-&nbsp;&nbsp;&nbsp;&nbsp;: *TokenInteger*  
-&nbsp;&nbsp;&nbsp;&nbsp;;
-
-**LiteralBoolean**  
-&nbsp;&nbsp;&nbsp;&nbsp;: *TokenBoolean*  
-&nbsp;&nbsp;&nbsp;&nbsp;;
-
-**LiteralFloat**  
-&nbsp;&nbsp;&nbsp;&nbsp;: *TokenFloat*  
-&nbsp;&nbsp;&nbsp;&nbsp;;
-
-**LiteralCharacter**  
-&nbsp;&nbsp;&nbsp;&nbsp;: *TokenCharacter*  
 &nbsp;&nbsp;&nbsp;&nbsp;;
 
 **IdBeginningExpression**  
@@ -132,9 +110,37 @@
 &nbsp;&nbsp;&nbsp;&nbsp;| **Expression** *TokenComma* **Expressions**  
 &nbsp;&nbsp;&nbsp;&nbsp;;
 
+**ThisBeginningExpression**  
+&nbsp;&nbsp;&nbsp;&nbsp;: *TokenThis*  
+&nbsp;&nbsp;&nbsp;&nbsp;| *TokenThis* **AccessesAndCalls**  
+&nbsp;&nbsp;&nbsp;&nbsp;;
+
 **LiteralBeginningExpression**  
 &nbsp;&nbsp;&nbsp;&nbsp;: **Literal**  
 &nbsp;&nbsp;&nbsp;&nbsp;| **Literal** **AccessesAndCalls**  
+&nbsp;&nbsp;&nbsp;&nbsp;;
+
+**Literal**  
+&nbsp;&nbsp;&nbsp;&nbsp;: **LiteralInteger**  
+&nbsp;&nbsp;&nbsp;&nbsp;| **LiteralBoolean**  
+&nbsp;&nbsp;&nbsp;&nbsp;| **LiteralFloat**  
+&nbsp;&nbsp;&nbsp;&nbsp;| **LiteralCharacter**  
+&nbsp;&nbsp;&nbsp;&nbsp;;
+
+**LiteralInteger**  
+&nbsp;&nbsp;&nbsp;&nbsp;: *TokenInteger*  
+&nbsp;&nbsp;&nbsp;&nbsp;;
+
+**LiteralBoolean**  
+&nbsp;&nbsp;&nbsp;&nbsp;: *TokenBoolean*  
+&nbsp;&nbsp;&nbsp;&nbsp;;
+
+**LiteralFloat**  
+&nbsp;&nbsp;&nbsp;&nbsp;: *TokenFloat*  
+&nbsp;&nbsp;&nbsp;&nbsp;;
+
+**LiteralCharacter**  
+&nbsp;&nbsp;&nbsp;&nbsp;: *TokenCharacter*  
 &nbsp;&nbsp;&nbsp;&nbsp;;
 
 **Assignment**  

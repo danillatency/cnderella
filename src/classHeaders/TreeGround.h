@@ -108,6 +108,18 @@ public:
 };
 
 
+class Id : public Entity {
+public:
+	string identifier;
+
+	Id(string identifier);
+
+	void selfPrint(unsigned int depth) override;
+
+	static Id* parse(TreeGround* treeGround);
+};
+
+
 class Body : public Entity {
 public:
 	Statements* statements;
@@ -248,74 +260,6 @@ public:
 };
 
 
-class Id : public Expression {
-public:
-	string identifier;
-
-	Id(string identifier);
-
-	void selfPrint(unsigned int depth) override;
-
-	static Id* parse(TreeGround* treeGround);
-};
-
-
-class Literal : public Expression {
-public:
-	virtual void selfPrint(unsigned int depth) = 0;
-
-	static Literal* parse(TreeGround* treeGround);
-};
-
-
-class LiteralInteger : public Literal {
-public:
-	int value;
-
-	LiteralInteger(int value);
-
-	void selfPrint(unsigned int depth) override;
-
-	static LiteralInteger* parse(TreeGround* treeGround);
-};
-
-
-class LiteralBoolean : public Literal {
-public:
-	bool value;
-
-	LiteralBoolean(bool value);
-
-	void selfPrint(unsigned int depth) override;
-
-	static LiteralBoolean* parse(TreeGround* treeGround);
-};
-
-
-class LiteralFloat : public Literal {
-public:
-	double value;
-
-	LiteralFloat(double value);
-
-	void selfPrint(unsigned int depth) override;
-
-	static LiteralFloat* parse(TreeGround* treeGround);
-};
-
-
-class LiteralCharacter : public Literal {
-public:
-	char value;
-
-	LiteralCharacter(char value);
-
-	void selfPrint(unsigned int depth) override;
-
-	static LiteralCharacter* parse(TreeGround* treeGround);
-};
-
-
 class IdBeginningExpression : public Expression {
 public:
 	Id* identifier;
@@ -386,6 +330,20 @@ public:
 };
 
 
+class ThisBeginningExpression : public Expression {
+public:
+	AccessesAndCalls* accessesAndCalls;
+
+	ThisBeginningExpression();
+
+	ThisBeginningExpression(AccessesAndCalls* accessesAndCalls);
+
+	void selfPrint(unsigned int depth) override;
+
+	static ThisBeginningExpression* parse(TreeGround* treeGround);
+};
+
+
 class LiteralBeginningExpression : public Expression {
 public:
 	Literal* literal;
@@ -398,6 +356,62 @@ public:
 	void selfPrint(unsigned int depth) override;
 
 	static LiteralBeginningExpression* parse(TreeGround* treeGround);
+};
+
+
+class Literal : public Expression {
+public:
+	virtual void selfPrint(unsigned int depth) = 0;
+
+	static Literal* parse(TreeGround* treeGround);
+};
+
+
+class LiteralInteger : public Literal {
+public:
+	int value;
+
+	LiteralInteger(int value);
+
+	void selfPrint(unsigned int depth) override;
+
+	static LiteralInteger* parse(TreeGround* treeGround);
+};
+
+
+class LiteralBoolean : public Literal {
+public:
+	bool value;
+
+	LiteralBoolean(bool value);
+
+	void selfPrint(unsigned int depth) override;
+
+	static LiteralBoolean* parse(TreeGround* treeGround);
+};
+
+
+class LiteralFloat : public Literal {
+public:
+	double value;
+
+	LiteralFloat(double value);
+
+	void selfPrint(unsigned int depth) override;
+
+	static LiteralFloat* parse(TreeGround* treeGround);
+};
+
+
+class LiteralCharacter : public Literal {
+public:
+	char value;
+
+	LiteralCharacter(char value);
+
+	void selfPrint(unsigned int depth) override;
+
+	static LiteralCharacter* parse(TreeGround* treeGround);
 };
 
 

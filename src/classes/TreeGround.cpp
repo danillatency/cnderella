@@ -367,89 +367,21 @@ LocalDeclaration::LocalDeclaration(Id* name, Expression* expression) : name(name
 
 
 Expression* Expression::parse(TreeGround* treeGround) {
-	if (treeGround->nextToken()->code == TokenIdentifier) {
+	switch (treeGround->nextToken()->code) {
+	case TokenIdentifier: {
 		treeGround->back();
 		return IdBeginningExpression::parse(treeGround);
 	}
-	treeGround->back();
-	return LiteralBeginningExpression::parse(treeGround);
-}
-
-
-Literal* Literal::parse(TreeGround* treeGround) {
-	switch (treeGround->nextToken()->code) {
-	case TokenInteger: {
+	case TokenThis: {
 		treeGround->back();
-		return LiteralInteger::parse(treeGround);
+		return ThisBeginningExpression::parse(treeGround);
 	}
-	case TokenBoolean: {
+	default: {
 		treeGround->back();
-		return LiteralBoolean::parse(treeGround);
-	}
-	case TokenCharacter: {
-		treeGround->back();
-		return LiteralCharacter::parse(treeGround);
-	}
-	case TokenFloat: {
-		treeGround->back();
-		return LiteralFloat::parse(treeGround);
+		return LiteralBeginningExpression::parse(treeGround);
 	}
 	}
-	treeGround->back();
-	throw runtime_error("Failed to parse");
 }
-
-
-LiteralInteger* LiteralInteger::parse(TreeGround* treeGround) {
-	if (treeGround->nextToken()->code == TokenInteger)
-		return new LiteralInteger(dynamic_cast<Integer*>(treeGround->currentToken())->value);
-	treeGround->back();
-	throw runtime_error("Failed to parse");
-}
-void LiteralInteger::selfPrint(unsigned int depth) {
-	printSpace(depth);
-	cout << this->value;
-}
-LiteralInteger::LiteralInteger(int value) : value(value) {}
-
-
-LiteralBoolean* LiteralBoolean::parse(TreeGround* treeGround) {
-	if (treeGround->nextToken()->code == TokenBoolean)
-		return new LiteralBoolean(dynamic_cast<Boolean*>(treeGround->currentToken())->value);
-	treeGround->back();
-	throw runtime_error("Failed to parse");
-}
-void LiteralBoolean::selfPrint(unsigned int depth) {
-	printSpace(depth);
-	cout << this->value;
-}
-LiteralBoolean::LiteralBoolean(bool value) : value(value) {}
-
-
-LiteralFloat* LiteralFloat::parse(TreeGround* treeGround) {
-	if (treeGround->nextToken()->code == TokenFloat)
-		return new LiteralFloat(dynamic_cast<Float*>(treeGround->currentToken())->value);
-	treeGround->back();
-	throw runtime_error("Failed to parse");
-}
-void LiteralFloat::selfPrint(unsigned int depth) {
-	printSpace(depth);
-	cout << this->value;
-}
-LiteralFloat::LiteralFloat(double value) : value(value) {}
-
-
-LiteralCharacter* LiteralCharacter::parse(TreeGround* treeGround) {
-	if (treeGround->nextToken()->code == TokenCharacter)
-		return new LiteralCharacter(dynamic_cast<Character*>(treeGround->currentToken())->value);
-	treeGround->back();
-	throw runtime_error("Failed to parse");
-}
-void LiteralCharacter::selfPrint(unsigned int depth) {
-	printSpace(depth);
-	cout << this->value;
-}
-LiteralCharacter::LiteralCharacter(char value) : value(value) {}
 
 
 IdBeginningExpression* IdBeginningExpression::parse(TreeGround* treeGround) {
@@ -583,6 +515,32 @@ Expressions::Expressions(Expression* expression) : expression(expression), expre
 Expressions::Expressions(Expression* expression, Expressions* expressions) : expression(expression), expressions(expressions) {}
 
 
+ThisBeginningExpression* ThisBeginningExpression::parse(TreeGround* treeGround) {
+	if (treeGround->nextToken()->code != TokenThis) {
+		treeGround->back();
+		throw runtime_error("this expected");
+	}
+	int checkpoint = treeGround->currentTokenIndex;
+	AccessesAndCalls* accessesAndCalls;
+	try {
+		accessesAndCalls = AccessesAndCalls::parse(treeGround);
+	}
+	catch (const runtime_error& e) {
+		treeGround->currentTokenIndex = checkpoint;
+		return new ThisBeginningExpression();
+	}
+	return new ThisBeginningExpression(accessesAndCalls);
+}
+void ThisBeginningExpression::selfPrint(unsigned int depth) {
+	printSpace(depth);
+	cout << "[this-expression]\n";
+	if (this->accessesAndCalls)
+		this->accessesAndCalls->selfPrint(depth + printPadding);
+}
+ThisBeginningExpression::ThisBeginningExpression() : accessesAndCalls(nullptr) {}
+ThisBeginningExpression::ThisBeginningExpression(AccessesAndCalls* accessesAndCalls) : accessesAndCalls(accessesAndCalls) {}
+
+
 LiteralBeginningExpression* LiteralBeginningExpression::parse(TreeGround* treeGround) {
 	Literal* literal = Literal::parse(treeGround);
 	int checkpoint = treeGround->currentTokenIndex;
@@ -608,6 +566,82 @@ LiteralBeginningExpression::LiteralBeginningExpression(Literal* literal) : liter
 LiteralBeginningExpression::LiteralBeginningExpression(Literal* literal, AccessesAndCalls* accessesAndCalls) : literal(literal), accessesAndCalls(accessesAndCalls) {}
 
 
+Literal* Literal::parse(TreeGround* treeGround) {
+	switch (treeGround->nextToken()->code) {
+	case TokenInteger: {
+		treeGround->back();
+		return LiteralInteger::parse(treeGround);
+	}
+	case TokenBoolean: {
+		treeGround->back();
+		return LiteralBoolean::parse(treeGround);
+	}
+	case TokenCharacter: {
+		treeGround->back();
+		return LiteralCharacter::parse(treeGround);
+	}
+	case TokenFloat: {
+		treeGround->back();
+		return LiteralFloat::parse(treeGround);
+	}
+	}
+	treeGround->back();
+	throw runtime_error("Failed to parse");
+}
+
+
+LiteralInteger* LiteralInteger::parse(TreeGround* treeGround) {
+	if (treeGround->nextToken()->code == TokenInteger)
+		return new LiteralInteger(dynamic_cast<Integer*>(treeGround->currentToken())->value);
+	treeGround->back();
+	throw runtime_error("Failed to parse");
+}
+void LiteralInteger::selfPrint(unsigned int depth) {
+	printSpace(depth);
+	cout << this->value;
+}
+LiteralInteger::LiteralInteger(int value) : value(value) {}
+
+
+LiteralBoolean* LiteralBoolean::parse(TreeGround* treeGround) {
+	if (treeGround->nextToken()->code == TokenBoolean)
+		return new LiteralBoolean(dynamic_cast<Boolean*>(treeGround->currentToken())->value);
+	treeGround->back();
+	throw runtime_error("Failed to parse");
+}
+void LiteralBoolean::selfPrint(unsigned int depth) {
+	printSpace(depth);
+	cout << this->value;
+}
+LiteralBoolean::LiteralBoolean(bool value) : value(value) {}
+
+
+LiteralFloat* LiteralFloat::parse(TreeGround* treeGround) {
+	if (treeGround->nextToken()->code == TokenFloat)
+		return new LiteralFloat(dynamic_cast<Float*>(treeGround->currentToken())->value);
+	treeGround->back();
+	throw runtime_error("Failed to parse");
+}
+void LiteralFloat::selfPrint(unsigned int depth) {
+	printSpace(depth);
+	cout << this->value;
+}
+LiteralFloat::LiteralFloat(double value) : value(value) {}
+
+
+LiteralCharacter* LiteralCharacter::parse(TreeGround* treeGround) {
+	if (treeGround->nextToken()->code == TokenCharacter)
+		return new LiteralCharacter(dynamic_cast<Character*>(treeGround->currentToken())->value);
+	treeGround->back();
+	throw runtime_error("Failed to parse");
+}
+void LiteralCharacter::selfPrint(unsigned int depth) {
+	printSpace(depth);
+	cout << this->value;
+}
+LiteralCharacter::LiteralCharacter(char value) : value(value) {}
+
+
 Assignment* Assignment::parse(TreeGround* treeGround) {
 	int checkpoint = treeGround->currentTokenIndex;
 	Expression* expression1 = Expression::parse(treeGround);
@@ -623,7 +657,7 @@ void Assignment::selfPrint(unsigned int depth) {
 	cout << "[assign]\n";
 	this->expression1->selfPrint(depth + printPadding);
 	printSpace(depth);
-	cout << "[to]";
+	cout << "[to]\n";
 	this->expression2->selfPrint(depth + printPadding);
 }
 Assignment::Assignment(Expression* expression1, Expression* expression2) : expression1(expression1), expression2(expression2) {}
