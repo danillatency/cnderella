@@ -101,6 +101,7 @@ Id* Id::parse(TreeGround* treeGround) {
 	return new Id(treeGround->currentTokenStringValue());
 }
 void Id::selfPrint(unsigned int depth) {
+	printSpace(depth);
 	cout << this->identifier;
 }
 Id::Id(string identifier) : identifier(identifier) {}
