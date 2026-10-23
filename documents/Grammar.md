@@ -16,13 +16,13 @@
 &nbsp;&nbsp;&nbsp;&nbsp;;
 
 **ClassHead**  
-&nbsp;&nbsp;&nbsp;&nbsp;: *TokenClass* **Identifier**  
-&nbsp;&nbsp;&nbsp;&nbsp;| *TokenClass* **Identifier** *TokenColon* **Identifier**  
+&nbsp;&nbsp;&nbsp;&nbsp;: *TokenClass* **Id**  
+&nbsp;&nbsp;&nbsp;&nbsp;| *TokenClass* **Id** *TokenColon* **Id**  
 &nbsp;&nbsp;&nbsp;&nbsp;;
 
-> Alternatives are either included to their non-terminal classes with nullptr's or represented by additional non-terminals, so the basic non-terminal contains a pointer to an instance of self
+> Other alternatives are either included to their non-terminal classes with nullptr's or represented by additional non-terminals, so their predecessor is just used for polymorphic behavior and does not contain anything but a parse function for the alternatives
 
-**Identifier**  
+**Id**  
 &nbsp;&nbsp;&nbsp;&nbsp;: *TokenIdentifier*  
 &nbsp;&nbsp;&nbsp;&nbsp;;
 
@@ -52,7 +52,7 @@
 &nbsp;&nbsp;&nbsp;&nbsp;;
 
 **MethodHead**  
-&nbsp;&nbsp;&nbsp;&nbsp;: *TokenMethod* **Identifier** *TokenOpeningParenthesis* **ParameterDeclarations** *TokenClosingParenthesis*  
+&nbsp;&nbsp;&nbsp;&nbsp;: *TokenMethod* **Id** *TokenOpeningParenthesis* **ParameterDeclarations** *TokenClosingParenthesis*  
 &nbsp;&nbsp;&nbsp;&nbsp;;
 
 **ParameterDeclarations**  
@@ -62,7 +62,7 @@
 &nbsp;&nbsp;&nbsp;&nbsp;;
 
 **ParameterDeclaration**  
-&nbsp;&nbsp;&nbsp;&nbsp;: **Identifier** *TokenColon* **Identifier**  
+&nbsp;&nbsp;&nbsp;&nbsp;: **Id** *TokenColon* **Id**  
 &nbsp;&nbsp;&nbsp;&nbsp;;
 
 **ConstructorDeclaration**  
@@ -74,20 +74,12 @@
 &nbsp;&nbsp;&nbsp;&nbsp;;
 
 **LocalDeclaration**  
-&nbsp;&nbsp;&nbsp;&nbsp;: *TokenVar* **Identifier** *TokenAssignment* **Expression**  
-&nbsp;&nbsp;&nbsp;&nbsp;;
-
-**Expressions**  
-&nbsp;&nbsp;&nbsp;&nbsp;:  
-&nbsp;&nbsp;&nbsp;&nbsp;| **Expression**  
-&nbsp;&nbsp;&nbsp;&nbsp;| **Expression** *TokenComma* **Expressions**  
+&nbsp;&nbsp;&nbsp;&nbsp;: *TokenVar* **Id** *TokenAssignment* **Expression**  
 &nbsp;&nbsp;&nbsp;&nbsp;;
 
 **Expression**  
-&nbsp;&nbsp;&nbsp;&nbsp;: **Identifier**  
-&nbsp;&nbsp;&nbsp;&nbsp;| **Literal**  
-&nbsp;&nbsp;&nbsp;&nbsp;| **Access**  
-&nbsp;&nbsp;&nbsp;&nbsp;| **Call**  
+&nbsp;&nbsp;&nbsp;&nbsp;: **IdBeginningExpression**  
+&nbsp;&nbsp;&nbsp;&nbsp;| **LiteralBeginningExpression**  
 &nbsp;&nbsp;&nbsp;&nbsp;;
 
 **Literal**  
@@ -113,21 +105,35 @@
 &nbsp;&nbsp;&nbsp;&nbsp;: *TokenCharacter*  
 &nbsp;&nbsp;&nbsp;&nbsp;;
 
-**Access**  
-&nbsp;&nbsp;&nbsp;&nbsp;: **IdentifierAccess**  
-&nbsp;&nbsp;&nbsp;&nbsp;| **CallResultAccess**  
+**IdBeginningExpression**  
+&nbsp;&nbsp;&nbsp;&nbsp;: **Id**  
+&nbsp;&nbsp;&nbsp;&nbsp;| **Id** **AccessesAndCalls**  
 &nbsp;&nbsp;&nbsp;&nbsp;;
 
-**IdentifierAccess**  
-&nbsp;&nbsp;&nbsp;&nbsp;: **Identifier** *TokenDot* **Expression**   
+**AccessesAndCalls**  
+&nbsp;&nbsp;&nbsp;&nbsp;: **AccessAndFurther**  
+&nbsp;&nbsp;&nbsp;&nbsp;| **CallAndFurther**  
 &nbsp;&nbsp;&nbsp;&nbsp;;
 
-**CallResultAccess**  
-&nbsp;&nbsp;&nbsp;&nbsp;: **Call** *TokenDot* **Expression**   
+**AccessAndFurther**  
+&nbsp;&nbsp;&nbsp;&nbsp;: *TokenDot* **Id**  
+&nbsp;&nbsp;&nbsp;&nbsp;: *TokenDot* **Id** **AccessesAndCalls**  
 &nbsp;&nbsp;&nbsp;&nbsp;;
 
-**Call**  
-&nbsp;&nbsp;&nbsp;&nbsp;: **Expression** *TokenOpeningParenthesis* **Expressions** *TokenClosingParenthesis*  
+**CallAndFurther**  
+&nbsp;&nbsp;&nbsp;&nbsp;: *TokenOpeningParenthesis* **Expressions** *TokenClosingParenthesis*  
+&nbsp;&nbsp;&nbsp;&nbsp;| *TokenOpeningParenthesis* **Expressions** *TokenClosingParenthesis* **AccessesAndCalls**  
+&nbsp;&nbsp;&nbsp;&nbsp;;
+
+**Expressions**  
+&nbsp;&nbsp;&nbsp;&nbsp;:  
+&nbsp;&nbsp;&nbsp;&nbsp;| **Expression**  
+&nbsp;&nbsp;&nbsp;&nbsp;| **Expression** *TokenComma* **Expressions**  
+&nbsp;&nbsp;&nbsp;&nbsp;;
+
+**LiteralBeginningExpression**  
+&nbsp;&nbsp;&nbsp;&nbsp;: **Literal**  
+&nbsp;&nbsp;&nbsp;&nbsp;| **Literal** **AccessesAndCalls**  
 &nbsp;&nbsp;&nbsp;&nbsp;;
 
 **Assignment**  

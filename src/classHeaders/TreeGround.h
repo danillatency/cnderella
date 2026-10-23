@@ -13,7 +13,8 @@ using namespace std;
 class Program;
 class ClassDeclarations;
 class ClassDeclaration;
-class Identifier;
+class ClassHead;
+class Id;
 class Body;
 class Statements;
 class Statement;
@@ -24,27 +25,31 @@ class ParameterDeclaration;
 class ConstructorDeclaration;
 class ConstructorHead;
 class LocalDeclaration;
-class Expressions;
 class Expression;
 class Literal;
 class LiteralInteger;
 class LiteralBoolean;
 class LiteralFloat;
 class LiteralCharacter;
-class Access;
-class IdentifierAccess;
-class CallResultAccess;
-class Call;
+class IdBeginningExpression;
+class AccessesAndCalls;
+class AccessAndFurther;
+class CallAndFurther;
+class Expressions;
+class LiteralBeginningExpression;
 class Assignment;
 class IfStatement;
 class WhileStatement;
 class ReturnStatement;
+
 class TreeGround;
 
 
 class Entity {
 public:
 	virtual ~Entity() = default;
+
+	virtual void selfPrint(unsigned int depth) = 0;
 };
 
 
@@ -53,6 +58,8 @@ public:
 	ClassDeclarations* classDeclarations;
 
 	Program(ClassDeclarations* classDeclarations);
+
+	void selfPrint(unsigned int depth) override;
 
 	static Program* parse(TreeGround* treeGround);
 };
@@ -67,6 +74,8 @@ public:
 
 	ClassDeclarations(ClassDeclaration* classDeclaration);
 
+	void selfPrint(unsigned int depth) override;
+
 	static ClassDeclarations* parse(TreeGround* treeGround);
 };
 
@@ -78,29 +87,24 @@ public:
 
 	ClassDeclaration(ClassHead* head, Body* body);
 
+	void selfPrint(unsigned int depth) override;
+
 	static ClassDeclaration* parse(TreeGround* treeGround);
 };
 
 
 class ClassHead : public Entity {
 public:
-	Identifier* name;
-	Identifier* baseName;
+	Id* name;
+	Id* baseName;
 
-	ClassHead(Identifier* name, Identifier* baseName);
-	ClassHead(Identifier* name);
+	ClassHead(Id* name, Id* baseName);
+
+	ClassHead(Id* name);
+
+	void selfPrint(unsigned int depth) override;
 
 	static ClassHead* parse(TreeGround* treeGround);
-};
-
-
-class Identifier : public Expression {
-public:
-	string identifier;
-
-	Identifier(string identifier);
-
-	static Identifier* parse(TreeGround* treeGround);
 };
 
 
@@ -109,6 +113,8 @@ public:
 	Statements* statements;
 
 	Body(Statements* statements);
+
+	void selfPrint(unsigned int depth) override;
 
 	static Body* parse(TreeGround* treeGround);
 };
@@ -123,17 +129,15 @@ public:
 
 	Statements(Statement* statement, Statements* statements);
 
+	void selfPrint(unsigned int depth) override;
+
 	static Statements* parse(TreeGround* treeGround);
 };
 
 
 class Statement : public Entity {
 public:
-	Statement* statement;
-
-	Statement();
-
-	Statement(Statement* statement);
+	virtual void selfPrint(unsigned int depth) = 0;
 
 	static Statement* parse(TreeGround* treeGround);
 };
@@ -146,16 +150,20 @@ public:
 
 	MethodDeclaration(MethodHead* methodHead, Body* body);
 
+	void selfPrint(unsigned int depth) override;
+
 	static MethodDeclaration* parse(TreeGround* treeGround);
 };
 
 
 class MethodHead : public Entity {
 public:
-	Identifier* name;
+	Id* name;
 	ParameterDeclarations* parameterDeclarations;
 
-	MethodHead(Identifier* name, ParameterDeclarations* parameterDeclarations);
+	MethodHead(Id* name, ParameterDeclarations* parameterDeclarations);
+
+	void selfPrint(unsigned int depth) override;
 
 	static MethodHead* parse(TreeGround* treeGround);
 };
@@ -172,16 +180,20 @@ public:
 
 	ParameterDeclarations(ParameterDeclaration* parameterDeclaration, ParameterDeclarations* parameterDeclarations);
 
+	void selfPrint(unsigned int depth) override;
+
 	static ParameterDeclarations* parse(TreeGround* treeGround);
 };
 
 
 class ParameterDeclaration : public Entity {
 public:
-	Identifier* name;
-	Identifier* identifier;
+	Id* name;
+	Id* identifier;
 
-	ParameterDeclaration(Identifier* name, Identifier* identifier);
+	ParameterDeclaration(Id* name, Id* identifier);
+
+	void selfPrint(unsigned int depth) override;
 
 	static ParameterDeclaration* parse(TreeGround* treeGround);
 };
@@ -194,6 +206,8 @@ public:
 
 	ConstructorDeclaration(ConstructorHead* constructorHead, Body* body);
 
+	void selfPrint(unsigned int depth) override;
+
 	static ConstructorDeclaration* parse(TreeGround* treeGround);
 };
 
@@ -204,18 +218,151 @@ public:
 
 	ConstructorHead(ParameterDeclarations* parameterDeclarations);
 
+	void selfPrint(unsigned int depth) override;
+
 	static ConstructorHead* parse(TreeGround* treeGround);
 };
 
 
 class LocalDeclaration : public Statement {
 public:
-	Identifier* name;
+	Id* name;
 	Expression* expression;
 
-	LocalDeclaration(Identifier* name, Expression* expression);
+	LocalDeclaration(Id* name, Expression* expression);
+
+	void selfPrint(unsigned int depth) override;
 
 	static LocalDeclaration* parse(TreeGround* treeGround);
+};
+
+
+class Expression : public Statement {
+public:
+	virtual void selfPrint(unsigned int depth) = 0;
+
+	static Expression* parse(TreeGround* treeGround);
+};
+
+
+class Id : public Expression {
+public:
+	string identifier;
+
+	Id(string identifier);
+
+	void selfPrint(unsigned int depth) override;
+
+	static Id* parse(TreeGround* treeGround);
+};
+
+
+class Literal : public Expression {
+public:
+	virtual void selfPrint(unsigned int depth) = 0;
+
+	static Literal* parse(TreeGround* treeGround);
+};
+
+
+class LiteralInteger : public Literal {
+public:
+	int value;
+
+	LiteralInteger(int value);
+
+	void selfPrint(unsigned int depth) override;
+
+	static LiteralInteger* parse(TreeGround* treeGround);
+};
+
+
+class LiteralBoolean : public Literal {
+public:
+	bool value;
+
+	LiteralBoolean(bool value);
+
+	void selfPrint(unsigned int depth) override;
+
+	static LiteralBoolean* parse(TreeGround* treeGround);
+};
+
+
+class LiteralFloat : public Literal {
+public:
+	double value;
+
+	LiteralFloat(double value);
+
+	void selfPrint(unsigned int depth) override;
+
+	static LiteralFloat* parse(TreeGround* treeGround);
+};
+
+
+class LiteralCharacter : public Literal {
+public:
+	char value;
+
+	LiteralCharacter(char value);
+
+	void selfPrint(unsigned int depth) override;
+
+	static LiteralCharacter* parse(TreeGround* treeGround);
+};
+
+
+class IdBeginningExpression : public Expression {
+public:
+	Id* identifier;
+	AccessesAndCalls* accessesAndCalls;
+
+	IdBeginningExpression(Id* identifier);
+
+	IdBeginningExpression(Id* identifier, AccessesAndCalls* accessesAndCalls);
+
+	void selfPrint(unsigned int depth) override;
+
+	static IdBeginningExpression* parse(TreeGround* treeGround);
+};
+
+
+class AccessesAndCalls : public Entity {
+public:
+	virtual void selfPrint(unsigned int depth) = 0;
+
+	static AccessesAndCalls* parse(TreeGround* treeGround);
+};
+
+
+class AccessAndFurther : public AccessesAndCalls {
+public:
+	Id* identifier;
+	AccessesAndCalls* accessesAndCalls;
+
+	AccessAndFurther(Id* identifier);
+
+	AccessAndFurther(Id* identifier, AccessesAndCalls* accessesAndCalls);
+
+	void selfPrint(unsigned int depth) override;
+
+	static AccessAndFurther* parse(TreeGround* treeGround);
+};
+
+
+class CallAndFurther : public AccessesAndCalls {
+public:
+	Expressions* expressions;
+	AccessesAndCalls* accessesAndCalls;
+
+	CallAndFurther(Expressions* expressions);
+
+	CallAndFurther(Expressions* expressions, AccessesAndCalls* accessesAndCalls);
+
+	void selfPrint(unsigned int depth) override;
+
+	static CallAndFurther* parse(TreeGround* treeGround);
 };
 
 
@@ -230,110 +377,24 @@ public:
 
 	Expressions(Expression* expression, Expressions* expressions);
 
+	void selfPrint(unsigned int depth) override;
+
 	static Expressions* parse(TreeGround* treeGround);
 };
 
 
-class Expression : public Statement {
-public:
-	Expression* expression;
-
-	Expression(Expression* expression);
-
-	static Expression* parse(TreeGround* treeGround);
-};
-
-
-class Literal : public Expression {
+class LiteralBeginningExpression : public Expression {
 public:
 	Literal* literal;
+	AccessesAndCalls* accessesAndCalls;
 
-	Literal(Literal* literal);
+	LiteralBeginningExpression(Literal* literal);
 
-	static Literal* parse(TreeGround* treeGround);
-};
+	LiteralBeginningExpression(Literal* literal, AccessesAndCalls* accessesAndCalls);
 
+	void selfPrint(unsigned int depth) override;
 
-class LiteralInteger : public Literal {
-public:
-	int value;
-
-	LiteralInteger(int value);
-
-	static LiteralInteger* parse(TreeGround* treeGround);
-};
-
-
-class LiteralBoolean : public Literal {
-public:
-	bool value;
-
-	LiteralBoolean(bool value);
-
-	static LiteralBoolean* parse(TreeGround* treeGround);
-};
-
-
-class LiteralFloat : public Literal {
-public:
-	double value;
-
-	LiteralFloat(double value);
-
-	static LiteralFloat* parse(TreeGround* treeGround);
-};
-
-
-class LiteralCharacter : public Literal {
-public:
-	char value;
-
-	LiteralCharacter(char value);
-
-	static LiteralCharacter* parse(TreeGround* treeGround);
-};
-
-
-class Access : public Expression {
-public:
-	Access* access;
-
-	Access(Access* access);
-
-	static Access* parse(TreeGround* treeGround);
-};
-
-
-class IdentifierAccess : public Access {
-public:
-	Identifier* identifier;
-	Expression* expression;
-
-	IdentifierAccess(Identifier* identifier, Expression* expression);
-
-	static IdentifierAccess* parse(TreeGround* treeGround);
-};
-
-
-class CallResultAccess : public Access {
-public:
-	Call* call;
-	Expression* expression;
-
-	CallResultAccess(Call* call, Expression* expression);
-
-	static CallResultAccess* parse(TreeGround* treeGround);
-};
-
-
-class Call : public Expression {
-public:
-	Expression* expression;
-	Expressions* expressions;
-
-	Call(Expression* expression, Expressions* expressions);
-
-	static Call* parse(TreeGround* treeGround);
+	static LiteralBeginningExpression* parse(TreeGround* treeGround);
 };
 
 
@@ -343,6 +404,8 @@ public:
 	Expression* expression2;
 
 	Assignment(Expression* expression1, Expression* expression2);
+
+	void selfPrint(unsigned int depth) override;
 
 	static Assignment* parse(TreeGround* treeGround);
 };
@@ -358,6 +421,8 @@ public:
 
 	IfStatement(Expression* condition, Statements* trueStatements, Statements* falseStatements);
 
+	void selfPrint(unsigned int depth) override;
+
 	static IfStatement* parse(TreeGround* treeGround);
 };
 
@@ -369,6 +434,8 @@ public:
 
 	WhileStatement(Expression* condition, Statements* statements);
 
+	void selfPrint(unsigned int depth) override;
+
 	static WhileStatement* parse(TreeGround* treeGround);
 };
 
@@ -378,6 +445,8 @@ public:
 	Expression* expression;
 
 	ReturnStatement(Expression* expression);
+
+	void selfPrint(unsigned int depth) override;
 
 	static ReturnStatement* parse(TreeGround* treeGround);
 };
@@ -399,17 +468,16 @@ public:
 
 	Token* currentToken();
 
+	string currentTokenStringValue();
+
 	Token* nextToken();
 
 	void back();
 
 	bool enoughTokensForClassDeclaration();
 
-	void visualize(long int depth, Entity* entity);
+	void visualize(unsigned int depth, Entity* entity);
 };
-
-
-void printSpace(int times);
 
 
 #endif
