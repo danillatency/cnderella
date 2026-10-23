@@ -8,19 +8,16 @@ using namespace std;
 
 
 char& OolongLexicalAnalyzer::further() {
-	this->currentColumn++;
-	if (this->currentCharacter == '\n')
-		this->currentColumn = 0;
 	if (!this->file.get(this->currentCharacter)) {
-		if (this->currentCharacter != '\n')
-			this->currentCharacter = '\n';
-		else
-			this->currentCharacter = NULL;
+		this->currentCharacter = NULL;
 		return this->currentCharacter;
 	}
-	if (this->currentCharacter == '\n')
-		this->currentRow++;
 	this->accumulator += this->currentCharacter;
+	this->currentColumn++;
+	if (this->currentCharacter == '\n') {
+		this->currentColumn = 0;
+		this->currentRow++;
+	}
 	return this->currentCharacter;
 }
 
@@ -39,7 +36,7 @@ bool OolongLexicalAnalyzer::correctIdentifierCharacter(char& character) {
 }
 
 bool OolongLexicalAnalyzer::nonSpace() {
-	return !isspace(this->currentCharacter) || this->currentCharacter == '\n';
+	return !isspace(this->currentCharacter) && this->currentCharacter != NULL || this->currentCharacter == '\n';
 }
 
 OolongLexicalAnalyzer::OolongLexicalAnalyzer(string programPath) : currentCharacter('a'), currentRow(0), currentColumn(-1), accumulator("") {
@@ -401,13 +398,19 @@ void OolongLexicalAnalyzer::analyze() {
 		}
 
 		if (isspace(this->currentCharacter)) {
-			this->accumulator = "";
+			this->accumulator.pop_back();
+			if (this->accumulator != "") {
+				span.endPosition = this->currentColumn;
+				this->tokenStorage.push_back(new Identifier(span, this->accumulator));
+				this->accumulator = "";
+			}
 			continue;
 		}
 		while (this->correctIdentifierCharacter(this->currentCharacter))
 			this->further();
 		span.endPosition = this->currentColumn;
-		this->tokenStorage.push_back(new Identifier(span, this->accumulator.erase(this->accumulator.length() - 1)));
+		this->accumulator.pop_back();
+		this->tokenStorage.push_back(new Identifier(span, this->accumulator));
 		this->accumulator = "";
 		if (this->nonSpace()) {
 			immediatelyFurther = true;
