@@ -67,9 +67,10 @@ ClassDeclaration::ClassDeclaration(ClassHead* classHead, Body* body) : head(clas
 
 
 ClassHead* ClassHead::parse(TreeGround* treeGround) {
-	while (treeGround->nextToken()->code == TokenNewLine)
-		continue;
-	if (treeGround->currentToken()->code != TokenClass) {
+	if (treeGround->nextToken()->code != TokenNewLine) {
+		treeGround->back();
+	};
+	if (treeGround->nextToken()->code != TokenClass) {
 		treeGround->back();
 		throw runtime_error("class expected");
 	}
@@ -108,14 +109,17 @@ Id::Id(string identifier) : identifier(identifier) {}
 
 
 Body* Body::parse(TreeGround* treeGround) {
-	while (treeGround->nextToken()->code == TokenNewLine)
-		continue;
-	if (treeGround->currentToken()->code == TokenIs) {
+	if (treeGround->nextToken()->code != TokenNewLine) {
+		treeGround->back();
+	};
+	int checkpoint = treeGround->currentTokenIndex;
+	if (treeGround->nextToken()->code == TokenIs) {
 		Statements* statements = Statements::parse(treeGround);
-		while (treeGround->nextToken()->code == TokenNewLine)
-			continue;
-		if (treeGround->currentToken()->code != TokenEnd) {
+		if (treeGround->nextToken()->code != TokenNewLine) {
 			treeGround->back();
+		};
+		if (treeGround->nextToken()->code != TokenEnd) {
+			treeGround->currentTokenIndex = checkpoint;
 			throw runtime_error("end expected");
 		}
 		return new Body(statements);
@@ -158,9 +162,10 @@ Statements::Statements(Statement* statement, Statements* statements) : statement
 
 
 Statement* Statement::parse(TreeGround* treeGround) {
-	while (treeGround->nextToken()->code == TokenNewLine)
-		continue;
-	switch (treeGround->currentToken()->code) {
+	if (treeGround->nextToken()->code != TokenNewLine) {
+		treeGround->back();
+	};
+	switch (treeGround->nextToken()->code) {
 	case TokenVar: {
 		treeGround->back();
 		return LocalDeclaration::parse(treeGround);
@@ -241,7 +246,9 @@ MethodHead* MethodHead::parse(TreeGround* treeGround) {
 }
 void MethodHead::selfPrint(unsigned int depth) {
 	this->name->selfPrint(depth);
-	cout << "\n[parameters]\n";
+	cout << "\n";
+	printSpace(depth);
+	cout << "[parameters]\n";
 	this->parameterDeclarations->selfPrint(depth + printPadding);
 }
 MethodHead::MethodHead(Id* name, ParameterDeclarations* parameterDeclarations) : name(name), parameterDeclarations(parameterDeclarations), returnType(nullptr) {}
@@ -539,7 +546,7 @@ void CallAndFurther::selfPrint(unsigned int depth) {
 	cout << "[call with]\n";
 	this->expressions->selfPrint(depth + printPadding);
 	if (this->accessesAndCalls)
-		this->accessesAndCalls->selfPrint(depth + printPadding);
+		this->accessesAndCalls->selfPrint(depth + printPadding * 2);
 }
 CallAndFurther::CallAndFurther(Expressions* expressions) : expressions(expressions), accessesAndCalls(nullptr) {}
 CallAndFurther::CallAndFurther(Expressions* expressions, AccessesAndCalls* accessesAndCalls) : expressions(expressions), accessesAndCalls(accessesAndCalls) {}
@@ -616,7 +623,7 @@ void Assignment::selfPrint(unsigned int depth) {
 	cout << "[assign]\n";
 	this->expression1->selfPrint(depth + printPadding);
 	printSpace(depth);
-	cout << "to";
+	cout << "[to]";
 	this->expression2->selfPrint(depth + printPadding);
 }
 Assignment::Assignment(Expression* expression1, Expression* expression2) : expression1(expression1), expression2(expression2) {}
@@ -634,6 +641,9 @@ IfStatement* IfStatement::parse(TreeGround* treeGround) {
 		throw runtime_error("then expected");
 	}
 	Statements* statements = Statements::parse(treeGround);
+	if (treeGround->nextToken()->code != TokenNewLine) {
+		treeGround->back();
+	};
 	if (treeGround->nextToken()->code == TokenEnd)
 		return new IfStatement(expression, statements);
 	if (treeGround->currentToken()->code != TokenElse) {
@@ -641,6 +651,9 @@ IfStatement* IfStatement::parse(TreeGround* treeGround) {
 		throw runtime_error("else expected");
 	}
 	Statements* statements2 = Statements::parse(treeGround);
+	if (treeGround->nextToken()->code != TokenNewLine) {
+		treeGround->back();
+	};
 	if (treeGround->nextToken()->code != TokenEnd) {
 		treeGround->currentTokenIndex = checkpoint;
 		throw runtime_error("end expected");
@@ -653,15 +666,15 @@ void IfStatement::selfPrint(unsigned int depth) {
 	this->condition->selfPrint(depth + printPadding);
 	printSpace(depth);
 	cout << "[then]\n";
-	this->trueStatemenets->selfPrint(depth + printPadding);
+	this->trueStatements->selfPrint(depth + printPadding);
 	if (this->falseStatements); {
 		printSpace(depth);
 		cout << "[else]\n";
 		this->falseStatements->selfPrint(depth + printPadding);
 	}
 }
-IfStatement::IfStatement(Expression* condition, Statements* trueStatements) : condition(condition), trueStatemenets(trueStatemenets) {}
-IfStatement::IfStatement(Expression* condition, Statements* trueStatements, Statements* falseStatements) : condition(condition), trueStatemenets(trueStatemenets), falseStatements(falseStatements) {}
+IfStatement::IfStatement(Expression* condition, Statements* trueStatements) : condition(condition), trueStatements(trueStatements) {}
+IfStatement::IfStatement(Expression* condition, Statements* trueStatements, Statements* falseStatements) : condition(condition), trueStatements(trueStatements), falseStatements(falseStatements) {}
 
 
 WhileStatement* WhileStatement::parse(TreeGround* treeGround) {
@@ -676,6 +689,9 @@ WhileStatement* WhileStatement::parse(TreeGround* treeGround) {
 		throw runtime_error("loop expected");
 	}
 	Statements* statements = Statements::parse(treeGround);
+	if (treeGround->nextToken()->code != TokenNewLine) {
+		treeGround->back();
+	};
 	if (treeGround->nextToken()->code != TokenEnd) {
 		treeGround->currentTokenIndex = checkpoint;
 		throw runtime_error("end expected");

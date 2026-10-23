@@ -417,7 +417,7 @@ public:
 class IfStatement : public Statement {
 public:
 	Expression* condition;
-	Statements* trueStatemenets;
+	Statements* trueStatements;
 	Statements* falseStatements;
 
 	IfStatement(Expression* condition, Statements* trueStatements);
