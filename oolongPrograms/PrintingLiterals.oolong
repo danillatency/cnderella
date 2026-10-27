@@ -1,12 +1,28 @@
 class PrintingLiterals is
     this() is
+        911
+        true
+        3.14
+        '@'
+
+        911.print-line()
         true.print-line()
-        false.print-line()
+        3.14.print-line()
+        '@'.print-line()
+
         [9, 1, 1].print-line()
-        [[0.1, 0.2], [0.3, 0.4]].print-line()
+        [false].print-line()
+        [3.14].print-line()
+        ['@'].print-line()
+
         {1, 1, 2}.print-line()
-        {{4.0, 3.0}, {2.0, 1.0}}.print-line()
+        {false}.print-line()
+        {3.14}.print-line()
+        {'@'}.print-line()
+
         Integer(404).print()
+        Boolean(true).print()
         Float(36.6).print()
+        Character('@').print()
     end
 end
