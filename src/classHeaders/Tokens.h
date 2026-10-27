@@ -36,8 +36,9 @@ enum TokenCode {
 	TokenClosingParenthesis,
 	TokenComma,
 	TokenDoubleQuote,
-	TokenOpeningSqureBracket,
-	TokenClosingSqureBracket,
+	TokenQuote,
+	TokenOpeningSquareBracket,
+	TokenClosingSquareBracket,
 	TokenOpeningCurlyBrace,
 	TokenClosingCurlyBrace
 };

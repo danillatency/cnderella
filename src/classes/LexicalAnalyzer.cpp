@@ -345,12 +345,12 @@ void OolongLexicalAnalyzer::analyze() {
 			continue;
 
 		case '[':
-			this->tokenStorage.push_back(new Token(TokenOpeningSqureBracket, span));
+			this->tokenStorage.push_back(new Token(TokenOpeningSquareBracket, span));
 			this->accumulator = "";
 			continue;
 
 		case ']':
-			this->tokenStorage.push_back(new Token(TokenClosingSqureBracket, span));
+			this->tokenStorage.push_back(new Token(TokenClosingSquareBracket, span));
 			this->accumulator = "";
 			continue;
 
@@ -368,25 +368,48 @@ void OolongLexicalAnalyzer::analyze() {
 						" from: " + to_string(span.beginPosition) + " to: " + to_string(span.endPosition));
 				this->tokenStorage.push_back(new Character(span, this->currentCharacter));
 			}
+			span.endPosition = this->currentColumn;
 			this->tokenStorage.push_back(new Token(TokenDoubleQuote, span));
+			this->accumulator = "";
+			continue;
+
+		case '\'':
+			this->tokenStorage.push_back(new Token(TokenQuote, span));
+			span.endPosition = this->currentColumn;
+			this->tokenStorage.push_back(new Character(span, this->further()));
+			if (this->further() != '\'')
+				throw domain_error("Unclosed string on the line: " + to_string(span.row) +
+					" from: " + to_string(span.beginPosition) + " to: " + to_string(span.endPosition));
+			span.endPosition = this->currentColumn;
+			this->tokenStorage.push_back(new Token(TokenQuote, span));
 			this->accumulator = "";
 			continue;
 
 		case '-': case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
 			do {
 				this->further();
+				if (this->currentCharacter == '-')
+					throw domain_error("Mixed minuses: " + to_string(span.row) +
+						" from: " + to_string(span.beginPosition) + " to: " + to_string(span.endPosition));
 			} while (this->correctIntegerCharacter(this->currentCharacter));
-			span.endPosition = this->currentColumn;
-			if (this->currentCharacter == '-')
-				throw domain_error("Mixed minuses: " + to_string(span.row) +
-					" from: " + to_string(span.beginPosition) + " to: " + to_string(span.endPosition));
-			if (this->currentCharacter == '.') {
-				while (this->correctIntegerCharacter(this->further())) continue;
-				span.endPosition = this->currentColumn;
-				this->tokenStorage.push_back(new Float(span, stod(this->accumulator)));
-			}
+			if (this->currentCharacter == '.')
+				if (!this->correctIntegerCharacter(this->further())) {
+					span.endPosition = this->currentColumn - 2;
+					this->accumulator.pop_back();
+					this->accumulator.pop_back();
+					this->tokenStorage.push_back(new Integer(span, stoi(this->accumulator)));
+					Span extraSpan(this->currentRow, this->currentColumn - 1, this->currentColumn - 1);
+					this->tokenStorage.push_back(new Token(TokenDot, extraSpan));
+				}
+				else {
+					while (this->correctIntegerCharacter(this->further())) continue;
+					span.endPosition = this->currentColumn - 1;
+					this->accumulator.pop_back();
+					this->tokenStorage.push_back(new Float(span, stod(this->accumulator)));
+				}
 			else {
 				span.endPosition = this->currentColumn;
+				this->accumulator.pop_back();
 				this->tokenStorage.push_back(new Integer(span, stoi(this->accumulator)));
 			}
 			this->accumulator = "";
