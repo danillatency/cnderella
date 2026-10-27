@@ -125,6 +125,14 @@
 &nbsp;&nbsp;&nbsp;&nbsp;| **LiteralBoolean**  
 &nbsp;&nbsp;&nbsp;&nbsp;| **LiteralFloat**  
 &nbsp;&nbsp;&nbsp;&nbsp;| **LiteralCharacter**  
+&nbsp;&nbsp;&nbsp;&nbsp;| **LiteralIntegerArray**  
+&nbsp;&nbsp;&nbsp;&nbsp;| **LiteralBooleanArray**  
+&nbsp;&nbsp;&nbsp;&nbsp;| **LiteralFloatArray**  
+&nbsp;&nbsp;&nbsp;&nbsp;| **LiteralCharacterArray**  
+&nbsp;&nbsp;&nbsp;&nbsp;| **LiteralIntegerList**  
+&nbsp;&nbsp;&nbsp;&nbsp;| **LiteralBooleanList**  
+&nbsp;&nbsp;&nbsp;&nbsp;| **LiteralFloatList**  
+&nbsp;&nbsp;&nbsp;&nbsp;| **LiteralCharacterList**  
 &nbsp;&nbsp;&nbsp;&nbsp;;
 
 **LiteralInteger**  
@@ -140,7 +148,61 @@
 &nbsp;&nbsp;&nbsp;&nbsp;;
 
 **LiteralCharacter**  
-&nbsp;&nbsp;&nbsp;&nbsp;: *TokenCharacter*  
+&nbsp;&nbsp;&nbsp;&nbsp;: *TokenQuote TokenCharacter TokenQuote*  
+&nbsp;&nbsp;&nbsp;&nbsp;;
+
+**LiteralIntegerArray**  
+&nbsp;&nbsp;&nbsp;&nbsp;: *TokenOpeningSquareBracket* **LiteralIntegers** *TokenClosingSquareBracket*  
+&nbsp;&nbsp;&nbsp;&nbsp;;
+
+**LiteralIntegers**  
+&nbsp;&nbsp;&nbsp;&nbsp;: **LiteralInteger**  
+&nbsp;&nbsp;&nbsp;&nbsp;| **LiteralInteger** *TokenComma* **LiteralIntegers**  
+&nbsp;&nbsp;&nbsp;&nbsp;;
+
+**LiteralBooleanArray**  
+&nbsp;&nbsp;&nbsp;&nbsp;: *TokenOpeningSquareBracket* **LiteralBooleans** *TokenClosingSquareBracket*  
+&nbsp;&nbsp;&nbsp;&nbsp;;
+
+**LiteralBooleans**  
+&nbsp;&nbsp;&nbsp;&nbsp;: **LiteralBoolean**  
+&nbsp;&nbsp;&nbsp;&nbsp;| **LiteralBoolean** *TokenComma* **LiteralBooleans**  
+&nbsp;&nbsp;&nbsp;&nbsp;;
+
+**LiteralFloatArray**  
+&nbsp;&nbsp;&nbsp;&nbsp;: *TokenOpeningSquareBracket* **LiteralFloats** *TokenClosingSquareBracket*  
+&nbsp;&nbsp;&nbsp;&nbsp;;
+
+**LiteralFloats**  
+&nbsp;&nbsp;&nbsp;&nbsp;: **LiteralFloat**  
+&nbsp;&nbsp;&nbsp;&nbsp;| **LiteralFloat** *TokenComma* **LiteralFloats**  
+&nbsp;&nbsp;&nbsp;&nbsp;;
+
+**LiteralCharacterArray**  
+&nbsp;&nbsp;&nbsp;&nbsp;: *TokenOpeningSquareBracket* **LiteralCharacters** *TokenClosingSquareBracket*  
+&nbsp;&nbsp;&nbsp;&nbsp;| *TokenDoubleQuote* **LiteralCharacters** *TokenDoubleQuote*  
+&nbsp;&nbsp;&nbsp;&nbsp;;
+
+**LiteralCharacters**  
+&nbsp;&nbsp;&nbsp;&nbsp;: **LiteralCharacter**  
+&nbsp;&nbsp;&nbsp;&nbsp;| **LiteralCharacter LiteralCharacters**  
+&nbsp;&nbsp;&nbsp;&nbsp;| **LiteralCharacter** *TokenComma* **LiteralCharacters**  
+&nbsp;&nbsp;&nbsp;&nbsp;;
+
+**LiteralIntegerList**  
+&nbsp;&nbsp;&nbsp;&nbsp;: *TokenOpeningCurlyBrace* **LiteralIntegers** *TokenClosingCurlyBrace*  
+&nbsp;&nbsp;&nbsp;&nbsp;;
+
+**LiteralBooleanList**  
+&nbsp;&nbsp;&nbsp;&nbsp;: *TokenOpeningCurlyBrace* **LiteralBooleans** *TokenClosingCurlyBrace*  
+&nbsp;&nbsp;&nbsp;&nbsp;;
+
+**LiteralFloatList**  
+&nbsp;&nbsp;&nbsp;&nbsp;: *TokenOpeningCurlyBrace* **LiteralFloats** *TokenClosingCurlyBrace*  
+&nbsp;&nbsp;&nbsp;&nbsp;;
+
+**LiteralCharacterList**  
+&nbsp;&nbsp;&nbsp;&nbsp;: *TokenOpeningCurlyBrace* **LiteralCharacters** *TokenClosingCurlyBrace*  
 &nbsp;&nbsp;&nbsp;&nbsp;;
 
 **Assignment**  

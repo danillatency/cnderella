@@ -31,6 +31,20 @@ class LiteralInteger;
 class LiteralBoolean;
 class LiteralFloat;
 class LiteralCharacter;
+
+class LiteralIntegerArray;
+class LiteralIntegers;
+class LiteralBooleanArray;
+class LiteralBooleans;
+class LiteralFloatArray;
+class LiteralFloats;
+class LiteralCharacterArray;
+class LiteralCharacters;
+class LiteralIntegerList;
+class LiteralBooleanList;
+class LiteralFloatList;
+class LiteralCharacterList;
+
 class IdBeginningExpression;
 class AccessesAndCalls;
 class AccessAndFurther;
@@ -415,6 +429,161 @@ public:
 };
 
 
+class LiteralIntegerArray : public Literal {
+public:
+	LiteralIntegers* literalIntegers;
+
+	LiteralIntegerArray(LiteralIntegers* literalIntegers);
+
+	void selfPrint(unsigned int depth) override;
+
+	static LiteralIntegerArray* parse(TreeGround* treeGround);
+};
+
+
+class LiteralIntegers : public Entity {
+public:
+	LiteralInteger* literalInteger;
+	LiteralIntegers* literalIntegers;
+
+	LiteralIntegers(LiteralInteger* literalInteger);
+
+	LiteralIntegers(LiteralInteger* literalInteger, LiteralIntegers* literalIntegers);
+
+	void selfPrint(unsigned int depth) override;
+
+	static LiteralIntegers* parse(TreeGround* treeGround);
+};
+
+
+class LiteralBooleanArray : public Literal {
+public:
+	LiteralBooleans* literalBooleans;
+
+	LiteralBooleanArray(LiteralBooleans* literalBooleans);
+
+	void selfPrint(unsigned int depth) override;
+
+	static LiteralBooleanArray* parse(TreeGround* treeGround);
+};
+
+
+class LiteralBooleans : public Entity {
+public:
+	LiteralBoolean* literalBoolean;
+	LiteralBooleans* literalBooleans;
+
+	LiteralBooleans(LiteralBoolean* literalBoolean);
+
+	LiteralBooleans(LiteralBoolean* literalBoolean, LiteralBooleans* literalBooleans);
+
+	void selfPrint(unsigned int depth) override;
+
+	static LiteralBooleans* parse(TreeGround* treeGround);
+};
+
+
+class LiteralFloatArray : public Literal {
+public:
+	LiteralFloats* literalFloats;
+
+	LiteralFloatArray(LiteralFloats* literalFloats);
+
+	void selfPrint(unsigned int depth) override;
+
+	static LiteralFloatArray* parse(TreeGround* treeGround);
+};
+
+
+class LiteralFloats : public Entity {
+public:
+	LiteralFloat* literalFloat;
+	LiteralFloats* literalFloats;
+
+	LiteralFloats(LiteralFloat* literalFloat);
+
+	LiteralFloats(LiteralFloat* literalFloat, LiteralFloats* literalFloats);
+
+	void selfPrint(unsigned int depth) override;
+
+	static LiteralFloats* parse(TreeGround* treeGround);
+};
+
+class LiteralCharacterArray : public Literal {
+public:
+	LiteralCharacters* literalCharacters;
+
+	LiteralCharacterArray(LiteralCharacters* literalCharacters);
+
+	void selfPrint(unsigned int depth) override;
+
+	static LiteralCharacterArray* parse(TreeGround* treeGround);
+};
+
+
+class LiteralCharacters : public Entity {
+public:
+	LiteralCharacter* literalCharacter;
+	LiteralCharacters* literalCharacters;
+
+	LiteralCharacters(LiteralCharacter* literalCharacter);
+
+	LiteralCharacters(LiteralCharacter* literalCharacter, LiteralCharacters* literalCharacters);
+
+	void selfPrint(unsigned int depth) override;
+
+	static LiteralCharacters* parse(TreeGround* treeGround);
+};
+
+
+class LiteralIntegerList : public Literal {
+public:
+	LiteralIntegers* literalIntegers;
+
+	LiteralIntegerList(LiteralIntegers* literalIntegers);
+
+	void selfPrint(unsigned int depth) override;
+
+	static LiteralIntegerList* parse(TreeGround* treeGround);
+};
+
+
+class LiteralBooleanList : public Literal {
+public:
+	LiteralBooleans* literalBooleans;
+
+	LiteralBooleanList(LiteralBooleans* literalBooleans);
+
+	void selfPrint(unsigned int depth) override;
+
+	static LiteralBooleanList* parse(TreeGround* treeGround);
+};
+
+
+class LiteralFloatList : public Literal {
+public:
+	LiteralFloats* literalFloats;
+
+	LiteralFloatList(LiteralFloats* literalFloats);
+
+	void selfPrint(unsigned int depth) override;
+
+	static LiteralFloatList* parse(TreeGround* treeGround);
+};
+
+
+class LiteralCharacterList : public Literal {
+public:
+	LiteralCharacters* literalCharacters;
+
+	LiteralCharacterList(LiteralCharacters* literalCharacters);
+
+	void selfPrint(unsigned int depth) override;
+
+	static LiteralCharacterList* parse(TreeGround* treeGround);
+};
+
+
 class Assignment : public Statement {
 public:
 	Expression* expression1;
@@ -489,7 +658,7 @@ public:
 
 	Token* nextToken();
 
-	void back();
+	void back(int steps = 1);
 
 	bool enoughTokensForClassDeclaration();
 

@@ -178,17 +178,6 @@ Statement* Statement::parse(TreeGround* treeGround) {
 		treeGround->back();
 		return ConstructorDeclaration::parse(treeGround);
 	}
-	case TokenIdentifier: {
-		treeGround->back();
-		int savedTokenIndex = treeGround->currentTokenIndex;
-		try {
-			return Assignment::parse(treeGround);
-		}
-		catch (const runtime_error& e) {
-			treeGround->currentTokenIndex = savedTokenIndex;
-			return Expression::parse(treeGround);
-		}
-	}
 	case TokenIf: {
 		treeGround->back();
 		return IfStatement::parse(treeGround);
@@ -201,9 +190,18 @@ Statement* Statement::parse(TreeGround* treeGround) {
 		treeGround->back();
 		return ReturnStatement::parse(treeGround);
 	}
+	default: {
+		treeGround->back();
+		int savedTokenIndex = treeGround->currentTokenIndex;
+		try {
+			return Assignment::parse(treeGround);
+		}
+		catch (const runtime_error& e) {
+			treeGround->currentTokenIndex = savedTokenIndex;
+			return Expression::parse(treeGround);
+		}
 	}
-	treeGround->back();
-	throw runtime_error("statement expected");
+	}
 }
 
 
@@ -475,10 +473,16 @@ CallAndFurther* CallAndFurther::parse(TreeGround* treeGround) {
 }
 void CallAndFurther::selfPrint(unsigned int depth) {
 	printSpace(depth);
-	cout << "[call with]\n";
+	if (this->expressions->expression)
+		cout << "[call with]\n";
+	else
+		cout << "[call]\n";
 	this->expressions->selfPrint(depth + printPadding);
-	if (this->accessesAndCalls)
-		this->accessesAndCalls->selfPrint(depth + printPadding * 2);
+	if (this->accessesAndCalls) {
+		printSpace(depth);
+		cout << "[arguments end]\n";
+		this->accessesAndCalls->selfPrint(depth + printPadding);
+	}
 }
 CallAndFurther::CallAndFurther(Expressions* expressions) : expressions(expressions), accessesAndCalls(nullptr) {}
 CallAndFurther::CallAndFurther(Expressions* expressions, AccessesAndCalls* accessesAndCalls) : expressions(expressions), accessesAndCalls(accessesAndCalls) {}
@@ -576,13 +580,57 @@ Literal* Literal::parse(TreeGround* treeGround) {
 		treeGround->back();
 		return LiteralBoolean::parse(treeGround);
 	}
-	case TokenCharacter: {
+	case TokenQuote: {
 		treeGround->back();
 		return LiteralCharacter::parse(treeGround);
 	}
 	case TokenFloat: {
 		treeGround->back();
 		return LiteralFloat::parse(treeGround);
+	}
+	case TokenDoubleQuote: {
+		treeGround->back();
+		return LiteralCharacterArray::parse(treeGround);
+	}
+	case TokenOpeningSquareBracket: {
+		switch (treeGround->nextToken()->code) {
+		case TokenInteger: {
+			treeGround->back(2);
+			return LiteralIntegerArray::parse(treeGround);
+		}
+		case TokenBoolean: {
+			treeGround->back(2);
+			return LiteralBooleanArray::parse(treeGround);
+		}
+		case TokenFloat: {
+			treeGround->back(2);
+			return LiteralFloatArray::parse(treeGround);
+		}
+		case TokenQuote: {
+			treeGround->back(2);
+			return LiteralCharacterArray::parse(treeGround);
+		}
+		}
+	}
+	case TokenOpeningCurlyBrace: {
+		switch (treeGround->nextToken()->code) {
+		case TokenInteger: {
+			treeGround->back(2);
+			return LiteralIntegerList::parse(treeGround);
+		}
+		case TokenBoolean: {
+			treeGround->back(2);
+			return LiteralBooleanList::parse(treeGround);
+		}
+		case TokenFloat: {
+			treeGround->back(2);
+			return LiteralFloatList::parse(treeGround);
+		}
+		case TokenQuote: {
+			treeGround->back(2);
+			return LiteralCharacterList::parse(treeGround);
+		}
+		}
 	}
 	}
 	treeGround->back();
@@ -630,16 +678,290 @@ LiteralFloat::LiteralFloat(double value) : value(value) {}
 
 
 LiteralCharacter* LiteralCharacter::parse(TreeGround* treeGround) {
+	if (treeGround->nextToken()->code != TokenQuote) {
+		treeGround->back();
+		throw runtime_error("' expected");
+	}
+	char character;
 	if (treeGround->nextToken()->code == TokenCharacter)
-		return new LiteralCharacter(dynamic_cast<Character*>(treeGround->currentToken())->value);
-	treeGround->back();
-	throw runtime_error("Failed to parse");
+		character = dynamic_cast<Character*>(treeGround->currentToken())->value;
+	else {
+		treeGround->back(2);
+		throw runtime_error("character expected");
+	}
+	if (treeGround->nextToken()->code != TokenQuote) {
+		treeGround->back(3);
+		throw runtime_error("' expected");
+	}
+	return new LiteralCharacter(character);
 }
 void LiteralCharacter::selfPrint(unsigned int depth) {
 	printSpace(depth);
 	cout << this->value;
 }
 LiteralCharacter::LiteralCharacter(char value) : value(value) {}
+
+
+LiteralIntegerArray* LiteralIntegerArray::parse(TreeGround* treeGround) {
+	int checkpoint = treeGround->currentTokenIndex;
+	if (treeGround->nextToken()->code != TokenOpeningSquareBracket) {
+		treeGround->back();
+		throw runtime_error("[ expected");
+	}
+	LiteralIntegers* literalIntegers = LiteralIntegers::parse(treeGround);
+	if (treeGround->nextToken()->code != TokenClosingSquareBracket) {
+		treeGround->currentTokenIndex = checkpoint;
+		throw runtime_error("] expected");
+	}
+	return new LiteralIntegerArray(literalIntegers);
+}
+void LiteralIntegerArray::selfPrint(unsigned int depth) {
+	printSpace(depth);
+	cout << '[';
+	this->literalIntegers->selfPrint(0);
+	cout << ']';
+}
+LiteralIntegerArray::LiteralIntegerArray(LiteralIntegers* literalIntegers) : literalIntegers(literalIntegers) {}
+
+
+LiteralIntegers* LiteralIntegers::parse(TreeGround* treeGround) {
+	LiteralInteger* integer = LiteralInteger::parse(treeGround);
+	if (treeGround->nextToken()->code != TokenComma) {
+		treeGround->back();
+		return new LiteralIntegers(integer);
+	}
+	LiteralIntegers* integers = LiteralIntegers::parse(treeGround);
+	return new LiteralIntegers(integer, integers);
+}
+void LiteralIntegers::selfPrint(unsigned int depth) {
+	this->literalInteger->selfPrint(0);
+	if (this->literalIntegers) {
+		cout << ", ";
+		this->literalIntegers->selfPrint(0);
+	}
+}
+LiteralIntegers::LiteralIntegers(LiteralInteger* literalInteger) : literalInteger(literalInteger), literalIntegers(nullptr) {}
+LiteralIntegers::LiteralIntegers(LiteralInteger* literalInteger, LiteralIntegers* literalIntegers) : literalInteger(literalInteger), literalIntegers(literalIntegers) {}
+
+
+LiteralBooleanArray* LiteralBooleanArray::parse(TreeGround* treeGround) {
+	int checkpoint = treeGround->currentTokenIndex;
+	if (treeGround->nextToken()->code != TokenOpeningSquareBracket) {
+		treeGround->back();
+		throw runtime_error("[ expected");
+	}
+	LiteralBooleans* literalBooleans = LiteralBooleans::parse(treeGround);
+	if (treeGround->nextToken()->code != TokenClosingSquareBracket) {
+		treeGround->currentTokenIndex = checkpoint;
+		throw runtime_error("] expected");
+	}
+	return new LiteralBooleanArray(literalBooleans);
+}
+void LiteralBooleanArray::selfPrint(unsigned int depth) {
+	printSpace(depth);
+	cout << '[';
+	this->literalBooleans->selfPrint(0);
+	cout << ']';
+}
+LiteralBooleanArray::LiteralBooleanArray(LiteralBooleans* literalBooleans) : literalBooleans(literalBooleans) {}
+
+
+LiteralBooleans* LiteralBooleans::parse(TreeGround* treeGround) {
+	LiteralBoolean* boolean = LiteralBoolean::parse(treeGround);
+	if (treeGround->nextToken()->code != TokenComma) {
+		treeGround->back();
+		return new LiteralBooleans(boolean);
+	}
+	LiteralBooleans* booleans = LiteralBooleans::parse(treeGround);
+	return new LiteralBooleans(boolean, booleans);
+}
+void LiteralBooleans::selfPrint(unsigned int depth) {
+	this->literalBoolean->selfPrint(0);
+	if (this->literalBooleans) {
+		cout << ", ";
+		this->literalBooleans->selfPrint(0);
+	}
+}
+LiteralBooleans::LiteralBooleans(LiteralBoolean* literalBoolean) : literalBoolean(literalBoolean), literalBooleans(nullptr) {}
+LiteralBooleans::LiteralBooleans(LiteralBoolean* literalBoolean, LiteralBooleans* literalBooleans) : literalBoolean(literalBoolean), literalBooleans(literalBooleans) {}
+
+
+LiteralFloatArray* LiteralFloatArray::parse(TreeGround* treeGround) {
+	int checkpoint = treeGround->currentTokenIndex;
+	if (treeGround->nextToken()->code != TokenOpeningSquareBracket) {
+		treeGround->back();
+		throw runtime_error("[ expected");
+	}
+	LiteralFloats* literalFloats = LiteralFloats::parse(treeGround);
+	if (treeGround->nextToken()->code != TokenClosingSquareBracket) {
+		treeGround->currentTokenIndex = checkpoint;
+		throw runtime_error("] expected");
+	}
+	return new LiteralFloatArray(literalFloats);
+}
+void LiteralFloatArray::selfPrint(unsigned int depth) {
+	printSpace(depth);
+	cout << '[';
+	this->literalFloats->selfPrint(0);
+	cout << ']';
+}
+LiteralFloatArray::LiteralFloatArray(LiteralFloats* literalFloats) : literalFloats(literalFloats) {}
+
+
+LiteralFloats* LiteralFloats::parse(TreeGround* treeGround) {
+	LiteralFloat* literalFloat = LiteralFloat::parse(treeGround);
+	if (treeGround->nextToken()->code != TokenComma) {
+		treeGround->back();
+		return new LiteralFloats(literalFloat);
+	}
+	LiteralFloats* literalFloats = LiteralFloats::parse(treeGround);
+	return new LiteralFloats(literalFloat, literalFloats);
+}
+void LiteralFloats::selfPrint(unsigned int depth) {
+	this->literalFloat->selfPrint(0);
+	if (this->literalFloats) {
+		cout << ", ";
+		this->literalFloats->selfPrint(0);
+	}
+}
+LiteralFloats::LiteralFloats(LiteralFloat* literalFloat) : literalFloat(literalFloat), literalFloats(nullptr) {}
+LiteralFloats::LiteralFloats(LiteralFloat* literalFloat, LiteralFloats* literalBooleans) : literalFloat(literalFloat), literalFloats(literalFloats) {}
+
+
+LiteralCharacterArray* LiteralCharacterArray::parse(TreeGround* treeGround) {
+	int checkpoint = treeGround->currentTokenIndex;
+	if (treeGround->nextToken()->code != TokenOpeningSquareBracket 
+		&& treeGround->nextToken()->code != TokenDoubleQuote) {
+		treeGround->back();
+		throw runtime_error("[ or \" expected");
+	}
+	LiteralCharacters* literalCharacters = LiteralCharacters::parse(treeGround);
+	if (treeGround->nextToken()->code != TokenClosingSquareBracket
+		&& treeGround->nextToken()->code != TokenDoubleQuote) {
+		treeGround->currentTokenIndex = checkpoint;
+		throw runtime_error("] or \" expected");
+	}
+	return new LiteralCharacterArray(literalCharacters);
+}
+void LiteralCharacterArray::selfPrint(unsigned int depth) {
+	printSpace(depth);
+	cout << '"';
+	this->literalCharacters->selfPrint(0);
+	cout << '"';
+}
+LiteralCharacterArray::LiteralCharacterArray(LiteralCharacters* literalCharacters) : literalCharacters(literalCharacters) {}
+
+
+LiteralCharacters* LiteralCharacters::parse(TreeGround* treeGround) {
+	LiteralCharacter* literalCharacter = LiteralCharacter::parse(treeGround);
+	if (treeGround->nextToken()->code != TokenComma)
+		treeGround->back();
+	int checkpoint = treeGround->currentTokenIndex;
+	LiteralCharacters* literalCharacters;
+	try {
+		literalCharacters = LiteralCharacters::parse(treeGround);
+	}
+	catch (const runtime_error& e) {
+		treeGround->currentTokenIndex = checkpoint;
+		return new LiteralCharacters(literalCharacter);
+	}
+	return new LiteralCharacters(literalCharacter, literalCharacters);
+}
+void LiteralCharacters::selfPrint(unsigned int depth) {
+	this->literalCharacter->selfPrint(0);
+	if (this->literalCharacters)
+		this->literalCharacters->selfPrint(0);
+}
+LiteralCharacters::LiteralCharacters(LiteralCharacter* literalCharacter) : literalCharacter(literalCharacter), literalCharacters(nullptr) {}
+LiteralCharacters::LiteralCharacters(LiteralCharacter* literalCharacter, LiteralCharacters* literalCharacters) : literalCharacter(literalCharacter), literalCharacters(literalCharacters) {}
+
+
+LiteralIntegerList* LiteralIntegerList::parse(TreeGround* treeGround) {
+	int checkpoint = treeGround->currentTokenIndex;
+	if (treeGround->nextToken()->code != TokenOpeningCurlyBrace) {
+		treeGround->back();
+		throw runtime_error("{ expected");
+	}
+	LiteralIntegers* literalIntegers = LiteralIntegers::parse(treeGround);
+	if (treeGround->nextToken()->code != TokenClosingCurlyBrace) {
+		treeGround->currentTokenIndex = checkpoint;
+		throw runtime_error("} expected");
+	}
+	return new LiteralIntegerList(literalIntegers);
+}
+void LiteralIntegerList::selfPrint(unsigned int depth) {
+	printSpace(depth);
+	cout << '{';
+	this->literalIntegers->selfPrint(0);
+	cout << '}';
+}
+LiteralIntegerList::LiteralIntegerList(LiteralIntegers* literalIntegers) : literalIntegers(literalIntegers) {}
+
+
+LiteralBooleanList* LiteralBooleanList::parse(TreeGround* treeGround) {
+	int checkpoint = treeGround->currentTokenIndex;
+	if (treeGround->nextToken()->code != TokenOpeningCurlyBrace) {
+		treeGround->back();
+		throw runtime_error("{ expected");
+	}
+	LiteralBooleans* literalBooleans = LiteralBooleans::parse(treeGround);
+	if (treeGround->nextToken()->code != TokenClosingCurlyBrace) {
+		treeGround->currentTokenIndex = checkpoint;
+		throw runtime_error("} expected");
+	}
+	return new LiteralBooleanList(literalBooleans);
+}
+void LiteralBooleanList::selfPrint(unsigned int depth) {
+	printSpace(depth);
+	cout << '{';
+	this->literalBooleans->selfPrint(0);
+	cout << '}';
+}
+LiteralBooleanList::LiteralBooleanList(LiteralBooleans* literalBooleans) : literalBooleans(literalBooleans) {}
+
+
+LiteralFloatList* LiteralFloatList::parse(TreeGround* treeGround) {
+	int checkpoint = treeGround->currentTokenIndex;
+	if (treeGround->nextToken()->code != TokenOpeningCurlyBrace) {
+		treeGround->back();
+		throw runtime_error("[ expected");
+	}
+	LiteralFloats* literalFloats = LiteralFloats::parse(treeGround);
+	if (treeGround->nextToken()->code != TokenClosingCurlyBrace) {
+		treeGround->currentTokenIndex = checkpoint;
+		throw runtime_error("] expected");
+	}
+	return new LiteralFloatList(literalFloats);
+}
+void LiteralFloatList::selfPrint(unsigned int depth) {
+	printSpace(depth);
+	cout << '{';
+	this->literalFloats->selfPrint(0);
+	cout << '}';
+}
+LiteralFloatList::LiteralFloatList(LiteralFloats* literalFloats) : literalFloats(literalFloats) {}
+
+
+LiteralCharacterList* LiteralCharacterList::parse(TreeGround* treeGround) {
+	int checkpoint = treeGround->currentTokenIndex;
+	if (treeGround->nextToken()->code != TokenOpeningCurlyBrace) {
+		treeGround->back();
+		throw runtime_error("[ expected");
+	}
+	LiteralCharacters* literalCharacters = LiteralCharacters::parse(treeGround);
+	if (treeGround->nextToken()->code != TokenClosingCurlyBrace) {
+		treeGround->currentTokenIndex = checkpoint;
+		throw runtime_error("] expected");
+	}
+	return new LiteralCharacterList(literalCharacters);
+}
+void LiteralCharacterList::selfPrint(unsigned int depth) {
+	printSpace(depth);
+	cout << '{';
+	this->literalCharacters->selfPrint(0);
+	cout << '}';
+}
+LiteralCharacterList::LiteralCharacterList(LiteralCharacters* literalCharacters) : literalCharacters(literalCharacters) {}
 
 
 Assignment* Assignment::parse(TreeGround* treeGround) {
@@ -779,8 +1101,8 @@ string TreeGround::currentTokenStringValue() {
 Token* TreeGround::nextToken() {
 	return this->tokens.at(++this->currentTokenIndex);
 }
-void TreeGround::back() {
-	this->currentTokenIndex--;
+void TreeGround::back(int steps) {
+	this->currentTokenIndex -= steps;
 }
 void TreeGround::visualize(unsigned int depth, Entity* entity) {
 	entity->selfPrint(depth);
