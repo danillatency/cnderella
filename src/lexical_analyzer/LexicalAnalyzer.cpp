@@ -1,7 +1,7 @@
 #include <stdexcept>
 #include <iostream>
 
-#include "../classHeaders/LexicalAnalyzer.h"
+#include "LexicalAnalyzer.h"
 
 
 using namespace std;

@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 
-#include "Tokens.h"
+#include "../lexical_analyzer/Tokens.h"
 
 
 using namespace std;

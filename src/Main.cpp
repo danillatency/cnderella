@@ -1,8 +1,8 @@
 #include <iostream>
 
-#include "classHeaders/Tokens.h"
-#include "classHeaders/LexicalAnalyzer.h"
-#include "classHeaders/TreeGround.h"
+#include "lexical_analyzer/Tokens.h"
+#include "lexical_analyzer/LexicalAnalyzer.h"
+#include "syntactical_analyzer/TreeGround.h"
 
 
 using namespace std;

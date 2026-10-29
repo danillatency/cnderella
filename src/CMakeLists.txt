@@ -1,8 +1,8 @@
 set(CPP_PARTS
-    "classes/Tokens.cpp"
-    "classes/LexicalAnalyzer.cpp"
+    "lexical_analyzer/Tokens.cpp"
+    "lexical_analyzer/LexicalAnalyzer.cpp"
 
-    "classes/TreeGround.cpp")
+    "syntactical_analyzer/TreeGround.cpp")
 
 add_executable(cnderella Main.cpp  ${CPP_PARTS})
 
