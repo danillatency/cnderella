@@ -15,10 +15,11 @@ class ClassDeclarations;
 class ClassDeclaration;
 class ClassHead;
 class Id;
-class Body;
+class ClassBody;
 class Statements;
 class Statement;
 class MethodDeclaration;
+class Body;
 class MethodHead;
 class ParameterDeclarations;
 class ParameterDeclaration;
@@ -96,10 +97,10 @@ public:
 
 class ClassDeclaration : public Entity {
 public:
-	ClassHead* head;
-	Body* body;
+	ClassHead* classHead;
+	ClassBody* classBody;
 
-	ClassDeclaration(ClassHead* head, Body* body);
+	ClassDeclaration(ClassHead* classHead, ClassBody* classBody);
 
 	void selfPrint(unsigned int depth) override;
 
@@ -134,15 +135,15 @@ public:
 };
 
 
-class Body : public Entity {
+class ClassBody : public Entity {
 public:
 	Statements* statements;
 
-	Body(Statements* statements);
+	ClassBody(Statements* statements);
 
 	void selfPrint(unsigned int depth) override;
 
-	static Body* parse(TreeGround* treeGround);
+	static ClassBody* parse(TreeGround* treeGround);
 };
 
 
@@ -179,6 +180,18 @@ public:
 	void selfPrint(unsigned int depth) override;
 
 	static MethodDeclaration* parse(TreeGround* treeGround);
+};
+
+
+class Body : public Entity {
+public:
+	Statements* statements;
+
+	Body(Statements* statements);
+
+	void selfPrint(unsigned int depth) override;
+
+	static Body* parse(TreeGround* treeGround);
 };
 
 

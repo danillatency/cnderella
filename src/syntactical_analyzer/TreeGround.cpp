@@ -54,16 +54,16 @@ ClassDeclarations::ClassDeclarations(ClassDeclaration* classDeclaration) : class
 
 ClassDeclaration* ClassDeclaration::parse(TreeGround* treeGround) {
 	ClassHead* classHead = ClassHead::parse(treeGround);
-	Body* body = Body::parse(treeGround);
-	return new ClassDeclaration(classHead, body);
+	ClassBody* classBody = ClassBody::parse(treeGround);
+	return new ClassDeclaration(classHead, classBody);
 }
 void ClassDeclaration::selfPrint(unsigned int depth) {
 	printSpace(depth);
 	cout << "[class]\n";
-	this->head->selfPrint(depth + printPadding);
-	this->body->selfPrint(depth + printPadding);
+	this->classHead->selfPrint(depth + printPadding);
+	this->classBody->selfPrint(depth + printPadding);
 }
-ClassDeclaration::ClassDeclaration(ClassHead* classHead, Body* body) : head(classHead), body(body) {}
+ClassDeclaration::ClassDeclaration(ClassHead* classHead, ClassBody* classBody) : classHead(classHead), classBody(classBody) {}
 
 
 ClassHead* ClassHead::parse(TreeGround* treeGround) {
@@ -108,7 +108,7 @@ void Id::selfPrint(unsigned int depth) {
 Id::Id(string identifier) : identifier(identifier) {}
 
 
-Body* Body::parse(TreeGround* treeGround) {
+ClassBody* ClassBody::parse(TreeGround* treeGround) {
 	if (treeGround->nextToken()->code != TokenNewLine) {
 		treeGround->back();
 	};
@@ -122,21 +122,21 @@ Body* Body::parse(TreeGround* treeGround) {
 			treeGround->currentTokenIndex = checkpoint;
 			throw runtime_error("end expected");
 		}
-		return new Body(statements);
+		return new ClassBody(statements);
 	}
 	if (treeGround->currentToken()->code != TokenArrow) {
 		treeGround->back();
 		throw runtime_error("arrow expected");
 	}
 	Statement* statement = Statement::parse(treeGround);
-	return new Body(new Statements(statement));
+	return new ClassBody(new Statements(statement));
 }
-void Body::selfPrint(unsigned int depth) {
+void ClassBody::selfPrint(unsigned int depth) {
 	printSpace(depth);
-	cout << "[body]\n";
+	cout << "[class body]\n";
 	this->statements->selfPrint(depth + printPadding);
 }
-Body::Body(Statements* statements) : statements(statements) {}
+ClassBody::ClassBody(Statements* statements) : statements(statements) {}
 
 
 Statements* Statements::parse(TreeGround* treeGround) {
@@ -217,6 +217,37 @@ void MethodDeclaration::selfPrint(unsigned int depth) {
 	this->body->selfPrint(depth + printPadding);
 }
 MethodDeclaration::MethodDeclaration(MethodHead* methodHead, Body* body) : methodHead(methodHead), body(body) {}
+
+
+Body* Body::parse(TreeGround* treeGround) {
+	if (treeGround->nextToken()->code != TokenNewLine) {
+		treeGround->back();
+	};
+	int checkpoint = treeGround->currentTokenIndex;
+	if (treeGround->nextToken()->code == TokenIs) {
+		Statements* statements = Statements::parse(treeGround);
+		if (treeGround->nextToken()->code != TokenNewLine) {
+			treeGround->back();
+		};
+		if (treeGround->nextToken()->code != TokenEnd) {
+			treeGround->currentTokenIndex = checkpoint;
+			throw runtime_error("end expected");
+		}
+		return new Body(statements);
+	}
+	if (treeGround->currentToken()->code != TokenArrow) {
+		treeGround->back();
+		throw runtime_error("arrow expected");
+	}
+	Statement* statement = Statement::parse(treeGround);
+	return new Body(new Statements(statement));
+}
+void Body::selfPrint(unsigned int depth) {
+	printSpace(depth);
+	cout << "[class body]\n";
+	this->statements->selfPrint(depth + printPadding);
+}
+Body::Body(Statements* statements) : statements(statements) {}
 
 
 MethodHead* MethodHead::parse(TreeGround* treeGround) {

@@ -12,7 +12,7 @@
 > Alternatives representing lists are included to their non-terminal classes directly (the second field may be nullptr)
 
 **ClassDeclaration**  
-&nbsp;&nbsp;&nbsp;&nbsp;: **ClassHead** **Body**  
+&nbsp;&nbsp;&nbsp;&nbsp;: **ClassHead** **ClassBody**  
 &nbsp;&nbsp;&nbsp;&nbsp;;
 
 **ClassHead**  
@@ -26,7 +26,7 @@
 &nbsp;&nbsp;&nbsp;&nbsp;: *TokenIdentifier*  
 &nbsp;&nbsp;&nbsp;&nbsp;;
 
-**Body**  
+**ClassBody**  
 &nbsp;&nbsp;&nbsp;&nbsp;: *TokenIs* **Statements** *TokenEnd*  
 &nbsp;&nbsp;&nbsp;&nbsp;| *TokenArrow* **Statement**  
 &nbsp;&nbsp;&nbsp;&nbsp;;
@@ -48,8 +48,11 @@
 &nbsp;&nbsp;&nbsp;&nbsp;;
 
 **MethodDeclaration**  
-&nbsp;&nbsp;&nbsp;&nbsp;: **MethodHead Body**  
+&nbsp;&nbsp;&nbsp;&nbsp;: **MethodHead AnyBody**  
 &nbsp;&nbsp;&nbsp;&nbsp;;
+
+**AnyBody**
+&nbsp;&nbsp;&nbsp;&nbsp;: 
 
 **MethodHead**  
 &nbsp;&nbsp;&nbsp;&nbsp;: *TokenMethod* **Id** *TokenOpeningParenthesis* **ParameterDeclarations** *TokenClosingParenthesis*  
@@ -67,7 +70,7 @@
 &nbsp;&nbsp;&nbsp;&nbsp;;
 
 **ConstructorDeclaration**  
-&nbsp;&nbsp;&nbsp;&nbsp;: **ConstructorHead Body**  
+&nbsp;&nbsp;&nbsp;&nbsp;: **ConstructorHead AnyBody**  
 &nbsp;&nbsp;&nbsp;&nbsp;;
 
 **ConstructorHead**  
