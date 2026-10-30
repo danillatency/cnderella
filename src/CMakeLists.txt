@@ -3,7 +3,8 @@ set(CPP_PARTS
     "lexical_analyzer/LexicalAnalyzer.cpp"
 
     "syntactical_analyzer/TreeGround.cpp"
-    "syntactical_analyzer/TreeVertices.cpp")
+    "syntactical_analyzer/TreeVertices.cpp"
+    "syntactical_analyzer/TreeVerticesConstructors.cpp")
 
 add_executable(cnderella Main.cpp  ${CPP_PARTS})
 

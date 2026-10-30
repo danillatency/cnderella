@@ -26,7 +26,6 @@ void Program::selfPrint(unsigned int depth) {
 	this->classDeclarations->selfPrint(depth);
 	cout << "\n";
 }
-Program::Program(ClassDeclarations* classDeclarations) : classDeclarations(classDeclarations) {}
 
 
 ClassDeclarations* ClassDeclarations::parse(TreeGround* treeGround) {
@@ -49,8 +48,6 @@ void ClassDeclarations::selfPrint(unsigned int depth) {
 		this->classDeclarations->selfPrint(depth);
 	}
 }
-ClassDeclarations::ClassDeclarations(ClassDeclaration* classDeclaration, ClassDeclarations* classDeclarations) : classDeclaration(classDeclaration), classDeclarations(classDeclarations) {}
-ClassDeclarations::ClassDeclarations(ClassDeclaration* classDeclaration) : classDeclaration(classDeclaration), classDeclarations(nullptr) {}
 
 
 ClassDeclaration* ClassDeclaration::parse(TreeGround* treeGround) {
@@ -64,7 +61,6 @@ void ClassDeclaration::selfPrint(unsigned int depth) {
 	this->classHead->selfPrint(depth + printPadding);
 	this->classBody->selfPrint(depth + printPadding);
 }
-ClassDeclaration::ClassDeclaration(ClassHead* classHead, ClassBody* classBody) : classHead(classHead), classBody(classBody) {}
 
 
 ClassHead* ClassHead::parse(TreeGround* treeGround) {
@@ -91,8 +87,6 @@ void ClassHead::selfPrint(unsigned int depth) {
 	}
 	cout << "\n";
 }
-ClassHead::ClassHead(Id* name, Id* baseName) : name(name), baseName(baseName) {}
-ClassHead::ClassHead(Id* name) : name(name), baseName(nullptr) {}
 
 
 Id* Id::parse(TreeGround* treeGround) {
@@ -106,7 +100,6 @@ void Id::selfPrint(unsigned int depth) {
 	printSpace(depth);
 	cout << this->identifier;
 }
-Id::Id(string identifier) : identifier(identifier) {}
 
 
 ClassBody* ClassBody::parse(TreeGround* treeGround) {
@@ -137,7 +130,6 @@ void ClassBody::selfPrint(unsigned int depth) {
 	cout << "[class body]\n";
 	this->classStatements->selfPrint(depth + printPadding);
 }
-ClassBody::ClassBody(ClassStatements* classStatements) : classStatements(classStatements) {}
 
 
 ClassStatements* ClassStatements::parse(TreeGround* treeGround) {
@@ -158,8 +150,6 @@ void ClassStatements::selfPrint(unsigned int depth) {
 	if (this->classStatements)
 		this->classStatements->selfPrint(depth);
 }
-ClassStatements::ClassStatements(ClassStatement* classStatement) : classStatement(classStatement), classStatements(nullptr) {}
-ClassStatements::ClassStatements(ClassStatement* classStatement, ClassStatements* classStatements) : classStatement(classStatement), classStatements(classStatements) {}
 
 
 ClassStatement* ClassStatement::parse(TreeGround* treeGround) {
@@ -194,7 +184,6 @@ void MethodDeclaration::selfPrint(unsigned int depth) {
 	this->methodHead->selfPrint(depth + printPadding);
 	this->body->selfPrint(depth + printPadding);
 }
-MethodDeclaration::MethodDeclaration(MethodHead* methodHead, AnyBody* body) : methodHead(methodHead), body(body) {}
 
 
 MethodHead* MethodHead::parse(TreeGround* treeGround) {
@@ -227,8 +216,6 @@ void MethodHead::selfPrint(unsigned int depth) {
 	cout << "[parameters]\n";
 	this->parameterDeclarations->selfPrint(depth + printPadding);
 }
-MethodHead::MethodHead(Id* name, ParameterDeclarations* parameterDeclarations) : name(name), parameterDeclarations(parameterDeclarations), returnType(nullptr) {}
-MethodHead::MethodHead(Id* name, ParameterDeclarations* parameterDeclarations, Id* returnType) : name(name), parameterDeclarations(parameterDeclarations), returnType(returnType) {}
 
 
 ParameterDeclarations* ParameterDeclarations::parse(TreeGround* treeGround) {
@@ -257,9 +244,6 @@ void ParameterDeclarations::selfPrint(unsigned int depth) {
 	if (this->parameterDeclarations)
 		this->parameterDeclarations->selfPrint(depth);
 }
-ParameterDeclarations::ParameterDeclarations(ParameterDeclaration* parameterDeclaration, ParameterDeclarations* parameterDeclarations) : parameterDeclaration(parameterDeclaration), parameterDeclarations(parameterDeclarations) {}
-ParameterDeclarations::ParameterDeclarations(ParameterDeclaration* parameterDeclaration) : parameterDeclaration(parameterDeclaration), parameterDeclarations(nullptr) {}
-ParameterDeclarations::ParameterDeclarations() : parameterDeclaration(nullptr), parameterDeclarations(nullptr) {}
 
 
 ParameterDeclaration* ParameterDeclaration::parse(TreeGround* treeGround) {
@@ -278,7 +262,6 @@ void ParameterDeclaration::selfPrint(unsigned int depth) {
 	this->identifier->selfPrint(0);
 	cout << "\n";
 }
-ParameterDeclaration::ParameterDeclaration(Id* name, Id* identifier) : name(name), identifier(identifier) {}
 
 
 AnyBody* AnyBody::parse(TreeGround* treeGround) {
@@ -309,7 +292,6 @@ void AnyBody::selfPrint(unsigned int depth) {
 	cout << "[body]\n";
 	this->statements->selfPrint(depth + printPadding);
 }
-AnyBody::AnyBody(Statements* statements) : statements(statements) {}
 
 
 Statements* Statements::parse(TreeGround* treeGround) {
@@ -330,8 +312,6 @@ void Statements::selfPrint(unsigned int depth) {
 	if (this->statements)
 		this->statements->selfPrint(depth);
 }
-Statements::Statements(Statement* statement) : statement(statement), statements(nullptr) {}
-Statements::Statements(Statement* statement, Statements* statements) : statement(statement), statements(statements) {}
 
 
 Statement* Statement::parse(TreeGround* treeGround) {
@@ -386,7 +366,6 @@ void LocalDeclaration::selfPrint(unsigned int depth) {
 	cout << "\n";
 	this->expression->selfPrint(depth + printPadding);
 }
-LocalDeclaration::LocalDeclaration(Id* name, Expression* expression) : name(name), expression(expression) {}
 
 
 Expression* Expression::parse(TreeGround* treeGround) {
@@ -428,8 +407,6 @@ void IdBeginningExpression::selfPrint(unsigned int depth) {
 	if (this->accessesAndCalls)
 		this->accessesAndCalls->selfPrint(depth + printPadding);
 }
-IdBeginningExpression::IdBeginningExpression(Id* identifier) : identifier(identifier), accessesAndCalls(nullptr) {}
-IdBeginningExpression::IdBeginningExpression(Id* identifier, AccessesAndCalls* accessesAndCalls) : identifier(identifier), accessesAndCalls(accessesAndCalls) {}
 
 
 AccessesAndCalls* AccessesAndCalls::parse(TreeGround* treeGround) {
@@ -470,8 +447,6 @@ void AccessAndFurther::selfPrint(unsigned int depth) {
 		this->accessesAndCalls->selfPrint(depth + printPadding);
 	}
 }
-AccessAndFurther::AccessAndFurther(Id* identifier) : identifier(identifier), accessesAndCalls(nullptr) {}
-AccessAndFurther::AccessAndFurther(Id* identifier, AccessesAndCalls* accessesAndCalls) : identifier(identifier), accessesAndCalls(accessesAndCalls) {}
 
 
 CallAndFurther* CallAndFurther::parse(TreeGround* treeGround) {
@@ -509,8 +484,6 @@ void CallAndFurther::selfPrint(unsigned int depth) {
 		this->accessesAndCalls->selfPrint(depth + printPadding);
 	}
 }
-CallAndFurther::CallAndFurther(Expressions* expressions) : expressions(expressions), accessesAndCalls(nullptr) {}
-CallAndFurther::CallAndFurther(Expressions* expressions, AccessesAndCalls* accessesAndCalls) : expressions(expressions), accessesAndCalls(accessesAndCalls) {}
 
 
 Expressions* Expressions::parse(TreeGround* treeGround) {
@@ -539,9 +512,6 @@ void Expressions::selfPrint(unsigned int depth) {
 		this->expressions->selfPrint(depth);
 	}
 }
-Expressions::Expressions() : expression(nullptr), expressions(nullptr) {}
-Expressions::Expressions(Expression* expression) : expression(expression), expressions(nullptr) {}
-Expressions::Expressions(Expression* expression, Expressions* expressions) : expression(expression), expressions(expressions) {}
 
 
 ThisBeginningExpression* ThisBeginningExpression::parse(TreeGround* treeGround) {
@@ -566,8 +536,6 @@ void ThisBeginningExpression::selfPrint(unsigned int depth) {
 	if (this->accessesAndCalls)
 		this->accessesAndCalls->selfPrint(depth + printPadding);
 }
-ThisBeginningExpression::ThisBeginningExpression() : accessesAndCalls(nullptr) {}
-ThisBeginningExpression::ThisBeginningExpression(AccessesAndCalls* accessesAndCalls) : accessesAndCalls(accessesAndCalls) {}
 
 
 LiteralBeginningExpression* LiteralBeginningExpression::parse(TreeGround* treeGround) {
@@ -591,8 +559,6 @@ void LiteralBeginningExpression::selfPrint(unsigned int depth) {
 	if (this->accessesAndCalls)
 		this->accessesAndCalls->selfPrint(depth + printPadding);
 }
-LiteralBeginningExpression::LiteralBeginningExpression(Literal* literal) : literal(literal), accessesAndCalls(nullptr) {}
-LiteralBeginningExpression::LiteralBeginningExpression(Literal* literal, AccessesAndCalls* accessesAndCalls) : literal(literal), accessesAndCalls(accessesAndCalls) {}
 
 
 Literal* Literal::parse(TreeGround* treeGround) {
@@ -673,7 +639,7 @@ void LiteralInteger::selfPrint(unsigned int depth) {
 	printSpace(depth);
 	cout << this->value;
 }
-LiteralInteger::LiteralInteger(int value) : value(value) {}
+
 
 
 LiteralBoolean* LiteralBoolean::parse(TreeGround* treeGround) {
@@ -686,7 +652,7 @@ void LiteralBoolean::selfPrint(unsigned int depth) {
 	printSpace(depth);
 	cout << this->value;
 }
-LiteralBoolean::LiteralBoolean(bool value) : value(value) {}
+
 
 
 LiteralFloat* LiteralFloat::parse(TreeGround* treeGround) {
@@ -699,7 +665,7 @@ void LiteralFloat::selfPrint(unsigned int depth) {
 	printSpace(depth);
 	cout << this->value;
 }
-LiteralFloat::LiteralFloat(double value) : value(value) {}
+
 
 
 LiteralCharacter* LiteralCharacter::parse(TreeGround* treeGround) {
@@ -720,7 +686,7 @@ void LiteralCharacter::selfPrint(unsigned int depth) {
 	printSpace(depth);
 	cout << this->value;
 }
-LiteralCharacter::LiteralCharacter(char value) : value(value) {}
+
 
 
 LiteralIntegerArray* LiteralIntegerArray::parse(TreeGround* treeGround) {
@@ -742,7 +708,7 @@ void LiteralIntegerArray::selfPrint(unsigned int depth) {
 	this->literalIntegers->selfPrint(0);
 	cout << ']';
 }
-LiteralIntegerArray::LiteralIntegerArray(LiteralIntegers* literalIntegers) : literalIntegers(literalIntegers) {}
+
 
 
 LiteralIntegers* LiteralIntegers::parse(TreeGround* treeGround) {
@@ -761,8 +727,7 @@ void LiteralIntegers::selfPrint(unsigned int depth) {
 		this->literalIntegers->selfPrint(0);
 	}
 }
-LiteralIntegers::LiteralIntegers(LiteralInteger* literalInteger) : literalInteger(literalInteger), literalIntegers(nullptr) {}
-LiteralIntegers::LiteralIntegers(LiteralInteger* literalInteger, LiteralIntegers* literalIntegers) : literalInteger(literalInteger), literalIntegers(literalIntegers) {}
+
 
 
 LiteralBooleanArray* LiteralBooleanArray::parse(TreeGround* treeGround) {
@@ -784,7 +749,7 @@ void LiteralBooleanArray::selfPrint(unsigned int depth) {
 	this->literalBooleans->selfPrint(0);
 	cout << ']';
 }
-LiteralBooleanArray::LiteralBooleanArray(LiteralBooleans* literalBooleans) : literalBooleans(literalBooleans) {}
+
 
 
 LiteralBooleans* LiteralBooleans::parse(TreeGround* treeGround) {
@@ -803,8 +768,7 @@ void LiteralBooleans::selfPrint(unsigned int depth) {
 		this->literalBooleans->selfPrint(0);
 	}
 }
-LiteralBooleans::LiteralBooleans(LiteralBoolean* literalBoolean) : literalBoolean(literalBoolean), literalBooleans(nullptr) {}
-LiteralBooleans::LiteralBooleans(LiteralBoolean* literalBoolean, LiteralBooleans* literalBooleans) : literalBoolean(literalBoolean), literalBooleans(literalBooleans) {}
+
 
 
 LiteralFloatArray* LiteralFloatArray::parse(TreeGround* treeGround) {
@@ -826,7 +790,7 @@ void LiteralFloatArray::selfPrint(unsigned int depth) {
 	this->literalFloats->selfPrint(0);
 	cout << ']';
 }
-LiteralFloatArray::LiteralFloatArray(LiteralFloats* literalFloats) : literalFloats(literalFloats) {}
+
 
 
 LiteralFloats* LiteralFloats::parse(TreeGround* treeGround) {
@@ -845,8 +809,7 @@ void LiteralFloats::selfPrint(unsigned int depth) {
 		this->literalFloats->selfPrint(0);
 	}
 }
-LiteralFloats::LiteralFloats(LiteralFloat* literalFloat) : literalFloat(literalFloat), literalFloats(nullptr) {}
-LiteralFloats::LiteralFloats(LiteralFloat* literalFloat, LiteralFloats* literalBooleans) : literalFloat(literalFloat), literalFloats(literalFloats) {}
+
 
 
 LiteralCharacterArray* LiteralCharacterArray::parse(TreeGround* treeGround) {
@@ -870,7 +833,7 @@ void LiteralCharacterArray::selfPrint(unsigned int depth) {
 	this->literalCharacters->selfPrint(0);
 	cout << '"';
 }
-LiteralCharacterArray::LiteralCharacterArray(LiteralCharacters* literalCharacters) : literalCharacters(literalCharacters) {}
+
 
 
 LiteralCharacters* LiteralCharacters::parse(TreeGround* treeGround) {
@@ -893,8 +856,7 @@ void LiteralCharacters::selfPrint(unsigned int depth) {
 	if (this->literalCharacters)
 		this->literalCharacters->selfPrint(0);
 }
-LiteralCharacters::LiteralCharacters(LiteralCharacter* literalCharacter) : literalCharacter(literalCharacter), literalCharacters(nullptr) {}
-LiteralCharacters::LiteralCharacters(LiteralCharacter* literalCharacter, LiteralCharacters* literalCharacters) : literalCharacter(literalCharacter), literalCharacters(literalCharacters) {}
+
 
 
 LiteralIntegerList* LiteralIntegerList::parse(TreeGround* treeGround) {
@@ -916,7 +878,7 @@ void LiteralIntegerList::selfPrint(unsigned int depth) {
 	this->literalIntegers->selfPrint(0);
 	cout << '}';
 }
-LiteralIntegerList::LiteralIntegerList(LiteralIntegers* literalIntegers) : literalIntegers(literalIntegers) {}
+
 
 
 LiteralBooleanList* LiteralBooleanList::parse(TreeGround* treeGround) {
@@ -938,7 +900,7 @@ void LiteralBooleanList::selfPrint(unsigned int depth) {
 	this->literalBooleans->selfPrint(0);
 	cout << '}';
 }
-LiteralBooleanList::LiteralBooleanList(LiteralBooleans* literalBooleans) : literalBooleans(literalBooleans) {}
+
 
 
 LiteralFloatList* LiteralFloatList::parse(TreeGround* treeGround) {
@@ -960,7 +922,7 @@ void LiteralFloatList::selfPrint(unsigned int depth) {
 	this->literalFloats->selfPrint(0);
 	cout << '}';
 }
-LiteralFloatList::LiteralFloatList(LiteralFloats* literalFloats) : literalFloats(literalFloats) {}
+
 
 
 LiteralCharacterList* LiteralCharacterList::parse(TreeGround* treeGround) {
@@ -982,7 +944,7 @@ void LiteralCharacterList::selfPrint(unsigned int depth) {
 	this->literalCharacters->selfPrint(0);
 	cout << '}';
 }
-LiteralCharacterList::LiteralCharacterList(LiteralCharacters* literalCharacters) : literalCharacters(literalCharacters) {}
+
 
 
 Assignment* Assignment::parse(TreeGround* treeGround) {
@@ -1005,7 +967,7 @@ void Assignment::selfPrint(unsigned int depth) {
 	this->expression1->selfPrint(depth + printPadding * 2);
 	cout << "\n";
 }
-Assignment::Assignment(Expression* expression1, Expression* expression2) : expression1(expression1), expression2(expression2) {}
+
 
 
 IfStatement* IfStatement::parse(TreeGround* treeGround) {
@@ -1052,8 +1014,7 @@ void IfStatement::selfPrint(unsigned int depth) {
 		this->falseStatements->selfPrint(depth + printPadding);
 	}
 }
-IfStatement::IfStatement(Expression* condition, Statements* trueStatements) : condition(condition), trueStatements(trueStatements) {}
-IfStatement::IfStatement(Expression* condition, Statements* trueStatements, Statements* falseStatements) : condition(condition), trueStatements(trueStatements), falseStatements(falseStatements) {}
+
 
 
 WhileStatement* WhileStatement::parse(TreeGround* treeGround) {
@@ -1085,7 +1046,7 @@ void WhileStatement::selfPrint(unsigned int depth) {
 	cout << "[loop]\n";
 	this->statements->selfPrint(depth + printPadding);
 }
-WhileStatement::WhileStatement(Expression* condition, Statements* statements) : condition(condition), statements(statements) {}
+
 
 
 ReturnStatement* ReturnStatement::parse(TreeGround* treeGround) {
@@ -1101,7 +1062,7 @@ void ReturnStatement::selfPrint(unsigned int depth) {
 	cout << "[return]\n";
 	this->expression->selfPrint(depth + printPadding);
 }
-ReturnStatement::ReturnStatement(Expression* expression) : expression(expression) {}
+
 
 
 ConstructorDeclaration* ConstructorDeclaration::parse(TreeGround* treeGround) {
@@ -1115,7 +1076,7 @@ void ConstructorDeclaration::selfPrint(unsigned int depth) {
 	this->constructorHead->selfPrint(depth + printPadding);
 	this->body->selfPrint(depth + printPadding);
 }
-ConstructorDeclaration::ConstructorDeclaration(ConstructorHead* constructorHead, AnyBody* body) : constructorHead(constructorHead), body(body) {}
+
 
 
 ConstructorHead* ConstructorHead::parse(TreeGround* treeGround) {
@@ -1138,7 +1099,7 @@ ConstructorHead* ConstructorHead::parse(TreeGround* treeGround) {
 void ConstructorHead::selfPrint(unsigned int depth) {
 	this->parameterDeclarations->selfPrint(depth);
 }
-ConstructorHead::ConstructorHead(ParameterDeclarations* parameterDeclarations) : parameterDeclarations(parameterDeclarations) {}
+
 
 
 Declaration* Declaration::parse(TreeGround* treeGround) {
@@ -1162,4 +1123,4 @@ void Declaration::selfPrint(unsigned int depth) {
 	cout << "\n";
 	this->expression->selfPrint(depth + printPadding);
 }
-Declaration::Declaration(Id* name, Expression* expression) : name(name), expression(expression) {}
+
