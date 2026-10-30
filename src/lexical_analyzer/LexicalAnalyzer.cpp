@@ -426,8 +426,11 @@ void OolongLexicalAnalyzer::analyze() {
 			}
 			continue;
 		}
-		while (this->correctIdentifierCharacter(this->currentCharacter))
+		if (!this->correctIdentifierCharacter(this->currentCharacter))
+			throw domain_error("incorrect identifier");
+		do {
 			this->further();
+		} while (this->correctIdentifierCharacter(this->currentCharacter));
 		span.endPosition = this->currentColumn;
 		this->accumulator.pop_back();
 		this->tokenStorage.push_back(new Identifier(span, this->accumulator));
