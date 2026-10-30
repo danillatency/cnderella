@@ -51,6 +51,17 @@ OolongLexicalAnalyzer::~OolongLexicalAnalyzer() {
 	this->file.close();
 }
 
+vector<Token*>& OolongLexicalAnalyzer::getTokenStorage() {
+	return this->tokenStorage;
+}
+
+void OolongLexicalAnalyzer::printTokens() {
+	for (int i = 0; i < this->tokenStorage.size(); i++) {
+		cout << i << ". ";
+		this->tokenStorage[i]->selfPrint();
+	}
+}
+
 void OolongLexicalAnalyzer::analyze() {
 	bool immediatelyFurther = false;
 	while (immediatelyFurther || this->further()) {
@@ -440,15 +451,4 @@ void OolongLexicalAnalyzer::analyze() {
 			this->accumulator += this->currentCharacter;
 		}
 	}
-}
-
-void OolongLexicalAnalyzer::printTokens() {
-	for (int i = 0; i < this->tokenStorage.size(); i++) {
-		cout << i << ". ";
-		this->tokenStorage[i]->selfPrint();
-	}
-}
-
-vector<Token*>& OolongLexicalAnalyzer::getTokenStorage() {
-	return this->tokenStorage;
 }

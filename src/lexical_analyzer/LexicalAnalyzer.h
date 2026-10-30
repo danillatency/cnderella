@@ -34,11 +34,12 @@ public:
 
 	~OolongLexicalAnalyzer();
 
-	void analyze();
+	vector<Token*>& getTokenStorage();
 
 	void printTokens();
 
-	vector<Token*>& getTokenStorage();
+	void analyze();
 };
+
 
 #endif
