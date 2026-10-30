@@ -3,3 +3,6 @@
 out
 buildSystemFiles
 installation
+.venv
+pyproject.toml
+uv.lock
