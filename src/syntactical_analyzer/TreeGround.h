@@ -702,8 +702,6 @@ public:
 
 	void grow();
 
-	bool outOfTokens();
-
 	Token* currentToken();
 
 	string currentTokenStringValue();
@@ -711,8 +709,6 @@ public:
 	Token* nextToken();
 
 	void back(int steps = 1);
-
-	bool enoughTokensForClassDeclaration();
 
 	void visualize(unsigned int depth, Entity* entity);
 };

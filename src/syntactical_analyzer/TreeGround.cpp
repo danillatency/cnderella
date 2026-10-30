@@ -1169,12 +1169,6 @@ void TreeGround::grow() {
 	this->program = Program::parse(this);
 	this->visualize(0, this->program);
 }
-bool TreeGround::outOfTokens() {
-	return this->currentTokenIndex == this->tokens.size();
-}
-bool TreeGround::enoughTokensForClassDeclaration() {
-	return this->tokens.size() - this->currentTokenIndex - 1 > 4;
-}
 Token* TreeGround::currentToken() {
 	return this->tokens.at(this->currentTokenIndex);
 }
