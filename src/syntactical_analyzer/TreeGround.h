@@ -16,23 +16,30 @@ class ClassDeclaration;
 class ClassHead;
 class Id;
 class ClassBody;
-class Statements;
-class Statement;
+class ClassStatements;
+class ClassStatement;
 class MethodDeclaration;
-class Body;
 class MethodHead;
 class ParameterDeclarations;
 class ParameterDeclaration;
-class ConstructorDeclaration;
-class ConstructorHead;
+class AnyBody;
+class Statements;
+class Statement;
 class LocalDeclaration;
 class Expression;
+class IdBeginningExpression;
+class AccessesAndCalls;
+class AccessAndFurther;
+class CallAndFurther;
+class Expressions;
+class ThisBeginningExpression;
+class LiteralBeginningExpression;
+
 class Literal;
 class LiteralInteger;
 class LiteralBoolean;
 class LiteralFloat;
 class LiteralCharacter;
-
 class LiteralIntegerArray;
 class LiteralIntegers;
 class LiteralBooleanArray;
@@ -46,17 +53,13 @@ class LiteralBooleanList;
 class LiteralFloatList;
 class LiteralCharacterList;
 
-class IdBeginningExpression;
-class AccessesAndCalls;
-class AccessAndFurther;
-class CallAndFurther;
-class Expressions;
-class LiteralBeginningExpression;
 class Assignment;
 class IfStatement;
 class WhileStatement;
 class ReturnStatement;
-
+class ConstructorDeclaration;
+class ConstructorHead;
+class Declaration;
 class TreeGround;
 
 
@@ -137,9 +140,9 @@ public:
 
 class ClassBody : public Entity {
 public:
-	Statements* statements;
+	ClassStatements* classStatements;
 
-	ClassBody(Statements* statements);
+	ClassBody(ClassStatements* classStatements);
 
 	void selfPrint(unsigned int depth) override;
 
@@ -147,51 +150,39 @@ public:
 };
 
 
-class Statements : public Entity {
+class ClassStatements : public Entity {
 public:
-	Statement* statement;
-	Statements* statements;
+	ClassStatement* classStatement;
+	ClassStatements* classStatements;
 
-	Statements(Statement* statement);
+	ClassStatements(ClassStatement* classStatement);
 
-	Statements(Statement* statement, Statements* statements);
+	ClassStatements(ClassStatement* classStatement, ClassStatements* ClassStatements);
 
 	void selfPrint(unsigned int depth) override;
 
-	static Statements* parse(TreeGround* treeGround);
+	static ClassStatements* parse(TreeGround* treeGround);
 };
 
 
-class Statement : public Entity {
+class ClassStatement : public Entity {
 public:
 	virtual void selfPrint(unsigned int depth) = 0;
 
-	static Statement* parse(TreeGround* treeGround);
+	static ClassStatement* parse(TreeGround* treeGround);
 };
 
 
-class MethodDeclaration : public Statement {
+class MethodDeclaration : public ClassStatement {
 public:
 	MethodHead* methodHead;
-	Body* body;
+	AnyBody* body;
 
-	MethodDeclaration(MethodHead* methodHead, Body* body);
+	MethodDeclaration(MethodHead* methodHead, AnyBody* body);
 
 	void selfPrint(unsigned int depth) override;
 
 	static MethodDeclaration* parse(TreeGround* treeGround);
-};
-
-
-class Body : public Entity {
-public:
-	Statements* statements;
-
-	Body(Statements* statements);
-
-	void selfPrint(unsigned int depth) override;
-
-	static Body* parse(TreeGround* treeGround);
 };
 
 
@@ -241,28 +232,38 @@ public:
 };
 
 
-class ConstructorDeclaration : public Statement {
+class AnyBody : public Entity {
 public:
-	ConstructorHead* constructorHead;
-	Body* body;
+	Statements* statements;
 
-	ConstructorDeclaration(ConstructorHead* constructorHead, Body* body);
+	AnyBody(Statements* statements);
 
 	void selfPrint(unsigned int depth) override;
 
-	static ConstructorDeclaration* parse(TreeGround* treeGround);
+	static AnyBody* parse(TreeGround* treeGround);
 };
 
 
-class ConstructorHead : public Entity {
+class Statements : public Entity {
 public:
-	ParameterDeclarations* parameterDeclarations;
+	Statement* statement;
+	Statements* statements;
 
-	ConstructorHead(ParameterDeclarations* parameterDeclarations);
+	Statements(Statement* statement);
+
+	Statements(Statement* statement, Statements* statements);
 
 	void selfPrint(unsigned int depth) override;
 
-	static ConstructorHead* parse(TreeGround* treeGround);
+	static Statements* parse(TreeGround* treeGround);
+};
+
+
+class Statement : public Entity {
+public:
+	virtual void selfPrint(unsigned int depth) = 0;
+
+	static Statement* parse(TreeGround* treeGround);
 };
 
 
@@ -648,6 +649,44 @@ public:
 	void selfPrint(unsigned int depth) override;
 
 	static ReturnStatement* parse(TreeGround* treeGround);
+};
+
+
+class ConstructorDeclaration : public ClassStatement {
+public:
+	ConstructorHead* constructorHead;
+	AnyBody* body;
+
+	ConstructorDeclaration(ConstructorHead* constructorHead, AnyBody* body);
+
+	void selfPrint(unsigned int depth) override;
+
+	static ConstructorDeclaration* parse(TreeGround* treeGround);
+};
+
+
+class ConstructorHead : public Entity {
+public:
+	ParameterDeclarations* parameterDeclarations;
+
+	ConstructorHead(ParameterDeclarations* parameterDeclarations);
+
+	void selfPrint(unsigned int depth) override;
+
+	static ConstructorHead* parse(TreeGround* treeGround);
+};
+
+
+class Declaration : public ClassStatement {
+public:
+	Id* name;
+	Expression* expression;
+
+	Declaration(Id* name, Expression* expression);
+
+	void selfPrint(unsigned int depth) override;
+
+	static Declaration* parse(TreeGround* treeGround);
 };
 
 

@@ -27,32 +27,24 @@
 &nbsp;&nbsp;&nbsp;&nbsp;;
 
 **ClassBody**  
-&nbsp;&nbsp;&nbsp;&nbsp;: *TokenIs* **Statements** *TokenEnd*  
-&nbsp;&nbsp;&nbsp;&nbsp;| *TokenArrow* **Statement**  
+&nbsp;&nbsp;&nbsp;&nbsp;: *TokenIs* **ClassStatements** *TokenEnd*  
+&nbsp;&nbsp;&nbsp;&nbsp;| *TokenArrow* **ClassStatement**  
 &nbsp;&nbsp;&nbsp;&nbsp;;
 
-**Statements**  
-&nbsp;&nbsp;&nbsp;&nbsp;: **Statement**  
-&nbsp;&nbsp;&nbsp;&nbsp;| **Statement Statements**  
+**ClassStatements**  
+&nbsp;&nbsp;&nbsp;&nbsp;: **ClassStatement**  
+&nbsp;&nbsp;&nbsp;&nbsp;| **ClassStatement ClassStatements**  
 &nbsp;&nbsp;&nbsp;&nbsp;;
 
-**Statement**  
+**ClassStatement**  
 &nbsp;&nbsp;&nbsp;&nbsp;: **MethodDeclaration**  
 &nbsp;&nbsp;&nbsp;&nbsp;| **ConstructorDeclaration**  
-&nbsp;&nbsp;&nbsp;&nbsp;| **LocalDeclaration**  
-&nbsp;&nbsp;&nbsp;&nbsp;| **Assignment**  
-&nbsp;&nbsp;&nbsp;&nbsp;| **IfStatement**  
-&nbsp;&nbsp;&nbsp;&nbsp;| **WhileStatement**  
-&nbsp;&nbsp;&nbsp;&nbsp;| **ReturnStatement**  
-&nbsp;&nbsp;&nbsp;&nbsp;| **Expression**  
+&nbsp;&nbsp;&nbsp;&nbsp;| **Declaration**  
 &nbsp;&nbsp;&nbsp;&nbsp;;
 
 **MethodDeclaration**  
 &nbsp;&nbsp;&nbsp;&nbsp;: **MethodHead AnyBody**  
 &nbsp;&nbsp;&nbsp;&nbsp;;
-
-**AnyBody**
-&nbsp;&nbsp;&nbsp;&nbsp;: 
 
 **MethodHead**  
 &nbsp;&nbsp;&nbsp;&nbsp;: *TokenMethod* **Id** *TokenOpeningParenthesis* **ParameterDeclarations** *TokenClosingParenthesis*  
@@ -69,12 +61,23 @@
 &nbsp;&nbsp;&nbsp;&nbsp;: **Id** *TokenColon* **Id**  
 &nbsp;&nbsp;&nbsp;&nbsp;;
 
-**ConstructorDeclaration**  
-&nbsp;&nbsp;&nbsp;&nbsp;: **ConstructorHead AnyBody**  
+**AnyBody**
+&nbsp;&nbsp;&nbsp;&nbsp;: *TokenIs* **Statements** *TokenEnd*  
+&nbsp;&nbsp;&nbsp;&nbsp;| *TokenArrow* **Statement**  
 &nbsp;&nbsp;&nbsp;&nbsp;;
 
-**ConstructorHead**  
-&nbsp;&nbsp;&nbsp;&nbsp;: *TokenThis TokenOpeningParenthesis* **ParameterDeclarations** *TokenClosingParenthesis*  
+**Statements**  
+&nbsp;&nbsp;&nbsp;&nbsp;: **Statement**  
+&nbsp;&nbsp;&nbsp;&nbsp;| **Statement Statements**  
+&nbsp;&nbsp;&nbsp;&nbsp;;
+
+**Statement**  
+&nbsp;&nbsp;&nbsp;&nbsp;: **LocalDeclaration**  
+&nbsp;&nbsp;&nbsp;&nbsp;| **Assignment**  
+&nbsp;&nbsp;&nbsp;&nbsp;| **IfStatement**  
+&nbsp;&nbsp;&nbsp;&nbsp;| **WhileStatement**  
+&nbsp;&nbsp;&nbsp;&nbsp;| **ReturnStatement**  
+&nbsp;&nbsp;&nbsp;&nbsp;| **Expression**  
 &nbsp;&nbsp;&nbsp;&nbsp;;
 
 **LocalDeclaration**  
@@ -223,4 +226,16 @@
 
 **ReturnStatement**  
 &nbsp;&nbsp;&nbsp;&nbsp;: *TokenReturn* **Expression**  
+&nbsp;&nbsp;&nbsp;&nbsp;;
+
+**ConstructorDeclaration**  
+&nbsp;&nbsp;&nbsp;&nbsp;: **ConstructorHead AnyBody**  
+&nbsp;&nbsp;&nbsp;&nbsp;;
+
+**ConstructorHead**  
+&nbsp;&nbsp;&nbsp;&nbsp;: *TokenThis TokenOpeningParenthesis* **ParameterDeclarations** *TokenClosingParenthesis*  
+&nbsp;&nbsp;&nbsp;&nbsp;;
+
+**Declaration**
+&nbsp;&nbsp;&nbsp;&nbsp;: *TokenVar* **Id** *TokenAssignment* **Expression**  
 &nbsp;&nbsp;&nbsp;&nbsp;;

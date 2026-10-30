@@ -114,7 +114,7 @@ ClassBody* ClassBody::parse(TreeGround* treeGround) {
 	};
 	int checkpoint = treeGround->currentTokenIndex;
 	if (treeGround->nextToken()->code == TokenIs) {
-		Statements* statements = Statements::parse(treeGround);
+		ClassStatements* classStatements = ClassStatements::parse(treeGround);
 		if (treeGround->nextToken()->code != TokenNewLine) {
 			treeGround->back();
 		};
@@ -122,92 +122,69 @@ ClassBody* ClassBody::parse(TreeGround* treeGround) {
 			treeGround->currentTokenIndex = checkpoint;
 			throw runtime_error("end expected");
 		}
-		return new ClassBody(statements);
+		return new ClassBody(classStatements);
 	}
 	if (treeGround->currentToken()->code != TokenArrow) {
 		treeGround->back();
 		throw runtime_error("arrow expected");
 	}
-	Statement* statement = Statement::parse(treeGround);
-	return new ClassBody(new Statements(statement));
+	ClassStatement* classStatement = ClassStatement::parse(treeGround);
+	return new ClassBody(new ClassStatements(classStatement));
 }
 void ClassBody::selfPrint(unsigned int depth) {
 	printSpace(depth);
 	cout << "[class body]\n";
-	this->statements->selfPrint(depth + printPadding);
+	this->classStatements->selfPrint(depth + printPadding);
 }
-ClassBody::ClassBody(Statements* statements) : statements(statements) {}
+ClassBody::ClassBody(ClassStatements* classStatements) : classStatements(classStatements) {}
 
 
-Statements* Statements::parse(TreeGround* treeGround) {
-	Statement* statement = Statement::parse(treeGround);
+ClassStatements* ClassStatements::parse(TreeGround* treeGround) {
+	ClassStatement* classStatement = ClassStatement::parse(treeGround);
 	int checkpoint = treeGround->currentTokenIndex;
-	Statements* statements;
+	ClassStatements* classStatements;
 	try {
-		statements = Statements::parse(treeGround);
+		classStatements = ClassStatements::parse(treeGround);
 	}
 	catch (const runtime_error& e) {
 		treeGround->currentTokenIndex = checkpoint;
-		return new Statements(statement);
+		return new ClassStatements(classStatement);
 	}
-	return new Statements(statement, statements);
+	return new ClassStatements(classStatement, classStatements);
 }
-void Statements::selfPrint(unsigned int depth) {
-	this->statement->selfPrint(depth);
-	if (this->statements)
-		this->statements->selfPrint(depth);
+void ClassStatements::selfPrint(unsigned int depth) {
+	this->classStatement->selfPrint(depth);
+	if (this->classStatements)
+		this->classStatements->selfPrint(depth);
 }
-Statements::Statements(Statement* statement) : statement(statement), statements(nullptr) {}
-Statements::Statements(Statement* statement, Statements* statements) : statement(statement), statements(statements) {}
+ClassStatements::ClassStatements(ClassStatement* classStatement) : classStatement(classStatement), classStatements(nullptr) {}
+ClassStatements::ClassStatements(ClassStatement* classStatement, ClassStatements* classStatements) : classStatement(classStatement), classStatements(classStatements) {}
 
 
-Statement* Statement::parse(TreeGround* treeGround) {
+ClassStatement* ClassStatement::parse(TreeGround* treeGround) {
 	if (treeGround->nextToken()->code != TokenNewLine) {
 		treeGround->back();
 	};
 	switch (treeGround->nextToken()->code) {
-	case TokenVar: {
+	case TokenVar:
 		treeGround->back();
-		return LocalDeclaration::parse(treeGround);
-	}
-	case TokenMethod: {
+		return Declaration::parse(treeGround);
+	case TokenMethod:
 		treeGround->back();
 		return MethodDeclaration::parse(treeGround);
-	}
-	case TokenThis: {
+	case TokenThis:
 		treeGround->back();
 		return ConstructorDeclaration::parse(treeGround);
-	}
-	case TokenIf: {
+	default:
 		treeGround->back();
-		return IfStatement::parse(treeGround);
-	}
-	case TokenWhile: {
-		treeGround->back();
-		return WhileStatement::parse(treeGround);
-	}
-	case TokenReturn: {
-		treeGround->back();
-		return ReturnStatement::parse(treeGround);
-	}
-	default: {
-		treeGround->back();
-		int savedTokenIndex = treeGround->currentTokenIndex;
-		try {
-			return Assignment::parse(treeGround);
-		}
-		catch (const runtime_error& e) {
-			treeGround->currentTokenIndex = savedTokenIndex;
-			return Expression::parse(treeGround);
-		}
-	}
+		throw runtime_error("unexpected token");
 	}
 }
 
 
 MethodDeclaration* MethodDeclaration::parse(TreeGround* treeGround) {
 	MethodHead* methodHead = MethodHead::parse(treeGround);
-	Body* body = Body::parse(treeGround);
+	AnyBody* body = AnyBody::parse(treeGround);
 	return new MethodDeclaration(methodHead, body);
 }
 void MethodDeclaration::selfPrint(unsigned int depth) {
@@ -216,38 +193,7 @@ void MethodDeclaration::selfPrint(unsigned int depth) {
 	this->methodHead->selfPrint(depth + printPadding);
 	this->body->selfPrint(depth + printPadding);
 }
-MethodDeclaration::MethodDeclaration(MethodHead* methodHead, Body* body) : methodHead(methodHead), body(body) {}
-
-
-Body* Body::parse(TreeGround* treeGround) {
-	if (treeGround->nextToken()->code != TokenNewLine) {
-		treeGround->back();
-	};
-	int checkpoint = treeGround->currentTokenIndex;
-	if (treeGround->nextToken()->code == TokenIs) {
-		Statements* statements = Statements::parse(treeGround);
-		if (treeGround->nextToken()->code != TokenNewLine) {
-			treeGround->back();
-		};
-		if (treeGround->nextToken()->code != TokenEnd) {
-			treeGround->currentTokenIndex = checkpoint;
-			throw runtime_error("end expected");
-		}
-		return new Body(statements);
-	}
-	if (treeGround->currentToken()->code != TokenArrow) {
-		treeGround->back();
-		throw runtime_error("arrow expected");
-	}
-	Statement* statement = Statement::parse(treeGround);
-	return new Body(new Statements(statement));
-}
-void Body::selfPrint(unsigned int depth) {
-	printSpace(depth);
-	cout << "[class body]\n";
-	this->statements->selfPrint(depth + printPadding);
-}
-Body::Body(Statements* statements) : statements(statements) {}
+MethodDeclaration::MethodDeclaration(MethodHead* methodHead, AnyBody* body) : methodHead(methodHead), body(body) {}
 
 
 MethodHead* MethodHead::parse(TreeGround* treeGround) {
@@ -334,41 +280,88 @@ void ParameterDeclaration::selfPrint(unsigned int depth) {
 ParameterDeclaration::ParameterDeclaration(Id* name, Id* identifier) : name(name), identifier(identifier) {}
 
 
-ConstructorDeclaration* ConstructorDeclaration::parse(TreeGround* treeGround) {
-	ConstructorHead* constructorHead = ConstructorHead::parse(treeGround);
-	Body* body = Body::parse(treeGround);
-	return new ConstructorDeclaration(constructorHead, body);
-}
-void ConstructorDeclaration::selfPrint(unsigned int depth) {
-	printSpace(depth);
-	cout << "[constructor]\n";
-	this->constructorHead->selfPrint(depth + printPadding);
-	this->body->selfPrint(depth + printPadding);
-}
-ConstructorDeclaration::ConstructorDeclaration(ConstructorHead* constructorHead, Body* body) : constructorHead(constructorHead), body(body) {}
-
-
-ConstructorHead* ConstructorHead::parse(TreeGround* treeGround) {
-	int checkpoint = treeGround->currentTokenIndex;
-	if (treeGround->nextToken()->code != TokenThis) {
+AnyBody* AnyBody::parse(TreeGround* treeGround) {
+	if (treeGround->nextToken()->code != TokenNewLine) {
 		treeGround->back();
-		throw runtime_error("this expected");
+	};
+	int checkpoint = treeGround->currentTokenIndex;
+	if (treeGround->nextToken()->code == TokenIs) {
+		Statements* statements = Statements::parse(treeGround);
+		if (treeGround->nextToken()->code != TokenNewLine) {
+			treeGround->back();
+		};
+		if (treeGround->nextToken()->code != TokenEnd) {
+			treeGround->currentTokenIndex = checkpoint;
+			throw runtime_error("end expected");
+		}
+		return new AnyBody(statements);
 	}
-	if (treeGround->nextToken()->code != TokenOpeningParenthesis) {
-		treeGround->currentTokenIndex = checkpoint;
-		throw runtime_error("opening parenthesis expected");
+	if (treeGround->currentToken()->code != TokenArrow) {
+		treeGround->back();
+		throw runtime_error("arrow expected");
 	}
-	ParameterDeclarations* parameterDeclarations = ParameterDeclarations::parse(treeGround);
-	if (treeGround->nextToken()->code != TokenClosingParenthesis) {
-		treeGround->currentTokenIndex = checkpoint;
-		throw runtime_error("closing parenthesis expected");
-	}
-	return new ConstructorHead(parameterDeclarations);
+	Statement* statement = Statement::parse(treeGround);
+	return new AnyBody(new Statements(statement));
 }
-void ConstructorHead::selfPrint(unsigned int depth) {
-	this->parameterDeclarations->selfPrint(depth);
+void AnyBody::selfPrint(unsigned int depth) {
+	printSpace(depth);
+	cout << "[body]\n";
+	this->statements->selfPrint(depth + printPadding);
 }
-ConstructorHead::ConstructorHead(ParameterDeclarations* parameterDeclarations) : parameterDeclarations(parameterDeclarations) {}
+AnyBody::AnyBody(Statements* statements) : statements(statements) {}
+
+
+Statements* Statements::parse(TreeGround* treeGround) {
+	Statement* statement = Statement::parse(treeGround);
+	int checkpoint = treeGround->currentTokenIndex;
+	Statements* statements;
+	try {
+		statements = Statements::parse(treeGround);
+	}
+	catch (const runtime_error& e) {
+		treeGround->currentTokenIndex = checkpoint;
+		return new Statements(statement);
+	}
+	return new Statements(statement, statements);
+}
+void Statements::selfPrint(unsigned int depth) {
+	this->statement->selfPrint(depth);
+	if (this->statements)
+		this->statements->selfPrint(depth);
+}
+Statements::Statements(Statement* statement) : statement(statement), statements(nullptr) {}
+Statements::Statements(Statement* statement, Statements* statements) : statement(statement), statements(statements) {}
+
+
+Statement* Statement::parse(TreeGround* treeGround) {
+	if (treeGround->nextToken()->code != TokenNewLine) {
+		treeGround->back();
+	};
+	switch (treeGround->nextToken()->code) {
+	case TokenVar:
+		treeGround->back();
+		return LocalDeclaration::parse(treeGround);
+	case TokenIf:
+		treeGround->back();
+		return IfStatement::parse(treeGround);
+	case TokenWhile:
+		treeGround->back();
+		return WhileStatement::parse(treeGround);
+	case TokenReturn:
+		treeGround->back();
+		return ReturnStatement::parse(treeGround);
+	default:
+		treeGround->back();
+		int savedTokenIndex = treeGround->currentTokenIndex;
+		try {
+			return Assignment::parse(treeGround);
+		}
+		catch (const runtime_error& e) {
+			treeGround->currentTokenIndex = savedTokenIndex;
+			return Expression::parse(treeGround);
+		}
+	}
+}
 
 
 LocalDeclaration* LocalDeclaration::parse(TreeGround* treeGround) {
@@ -387,7 +380,7 @@ LocalDeclaration* LocalDeclaration::parse(TreeGround* treeGround) {
 }
 void LocalDeclaration::selfPrint(unsigned int depth) {
 	printSpace(depth);
-	cout << "[declaration]\n";
+	cout << "[local declaration]\n";
 	this->name->selfPrint(depth + printPadding);
 	cout << "\n";
 	this->expression->selfPrint(depth + printPadding);
@@ -1110,6 +1103,67 @@ void ReturnStatement::selfPrint(unsigned int depth) {
 	this->expression->selfPrint(depth + printPadding);
 }
 ReturnStatement::ReturnStatement(Expression* expression) : expression(expression) {}
+
+
+ConstructorDeclaration* ConstructorDeclaration::parse(TreeGround* treeGround) {
+	ConstructorHead* constructorHead = ConstructorHead::parse(treeGround);
+	AnyBody* body = AnyBody::parse(treeGround);
+	return new ConstructorDeclaration(constructorHead, body);
+}
+void ConstructorDeclaration::selfPrint(unsigned int depth) {
+	printSpace(depth);
+	cout << "[constructor]\n";
+	this->constructorHead->selfPrint(depth + printPadding);
+	this->body->selfPrint(depth + printPadding);
+}
+ConstructorDeclaration::ConstructorDeclaration(ConstructorHead* constructorHead, AnyBody* body) : constructorHead(constructorHead), body(body) {}
+
+
+ConstructorHead* ConstructorHead::parse(TreeGround* treeGround) {
+	int checkpoint = treeGround->currentTokenIndex;
+	if (treeGround->nextToken()->code != TokenThis) {
+		treeGround->back();
+		throw runtime_error("this expected");
+	}
+	if (treeGround->nextToken()->code != TokenOpeningParenthesis) {
+		treeGround->currentTokenIndex = checkpoint;
+		throw runtime_error("opening parenthesis expected");
+	}
+	ParameterDeclarations* parameterDeclarations = ParameterDeclarations::parse(treeGround);
+	if (treeGround->nextToken()->code != TokenClosingParenthesis) {
+		treeGround->currentTokenIndex = checkpoint;
+		throw runtime_error("closing parenthesis expected");
+	}
+	return new ConstructorHead(parameterDeclarations);
+}
+void ConstructorHead::selfPrint(unsigned int depth) {
+	this->parameterDeclarations->selfPrint(depth);
+}
+ConstructorHead::ConstructorHead(ParameterDeclarations* parameterDeclarations) : parameterDeclarations(parameterDeclarations) {}
+
+
+Declaration* Declaration::parse(TreeGround* treeGround) {
+	int checkpoint = treeGround->currentTokenIndex;
+	if (treeGround->nextToken()->code != TokenVar) {
+		treeGround->back();
+		throw runtime_error("var expected");
+	}
+	Id* identifier = Id::parse(treeGround);
+	if (treeGround->nextToken()->code != TokenAssignment) {
+		treeGround->currentTokenIndex = checkpoint;
+		throw runtime_error("assignment expected");
+	}
+	Expression* expression = Expression::parse(treeGround);
+	return new Declaration(identifier, expression);
+}
+void Declaration::selfPrint(unsigned int depth) {
+	printSpace(depth);
+	cout << "[declaration]\n";
+	this->name->selfPrint(depth + printPadding);
+	cout << "\n";
+	this->expression->selfPrint(depth + printPadding);
+}
+Declaration::Declaration(Id* name, Expression* expression) : name(name), expression(expression) {}
 
 
 TreeGround::TreeGround(vector<Token*>& tokens) : tokens(tokens), currentTokenIndex(-1) {}
