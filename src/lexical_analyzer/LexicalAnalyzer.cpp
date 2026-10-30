@@ -444,28 +444,8 @@ void OolongLexicalAnalyzer::analyze() {
 
 void OolongLexicalAnalyzer::printTokens() {
 	for (int i = 0; i < this->tokenStorage.size(); i++) {
-		Token* token = this->tokenStorage[i];
-		switch (token->code) {
-		case TokenInteger:
-			cout << i << ". Integer literal:   " << dynamic_cast<Integer*>(token)->value << "\n";
-			break;
-		case TokenBoolean:
-			cout << i << ". Boolean literal:   " << dynamic_cast<Boolean*>(token)->value << "\n";
-			break;
-		case TokenCharacter:
-			cout << i << ". Character literal: " << dynamic_cast<Character*>(token)->value << "\n";
-			break;
-		case TokenFloat:
-			cout << i << ". Float literal:     " << dynamic_cast<Float*>(token)->value << "\n";
-			break;
-		case TokenIdentifier:
-			cout << i << ". Identifier:        " << dynamic_cast<Identifier*>(token)->value << "\n";
-			break;
-
-		default:
-			cout << i << ". Reserved word:     " << TokenName[token->code] << "\n";
-		}
-
+		cout << i << ". ";
+		this->tokenStorage[i]->selfPrint();
 	}
 }
 

@@ -8,12 +8,6 @@ using namespace std;
 
 
 enum TokenCode {
-	TokenInteger,
-	TokenBoolean,
-	TokenCharacter,
-	TokenFloat,
-	TokenIdentifier,
-
 	TokenClass,
 	TokenDot,
 	TokenBase,
@@ -40,11 +34,14 @@ enum TokenCode {
 	TokenOpeningSquareBracket,
 	TokenClosingSquareBracket,
 	TokenOpeningCurlyBrace,
-	TokenClosingCurlyBrace
+	TokenClosingCurlyBrace,
+
+	TokenInteger,
+	TokenBoolean,
+	TokenCharacter,
+	TokenFloat,
+	TokenIdentifier
 };
-
-
-string TokenName[];
 
 
 class Span {
@@ -59,12 +56,16 @@ public:
 
 class Token {
 public:
-	unsigned int code;
+	TokenCode code;
 	Span span;
 
-	Token(unsigned int code, Span span);
+	Token(TokenCode tokenCode, Span span);
 
-	virtual ~Token();
+	virtual string toString();
+
+	void selfPrint();
+
+	virtual ~Token() = default;
 };
 
 
@@ -73,6 +74,8 @@ public:
 	string value;
 
 	Identifier(Span span, string value);
+
+	string toString() override;
 };
 
 
@@ -81,6 +84,8 @@ public:
 	int value;
 
 	Integer(Span span, int value);
+
+	string toString() override;
 };
 
 
@@ -89,6 +94,8 @@ public:
 	double value;
 
 	Float(Span span, double value);
+
+	string toString() override;
 };
 
 
@@ -97,6 +104,8 @@ public:
 	bool value;
 
 	Boolean(Span span, bool value);
+
+	string toString() override;
 };
 
 
@@ -105,6 +114,8 @@ public:
 	char value;
 
 	Character(Span span, char value);
+
+	string toString() override;
 };
 
 

@@ -1,15 +1,12 @@
+#include <iostream>
+
 #include "Tokens.h"
 
 
 using namespace std;
 
 
-string TokenName[] = {
-	"LiteralInteger",
-	"LiteralBoolean",
-	"LiteralCharacter",
-	"LiteralFloat",
-	"LiteralIdentifier",
+const string TOKEN_NAME[] = {
 
 	"class",
 	".",
@@ -37,7 +34,13 @@ string TokenName[] = {
 	"[",
 	"]",
 	"{",
-	"}"
+	"}",
+
+	"LiteralInteger",
+	"LiteralBoolean",
+	"LiteralCharacter",
+	"LiteralFloat",
+	"Identifier"
 };
 
 
@@ -48,30 +51,40 @@ Span::Span(unsigned long row, unsigned int beginPosition, unsigned int endPositi
 }
 
 
-Token::Token(unsigned int code, Span span) : code(code), span(span) {}
-Token::~Token() = default;
-
-
-Identifier::Identifier(Span span, string value) : Token(TokenIdentifier, span) {
-	this->value = value;
+string Token::toString() {
+	return "Keyword: " + TOKEN_NAME[this->code];
 }
-
-
-Integer::Integer(Span span, int value) : Token(TokenInteger, span) {
-	this->value = value;
+void Token::selfPrint() {
+	cout << this->toString() << '\n';
 }
+Token::Token(TokenCode tokenCode, Span span) : code(tokenCode), span(span) {}
 
 
-Float::Float(Span span, double value) : Token(TokenFloat, span) {
-	this->value = value;
+string Identifier::toString() {
+	return "Identifier: " + this->value;
 }
+Identifier::Identifier(Span span, string value) : Token(TokenIdentifier, span), value(value) {}
 
 
-Boolean::Boolean(Span span, bool value) : Token(TokenBoolean, span) {
-	this->value = value;
+string Integer::toString() {
+	return "LiteralInteger: " + to_string(this->value);
 }
+Integer::Integer(Span span, int value) : Token(TokenInteger, span), value(value) {}
 
 
-Character::Character(Span span, char value) : Token(TokenCharacter, span) {
-	this->value = value;
+string Float::toString() {
+	return "LiteralFLoat: " + to_string(this->value);
 }
+Float::Float(Span span, double value) : Token(TokenFloat, span), value(value) {}
+
+
+string Boolean::toString() {
+	return "LiteralBoolean: "s + (this->value ? "true" : "false");
+}
+Boolean::Boolean(Span span, bool value) : Token(TokenBoolean, span), value(value) {}
+
+
+string Character::toString() {
+	return "Identifier: "s + this->value;
+}
+Character::Character(Span span, char value) : Token(TokenCharacter, span), value(value) {}
