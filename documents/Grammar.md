@@ -155,6 +155,7 @@
 
 **LiteralCharacter**  
 &nbsp;&nbsp;&nbsp;&nbsp;: *TokenQuote TokenCharacter TokenQuote*  
+&nbsp;&nbsp;&nbsp;&nbsp;| *TokenCharacter*  
 &nbsp;&nbsp;&nbsp;&nbsp;;
 
 **LiteralIntegerArray**  

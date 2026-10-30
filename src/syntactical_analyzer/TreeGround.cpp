@@ -702,17 +702,13 @@ LiteralFloat::LiteralFloat(double value) : value(value) {}
 
 
 LiteralCharacter* LiteralCharacter::parse(TreeGround* treeGround) {
-	if (treeGround->nextToken()->code != TokenQuote) {
+	if (treeGround->nextToken()->code == TokenCharacter)
+		return new LiteralCharacter(dynamic_cast<Character*>(treeGround->currentToken())->value);
+	if (treeGround->currentToken()->code != TokenQuote) {
 		treeGround->back();
 		throw runtime_error("' expected");
 	}
-	char character;
-	if (treeGround->nextToken()->code == TokenCharacter)
-		character = dynamic_cast<Character*>(treeGround->currentToken())->value;
-	else {
-		treeGround->back(2);
-		throw runtime_error("character expected");
-	}
+	char character = dynamic_cast<Character*>(treeGround->nextToken())->value;
 	if (treeGround->nextToken()->code != TokenQuote) {
 		treeGround->back(3);
 		throw runtime_error("' expected");
@@ -855,13 +851,13 @@ LiteralFloats::LiteralFloats(LiteralFloat* literalFloat, LiteralFloats* literalB
 LiteralCharacterArray* LiteralCharacterArray::parse(TreeGround* treeGround) {
 	int checkpoint = treeGround->currentTokenIndex;
 	if (treeGround->nextToken()->code != TokenOpeningSquareBracket 
-		&& treeGround->nextToken()->code != TokenDoubleQuote) {
+		&& treeGround->currentToken()->code != TokenDoubleQuote) {
 		treeGround->back();
 		throw runtime_error("[ or \" expected");
 	}
 	LiteralCharacters* literalCharacters = LiteralCharacters::parse(treeGround);
 	if (treeGround->nextToken()->code != TokenClosingSquareBracket
-		&& treeGround->nextToken()->code != TokenDoubleQuote) {
+		&& treeGround->currentToken()->code != TokenDoubleQuote) {
 		treeGround->currentTokenIndex = checkpoint;
 		throw runtime_error("] or \" expected");
 	}
@@ -1001,10 +997,12 @@ Assignment* Assignment::parse(TreeGround* treeGround) {
 void Assignment::selfPrint(unsigned int depth) {
 	printSpace(depth);
 	cout << "[assign]\n";
-	this->expression1->selfPrint(depth + printPadding);
-	printSpace(depth);
-	cout << "[to]\n";
 	this->expression2->selfPrint(depth + printPadding);
+	cout << "\n";
+	printSpace(depth + printPadding);
+	cout << "[to]\n";
+	this->expression1->selfPrint(depth + printPadding * 2);
+	cout << "\n";
 }
 Assignment::Assignment(Expression* expression1, Expression* expression2) : expression1(expression1), expression2(expression2) {}
 

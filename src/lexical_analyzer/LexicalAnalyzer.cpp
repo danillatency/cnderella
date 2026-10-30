@@ -363,9 +363,6 @@ void OolongLexicalAnalyzer::analyze() {
 			this->tokenStorage.push_back(new Token(TokenDoubleQuote, span));
 			while (this->further() != '"') {
 				span.endPosition = this->currentColumn;
-				if (this->currentCharacter == '\n')
-					throw domain_error("Unclosed string on the line: " + to_string(span.row) +
-						" from: " + to_string(span.beginPosition) + " to: " + to_string(span.endPosition));
 				this->tokenStorage.push_back(new Character(span, this->currentCharacter));
 			}
 			span.endPosition = this->currentColumn;
@@ -378,7 +375,7 @@ void OolongLexicalAnalyzer::analyze() {
 			span.endPosition = this->currentColumn;
 			this->tokenStorage.push_back(new Character(span, this->further()));
 			if (this->further() != '\'')
-				throw domain_error("Unclosed string on the line: " + to_string(span.row) +
+				throw domain_error("Unclosed character on the line: " + to_string(span.row) +
 					" from: " + to_string(span.beginPosition) + " to: " + to_string(span.endPosition));
 			span.endPosition = this->currentColumn;
 			this->tokenStorage.push_back(new Token(TokenQuote, span));
