@@ -1,10 +1,9 @@
+#include <iostream>
+
 #include "TreeVertices.h"
 
 
-int printPadding = 4;
-
-
-void static printSpace(unsigned int times) {
+void printSpace(unsigned int times) {
 	for (int i = 0; i != times; i++) cout << ' ';
 }
 
@@ -27,8 +26,8 @@ void ClassDeclarations::selfPrint(unsigned int depth) {
 void ClassDeclaration::selfPrint(unsigned int depth) {
 	printSpace(depth);
 	cout << "[class]\n";
-	this->classHead->selfPrint(depth + printPadding);
-	this->classBody->selfPrint(depth + printPadding);
+	this->classHead->selfPrint(depth + this->printPadding);
+	this->classBody->selfPrint(depth + this->printPadding);
 }
 
 
@@ -51,7 +50,7 @@ void Id::selfPrint(unsigned int depth) {
 void ClassBody::selfPrint(unsigned int depth) {
 	printSpace(depth);
 	cout << "[class body]\n";
-	this->classStatements->selfPrint(depth + printPadding);
+	this->classStatements->selfPrint(depth + this->printPadding);
 }
 
 
@@ -65,8 +64,8 @@ void ClassStatements::selfPrint(unsigned int depth) {
 void MethodDeclaration::selfPrint(unsigned int depth) {
 	printSpace(depth);
 	cout << "[method]\n";
-	this->methodHead->selfPrint(depth + printPadding);
-	this->body->selfPrint(depth + printPadding);
+	this->methodHead->selfPrint(depth + this->printPadding);
+	this->body->selfPrint(depth + this->printPadding);
 }
 
 
@@ -75,7 +74,7 @@ void MethodHead::selfPrint(unsigned int depth) {
 	cout << "\n";
 	printSpace(depth);
 	cout << "[parameters]\n";
-	this->parameterDeclarations->selfPrint(depth + printPadding);
+	this->parameterDeclarations->selfPrint(depth + this->printPadding);
 }
 
 
@@ -98,7 +97,7 @@ void ParameterDeclaration::selfPrint(unsigned int depth) {
 void AnyBody::selfPrint(unsigned int depth) {
 	printSpace(depth);
 	cout << "[body]\n";
-	this->statements->selfPrint(depth + printPadding);
+	this->statements->selfPrint(depth + this->printPadding);
 }
 
 
@@ -112,19 +111,19 @@ void Statements::selfPrint(unsigned int depth) {
 void LocalDeclaration::selfPrint(unsigned int depth) {
 	printSpace(depth);
 	cout << "[local declaration]\n";
-	this->name->selfPrint(depth + printPadding);
+	this->name->selfPrint(depth + this->printPadding);
 	cout << "\n";
-	this->expression->selfPrint(depth + printPadding);
+	this->expression->selfPrint(depth + this->printPadding);
 }
 
 
 void IdBeginningExpression::selfPrint(unsigned int depth) {
 	printSpace(depth);
 	cout << "[expression]\n";
-	this->identifier->selfPrint(depth + printPadding);
+	this->identifier->selfPrint(depth + this->printPadding);
 	cout << "\n";
 	if (this->accessesAndCalls)
-		this->accessesAndCalls->selfPrint(depth + printPadding);
+		this->accessesAndCalls->selfPrint(depth + this->printPadding);
 }
 
 
@@ -134,7 +133,7 @@ void AccessAndFurther::selfPrint(unsigned int depth) {
 	this->identifier->selfPrint(0);
 	if (this->accessesAndCalls) {
 		cout << "\n";
-		this->accessesAndCalls->selfPrint(depth + printPadding);
+		this->accessesAndCalls->selfPrint(depth + this->printPadding);
 	}
 }
 
@@ -145,11 +144,11 @@ void CallAndFurther::selfPrint(unsigned int depth) {
 		cout << "[call with]\n";
 	else
 		cout << "[call]\n";
-	this->expressions->selfPrint(depth + printPadding);
+	this->expressions->selfPrint(depth + this->printPadding);
 	if (this->accessesAndCalls) {
 		printSpace(depth);
 		cout << "[arguments end]\n";
-		this->accessesAndCalls->selfPrint(depth + printPadding);
+		this->accessesAndCalls->selfPrint(depth + this->printPadding);
 	}
 }
 
@@ -169,17 +168,17 @@ void ThisBeginningExpression::selfPrint(unsigned int depth) {
 	printSpace(depth);
 	cout << "[this-expression]\n";
 	if (this->accessesAndCalls)
-		this->accessesAndCalls->selfPrint(depth + printPadding);
+		this->accessesAndCalls->selfPrint(depth + this->printPadding);
 }
 
 
 void LiteralBeginningExpression::selfPrint(unsigned int depth) {
 	printSpace(depth);
 	cout << "[expression]\n";
-	this->literal->selfPrint(depth + printPadding);
+	this->literal->selfPrint(depth + this->printPadding);
 	cout << "\n";
 	if (this->accessesAndCalls)
-		this->accessesAndCalls->selfPrint(depth + printPadding);
+		this->accessesAndCalls->selfPrint(depth + this->printPadding);
 }
 
 
@@ -308,11 +307,11 @@ void LiteralCharacterList::selfPrint(unsigned int depth) {
 void Assignment::selfPrint(unsigned int depth) {
 	printSpace(depth);
 	cout << "[assign]\n";
-	this->expression2->selfPrint(depth + printPadding);
+	this->expression2->selfPrint(depth + this->printPadding);
 	cout << "\n";
-	printSpace(depth + printPadding);
+	printSpace(depth + this->printPadding);
 	cout << "[to]\n";
-	this->expression1->selfPrint(depth + printPadding * 2);
+	this->expression1->selfPrint(depth + this->printPadding * 2);
 	cout << "\n";
 }
 
@@ -320,14 +319,14 @@ void Assignment::selfPrint(unsigned int depth) {
 void IfStatement::selfPrint(unsigned int depth) {
 	printSpace(depth);
 	cout << "[if]\n";
-	this->condition->selfPrint(depth + printPadding);
+	this->condition->selfPrint(depth + this->printPadding);
 	printSpace(depth);
 	cout << "[then]\n";
-	this->trueStatements->selfPrint(depth + printPadding);
+	this->trueStatements->selfPrint(depth + this->printPadding);
 	if (this->falseStatements); {
 		printSpace(depth);
 		cout << "[else]\n";
-		this->falseStatements->selfPrint(depth + printPadding);
+		this->falseStatements->selfPrint(depth + this->printPadding);
 	}
 }
 
@@ -335,25 +334,25 @@ void IfStatement::selfPrint(unsigned int depth) {
 void WhileStatement::selfPrint(unsigned int depth) {
 	printSpace(depth);
 	cout << "[while]\n";
-	this->condition->selfPrint(depth + printPadding);
+	this->condition->selfPrint(depth + this->printPadding);
 	printSpace(depth);
 	cout << "[loop]\n";
-	this->statements->selfPrint(depth + printPadding);
+	this->statements->selfPrint(depth + this->printPadding);
 }
 
 
 void ReturnStatement::selfPrint(unsigned int depth) {
 	printSpace(depth);
 	cout << "[return]\n";
-	this->expression->selfPrint(depth + printPadding);
+	this->expression->selfPrint(depth + this->printPadding);
 }
 
 
 void ConstructorDeclaration::selfPrint(unsigned int depth) {
 	printSpace(depth);
 	cout << "[constructor]\n";
-	this->constructorHead->selfPrint(depth + printPadding);
-	this->body->selfPrint(depth + printPadding);
+	this->constructorHead->selfPrint(depth + this->printPadding);
+	this->body->selfPrint(depth + this->printPadding);
 }
 
 
@@ -365,7 +364,7 @@ void ConstructorHead::selfPrint(unsigned int depth) {
 void Declaration::selfPrint(unsigned int depth) {
 	printSpace(depth);
 	cout << "[declaration]\n";
-	this->name->selfPrint(depth + printPadding);
+	this->name->selfPrint(depth + this->printPadding);
 	cout << "\n";
-	this->expression->selfPrint(depth + printPadding);
+	this->expression->selfPrint(depth + this->printPadding);
 }

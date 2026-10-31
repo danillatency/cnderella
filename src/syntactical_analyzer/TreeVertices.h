@@ -59,6 +59,9 @@ class TreeGround;
 
 
 class Entity {
+protected:
+	int printPadding = 4;
+
 public:
 	virtual ~Entity() = default;
 
