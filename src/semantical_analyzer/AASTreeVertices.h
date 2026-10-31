@@ -1,6 +1,8 @@
 #ifndef treeverticesheader
 #define treeverticesheader
 
+#include <vector>
+
 #include "../lexical_analyzer/Tokens.h"
 
 
@@ -70,80 +72,39 @@ public:
 
 
 class Program : public Entity {
+private:
+	vector<ClassDeclaration*> classDeclarations;
+
 public:
-	ClassDeclarations* classDeclarations;
-
-	Program(ClassDeclarations* classDeclarations);
-
-	void selfPrint(unsigned int depth) override;
-};
-
-
-class ClassDeclarations : public Entity {
-public:
-	ClassDeclaration* classDeclaration;
-	ClassDeclarations* classDeclarations;
-
-	ClassDeclarations(ClassDeclaration* classDeclaration, ClassDeclarations* classDeclarations);
-
-	ClassDeclarations(ClassDeclaration* classDeclaration);
+	void addClassDeclaration(ClassDeclaration* classDeclaration);
 
 	void selfPrint(unsigned int depth) override;
 };
 
 
 class ClassDeclaration : public Entity {
-public:
-	ClassHead* classHead;
+private:
+	string name;
+	string baseName;
 	ClassBody* classBody;
 
-	ClassDeclaration(ClassHead* classHead, ClassBody* classBody);
-
-	void selfPrint(unsigned int depth) override;
-};
-
-
-class ClassHead : public Entity {
 public:
-	Id* name;
-	Id* baseName;
+	void setClassName(string name);
 
-	ClassHead(Id* name, Id* baseName);
+	void setClassBaseName(string baseName);
 
-	ClassHead(Id* name);
-
-	void selfPrint(unsigned int depth) override;
-};
-
-
-class Id : public Entity {
-public:
-	string identifier;
-
-	Id(string identifier);
+	void setClassBody(ClassBody* classBody);
 
 	void selfPrint(unsigned int depth) override;
 };
 
 
 class ClassBody : public Entity {
+private:
+	vector<ClassStatement*> classStatements;
+
 public:
-	ClassStatements* classStatements;
-
-	ClassBody(ClassStatements* classStatements);
-
-	void selfPrint(unsigned int depth) override;
-};
-
-
-class ClassStatements : public Entity {
-public:
-	ClassStatement* classStatement;
-	ClassStatements* classStatements;
-
-	ClassStatements(ClassStatement* classStatement);
-
-	ClassStatements(ClassStatement* classStatement, ClassStatements* ClassStatements);
+	void addClassStatement(ClassStatement* classStatement);
 
 	void selfPrint(unsigned int depth) override;
 };
@@ -156,74 +117,43 @@ public:
 
 
 class MethodDeclaration : public ClassStatement {
-public:
-	MethodHead* methodHead;
+private:
+	string name;
+	string type;
+	vector<ParameterDeclaration*> parameterDeclarations;
 	AnyBody* body;
 
-	MethodDeclaration(MethodHead* methodHead, AnyBody* body);
-
-	void selfPrint(unsigned int depth) override;
-};
-
-
-class MethodHead : public Entity {
 public:
-	Id* name;
-	ParameterDeclarations* parameterDeclarations;
-	Id* returnType;
+	void setName(string name);
 
-	MethodHead(Id* name, ParameterDeclarations* parameterDeclarations);
+	void setType(string type);
 
-	MethodHead(Id* name, ParameterDeclarations* parameterDeclarations, Id* returnType);
-
-	void selfPrint(unsigned int depth) override;
-};
-
-
-class ParameterDeclarations : public Entity {
-public:
-	ParameterDeclaration* parameterDeclaration;
-	ParameterDeclarations* parameterDeclarations;
-
-	ParameterDeclarations();
-
-	ParameterDeclarations(ParameterDeclaration* parameterDeclaration);
-
-	ParameterDeclarations(ParameterDeclaration* parameterDeclaration, ParameterDeclarations* parameterDeclarations);
+	void addParameterDeclaration(ParameterDeclaration* parameterDeclaration);
 
 	void selfPrint(unsigned int depth) override;
 };
 
 
 class ParameterDeclaration : public Entity {
-public:
-	Id* name;
-	Id* identifier;
+private:
+	string name;
+	string type;
 
-	ParameterDeclaration(Id* name, Id* identifier);
+public:
+	void setName(string name);
+
+	void setType(string type);
 
 	void selfPrint(unsigned int depth) override;
 };
 
 
 class AnyBody : public Entity {
+private:
+	vector<Statement*> statements;
+
 public:
-	Statements* statements;
-
-	AnyBody(Statements* statements);
-
-	void selfPrint(unsigned int depth) override;
-};
-
-
-class Statements : public Entity {
-public:
-	Statement* statement;
-	Statements* statements;
-
-	Statements(Statement* statement);
-
-	Statements(Statement* statement, Statements* statements);
+	void addStatement(Statement* statement);
 
 	void selfPrint(unsigned int depth) override;
 };
@@ -236,77 +166,64 @@ public:
 
 
 class LocalDeclaration : public Statement {
-public:
-	Id* name;
+private:
+	string name;
 	Expression* expression;
 
-	LocalDeclaration(Id* name, Expression* expression);
+public:
+	void setName(string name);
+
+	void setExpression(Expression* expression);
 
 	void selfPrint(unsigned int depth) override;
 };
 
 
 class Expression : public Statement {
+protected:
+	vector<AccessOrCall*> accessesAndCalls;
+
+public:
+	void addAccessOrCall(AccessOrCall* accessOrCall);
+
+	virtual void selfPrint(unsigned int depth) = 0;
+};
+
+
+class IdentifierBeginningExpression : public Expression {
+private:
+	string identifier;
+
+public:
+	void setIdentifier(string identifier);
+
+	void selfPrint(unsigned int depth) override;
+};
+
+
+class AccessOrCall : public Entity {
 public:
 	virtual void selfPrint(unsigned int depth) = 0;
 };
 
 
-class IdBeginningExpression : public Expression {
+class Access : public AccessOrCall {
+private:
+	string identifier;
+
 public:
-	Id* identifier;
-	AccessesAndCalls* accessesAndCalls;
-
-	IdBeginningExpression(Id* identifier);
-
-	IdBeginningExpression(Id* identifier, AccessesAndCalls* accessesAndCalls);
+	void setIdentifier(string identifier);
 
 	void selfPrint(unsigned int depth) override;
 };
 
 
-class AccessesAndCalls : public Entity {
+class Call : public AccessOrCall {
+private:
+	vector<Expression*> expressions;
+
 public:
-	virtual void selfPrint(unsigned int depth) = 0;
-};
-
-
-class AccessAndFurther : public AccessesAndCalls {
-public:
-	Id* identifier;
-	AccessesAndCalls* accessesAndCalls;
-
-	AccessAndFurther(Id* identifier);
-
-	AccessAndFurther(Id* identifier, AccessesAndCalls* accessesAndCalls);
-
-	void selfPrint(unsigned int depth) override;
-};
-
-
-class CallAndFurther : public AccessesAndCalls {
-public:
-	Expressions* expressions;
-	AccessesAndCalls* accessesAndCalls;
-
-	CallAndFurther(Expressions* expressions);
-
-	CallAndFurther(Expressions* expressions, AccessesAndCalls* accessesAndCalls);
-
-	void selfPrint(unsigned int depth) override;
-};
-
-
-class Expressions : public Entity {
-public:
-	Expression* expression;
-	Expressions* expressions;
-
-	Expressions();
-
-	Expressions(Expression* expression);
-
-	Expressions(Expression* expression, Expressions* expressions);
+	void addExpression(Expression* expression);
 
 	void selfPrint(unsigned int depth) override;
 };
@@ -314,25 +231,15 @@ public:
 
 class ThisBeginningExpression : public Expression {
 public:
-	AccessesAndCalls* accessesAndCalls;
-
-	ThisBeginningExpression();
-
-	ThisBeginningExpression(AccessesAndCalls* accessesAndCalls);
-
 	void selfPrint(unsigned int depth) override;
 };
 
 
 class LiteralBeginningExpression : public Expression {
-public:
+private:
 	Literal* literal;
-	AccessesAndCalls* accessesAndCalls;
 
-	LiteralBeginningExpression(Literal* literal);
-
-	LiteralBeginningExpression(Literal* literal, AccessesAndCalls* accessesAndCalls);
-
+public:
 	void selfPrint(unsigned int depth) override;
 };
 
@@ -344,43 +251,50 @@ public:
 
 
 class LiteralInteger : public Literal {
-public:
+private:
 	int value;
 
-	LiteralInteger(int value);
+public:
+	void setValue(int value);
 
 	void selfPrint(unsigned int depth) override;
 };
 
 
 class LiteralBoolean : public Literal {
-public:
+private:
 	bool value;
 
-	LiteralBoolean(bool value);
+public:
+	void setValue(bool value);
 
 	void selfPrint(unsigned int depth) override;
 };
+
 
 
 class LiteralFloat : public Literal {
-public:
+private:
 	double value;
 
-	LiteralFloat(double value);
+public:
+	void setValue(int value);
 
 	void selfPrint(unsigned int depth) override;
 };
+
 
 
 class LiteralCharacter : public Literal {
-public:
+private:
 	char value;
 
-	LiteralCharacter(char value);
+public:
+	void setValue(int value);
 
 	void selfPrint(unsigned int depth) override;
 };
+
 
 
 class LiteralIntegerArray : public Literal {
