@@ -6,60 +6,6 @@
 #include "../lexical_analyzer/Tokens.h"
 
 
-class Program;
-class ClassDeclarations;
-class ClassDeclaration;
-class ClassHead;
-class Id;
-class ClassBody;
-class ClassStatements;
-class ClassStatement;
-class MethodDeclaration;
-class MethodHead;
-class ParameterDeclarations;
-class ParameterDeclaration;
-class AnyBody;
-class Statements;
-class Statement;
-class LocalDeclaration;
-class Expression;
-class IdBeginningExpression;
-class AccessesAndCalls;
-class AccessAndFurther;
-class CallAndFurther;
-class Expressions;
-class ThisBeginningExpression;
-class LiteralBeginningExpression;
-
-class Literal;
-class LiteralInteger;
-class LiteralBoolean;
-class LiteralFloat;
-class LiteralCharacter;
-class LiteralIntegerArray;
-class LiteralIntegers;
-class LiteralBooleanArray;
-class LiteralBooleans;
-class LiteralFloatArray;
-class LiteralFloats;
-class LiteralCharacterArray;
-class LiteralCharacters;
-class LiteralIntegerList;
-class LiteralBooleanList;
-class LiteralFloatList;
-class LiteralCharacterList;
-
-class Assignment;
-class IfStatement;
-class WhileStatement;
-class ReturnStatement;
-class ConstructorDeclaration;
-class ConstructorHead;
-class Declaration;
-
-class TreeGround;
-
-
 class Entity {
 protected:
 	int printPadding = 4;
@@ -71,6 +17,7 @@ public:
 };
 
 
+class ClassDeclaration;
 class Program : public Entity {
 private:
 	vector<ClassDeclaration*> classDeclarations;
@@ -82,6 +29,7 @@ public:
 };
 
 
+class ClassBody;
 class ClassDeclaration : public Entity {
 private:
 	string name;
@@ -99,6 +47,7 @@ public:
 };
 
 
+class ClassStatement;
 class ClassBody : public Entity {
 private:
 	vector<ClassStatement*> classStatements;
@@ -116,6 +65,8 @@ public:
 };
 
 
+class ParameterDeclaration;
+class AnyBody;
 class MethodDeclaration : public ClassStatement {
 private:
 	string name;
@@ -129,6 +80,8 @@ public:
 	void setType(string type);
 
 	void addParameterDeclaration(ParameterDeclaration* parameterDeclaration);
+
+	void setAnyBody(AnyBody* body);
 
 	void selfPrint(unsigned int depth) override;
 };
@@ -148,6 +101,7 @@ public:
 };
 
 
+class Statement;
 class AnyBody : public Entity {
 private:
 	vector<Statement*> statements;
@@ -165,6 +119,7 @@ public:
 };
 
 
+class Expression;
 class LocalDeclaration : public Statement {
 private:
 	string name;
@@ -179,6 +134,7 @@ public:
 };
 
 
+class AccessOrCall;
 class Expression : public Statement {
 protected:
 	vector<AccessOrCall*> accessesAndCalls;
@@ -235,272 +191,100 @@ public:
 };
 
 
+class Assignment;
 class LiteralBeginningExpression : public Expression {
 private:
-	Literal* literal;
+	LocalDeclaration* localDeclaration;
+	vector<Assignment*> assignments;
 
 public:
-	void selfPrint(unsigned int depth) override;
-};
+	void setLocalDeclaration(LocalDeclaration* localDeclaration);
 
-
-class Literal : public Expression {
-public:
-	virtual void selfPrint(unsigned int depth) = 0;
-};
-
-
-class LiteralInteger : public Literal {
-private:
-	int value;
-
-public:
-	void setValue(int value);
-
-	void selfPrint(unsigned int depth) override;
-};
-
-
-class LiteralBoolean : public Literal {
-private:
-	bool value;
-
-public:
-	void setValue(bool value);
-
-	void selfPrint(unsigned int depth) override;
-};
-
-
-
-class LiteralFloat : public Literal {
-private:
-	double value;
-
-public:
-	void setValue(int value);
-
-	void selfPrint(unsigned int depth) override;
-};
-
-
-
-class LiteralCharacter : public Literal {
-private:
-	char value;
-
-public:
-	void setValue(int value);
-
-	void selfPrint(unsigned int depth) override;
-};
-
-
-
-class LiteralIntegerArray : public Literal {
-public:
-	LiteralIntegers* literalIntegers;
-
-	LiteralIntegerArray(LiteralIntegers* literalIntegers);
-
-	void selfPrint(unsigned int depth) override;
-};
-
-
-class LiteralIntegers : public Entity {
-public:
-	LiteralInteger* literalInteger;
-	LiteralIntegers* literalIntegers;
-
-	LiteralIntegers(LiteralInteger* literalInteger);
-
-	LiteralIntegers(LiteralInteger* literalInteger, LiteralIntegers* literalIntegers);
-
-	void selfPrint(unsigned int depth) override;
-};
-
-
-class LiteralBooleanArray : public Literal {
-public:
-	LiteralBooleans* literalBooleans;
-
-	LiteralBooleanArray(LiteralBooleans* literalBooleans);
-
-	void selfPrint(unsigned int depth) override;
-};
-
-
-class LiteralBooleans : public Entity {
-public:
-	LiteralBoolean* literalBoolean;
-	LiteralBooleans* literalBooleans;
-
-	LiteralBooleans(LiteralBoolean* literalBoolean);
-
-	LiteralBooleans(LiteralBoolean* literalBoolean, LiteralBooleans* literalBooleans);
-
-	void selfPrint(unsigned int depth) override;
-};
-
-
-class LiteralFloatArray : public Literal {
-public:
-	LiteralFloats* literalFloats;
-
-	LiteralFloatArray(LiteralFloats* literalFloats);
-
-	void selfPrint(unsigned int depth) override;
-};
-
-
-class LiteralFloats : public Entity {
-public:
-	LiteralFloat* literalFloat;
-	LiteralFloats* literalFloats;
-
-	LiteralFloats(LiteralFloat* literalFloat);
-
-	LiteralFloats(LiteralFloat* literalFloat, LiteralFloats* literalFloats);
-
-	void selfPrint(unsigned int depth) override;
-};
-
-class LiteralCharacterArray : public Literal {
-public:
-	LiteralCharacters* literalCharacters;
-
-	LiteralCharacterArray(LiteralCharacters* literalCharacters);
-
-	void selfPrint(unsigned int depth) override;
-};
-
-
-class LiteralCharacters : public Entity {
-public:
-	LiteralCharacter* literalCharacter;
-	LiteralCharacters* literalCharacters;
-
-	LiteralCharacters(LiteralCharacter* literalCharacter);
-
-	LiteralCharacters(LiteralCharacter* literalCharacter, LiteralCharacters* literalCharacters);
-
-	void selfPrint(unsigned int depth) override;
-};
-
-
-class LiteralIntegerList : public Literal {
-public:
-	LiteralIntegers* literalIntegers;
-
-	LiteralIntegerList(LiteralIntegers* literalIntegers);
-
-	void selfPrint(unsigned int depth) override;
-};
-
-
-class LiteralBooleanList : public Literal {
-public:
-	LiteralBooleans* literalBooleans;
-
-	LiteralBooleanList(LiteralBooleans* literalBooleans);
-
-	void selfPrint(unsigned int depth) override;
-};
-
-
-class LiteralFloatList : public Literal {
-public:
-	LiteralFloats* literalFloats;
-
-	LiteralFloatList(LiteralFloats* literalFloats);
-
-	void selfPrint(unsigned int depth) override;
-};
-
-
-class LiteralCharacterList : public Literal {
-public:
-	LiteralCharacters* literalCharacters;
-
-	LiteralCharacterList(LiteralCharacters* literalCharacters);
+	void addAssignment(Assignment* assignment);
 
 	void selfPrint(unsigned int depth) override;
 };
 
 
 class Assignment : public Statement {
-public:
+private:
 	Expression* expression1;
 	Expression* expression2;
 
-	Assignment(Expression* expression1, Expression* expression2);
+public:
+	void setExpression1(Expression* expression1);
+
+	void setExpression2(Expression* expression2);
 
 	void selfPrint(unsigned int depth) override;
 };
 
 
 class IfStatement : public Statement {
-public:
+private:
 	Expression* condition;
-	Statements* trueStatements;
-	Statements* falseStatements;
+	vector<Statement*> trueStatements;
+	vector<Statement*> falseStatements;
 
-	IfStatement(Expression* condition, Statements* trueStatements);
+public:
+	void setCondition(Expression* condition);
 
-	IfStatement(Expression* condition, Statements* trueStatements, Statements* falseStatements);
+	void addTrueStatement(Statement* statement);
+
+	void addFalseStatement(Statement* statement);
 
 	void selfPrint(unsigned int depth) override;
 };
 
 
 class WhileStatement : public Statement {
-public:
+private:
 	Expression* condition;
-	Statements* statements;
+	vector<Statement*> statements;
 
-	WhileStatement(Expression* condition, Statements* statements);
+public:
+	void setCondition(Expression* condition);
+
+	void addStatement(Statement* statement);
 
 	void selfPrint(unsigned int depth) override;
 };
 
 
 class ReturnStatement : public Statement {
-public:
+private:
 	Expression* expression;
 
-	ReturnStatement(Expression* expression);
+public:
+	void setExpression(Expression* expression);
 
 	void selfPrint(unsigned int depth) override;
 };
 
 
 class ConstructorDeclaration : public ClassStatement {
-public:
-	ConstructorHead* constructorHead;
+private:
+	vector<ParameterDeclaration*> parameterDeclarations;
 	AnyBody* body;
 
-	ConstructorDeclaration(ConstructorHead* constructorHead, AnyBody* body);
-
-	void selfPrint(unsigned int depth) override;
-};
-
-
-class ConstructorHead : public Entity {
 public:
-	ParameterDeclarations* parameterDeclarations;
+	void addParameterDeclaration(ParameterDeclaration* parameterDeclaration);
 
-	ConstructorHead(ParameterDeclarations* parameterDeclarations);
+	void setAnyBody(AnyBody* body);
 
 	void selfPrint(unsigned int depth) override;
 };
 
 
 class Declaration : public ClassStatement {
-public:
-	Id* name;
+private:
+	string name;
 	Expression* expression;
 
-	Declaration(Id* name, Expression* expression);
+public:
+	void setName(string name);
+	
+	void setExpression(Expression* expression);
 
 	void selfPrint(unsigned int depth) override;
 };
