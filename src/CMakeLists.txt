@@ -3,7 +3,7 @@ set(CPP_PARTS
     "lexical_analyzer/LexicalAnalyzer.cpp"
 
     "syntactical_analyzer/TreeGround.cpp"
-    "syntactical_analyzer/TreeVertices.cpp"
+    "syntactical_analyzer/TreeVerticesProductions.cpp"
     "syntactical_analyzer/TreeVerticesConstructors.cpp"
     "syntactical_analyzer/TreeVerticesVisualization.cpp")
 
