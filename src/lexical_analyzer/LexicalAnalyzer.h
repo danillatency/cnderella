@@ -27,7 +27,7 @@ private:
 
 	bool correctIdentifierCharacter(char& character);
 
-	bool nonSpace();
+	bool currentlyNonSpace();
 
 public:
 	OolongLexicalAnalyzer(string programPath);

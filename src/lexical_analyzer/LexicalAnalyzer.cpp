@@ -35,7 +35,7 @@ bool OolongLexicalAnalyzer::correctIdentifierCharacter(char& character) {
 		(character == '-') || (character == '_');
 }
 
-bool OolongLexicalAnalyzer::nonSpace() {
+bool OolongLexicalAnalyzer::currentlyNonSpace() {
 	return !isspace(this->currentCharacter) && this->currentCharacter != NULL || this->currentCharacter == '\n';
 }
 
@@ -78,7 +78,7 @@ void OolongLexicalAnalyzer::analyze() {
 								span.endPosition = this->currentColumn;
 								this->tokenStorage.push_back(new Token(TokenClass, span));
 								this->accumulator = "";
-								if (this->nonSpace()) {
+								if (this->currentlyNonSpace()) {
 									immediatelyFurther = true;
 									this->accumulator += this->currentCharacter;
 								}
@@ -99,7 +99,7 @@ void OolongLexicalAnalyzer::analyze() {
 							span.endPosition = this->currentColumn;
 							this->tokenStorage.push_back(new Token(TokenBase, span));
 							this->accumulator = "";
-							if (this->nonSpace()) {
+							if (this->currentlyNonSpace()) {
 								immediatelyFurther = true;
 								this->accumulator += this->currentCharacter;
 							}
@@ -117,7 +117,7 @@ void OolongLexicalAnalyzer::analyze() {
 									span.endPosition = this->currentColumn;
 									this->tokenStorage.push_back(new Token(TokenMethod, span));
 									this->accumulator = "";
-									if (this->nonSpace()) {
+									if (this->currentlyNonSpace()) {
 										immediatelyFurther = true;
 										this->accumulator += this->currentCharacter;
 									}
@@ -134,7 +134,7 @@ void OolongLexicalAnalyzer::analyze() {
 								span.endPosition = this->currentColumn;
 								this->tokenStorage.push_back(new Token(TokenWhile, span));
 								this->accumulator = "";
-								if (this->nonSpace()) {
+								if (this->currentlyNonSpace()) {
 									immediatelyFurther = true;
 									this->accumulator += this->currentCharacter;
 								}
@@ -150,7 +150,7 @@ void OolongLexicalAnalyzer::analyze() {
 							span.endPosition = this->currentColumn;
 							this->tokenStorage.push_back(new Token(TokenLoop, span));
 							this->accumulator = "";
-							if (this->nonSpace()) {
+							if (this->currentlyNonSpace()) {
 								immediatelyFurther = true;
 								this->accumulator += this->currentCharacter;
 							}
@@ -168,7 +168,7 @@ void OolongLexicalAnalyzer::analyze() {
 									span.endPosition = this->currentColumn;
 									this->tokenStorage.push_back(new Token(TokenReturn, span));
 									this->accumulator = "";
-									if (this->nonSpace()) {
+									if (this->currentlyNonSpace()) {
 										immediatelyFurther = true;
 										this->accumulator += this->currentCharacter;
 									}
@@ -191,7 +191,7 @@ void OolongLexicalAnalyzer::analyze() {
 					span.endPosition = this->currentColumn;
 					this->tokenStorage.push_back(new Token(TokenIs, span));
 					this->accumulator = "";
-					if (this->nonSpace()) {
+					if (this->currentlyNonSpace()) {
 						immediatelyFurther = true;
 						this->accumulator += this->currentCharacter;
 					}
@@ -202,7 +202,7 @@ void OolongLexicalAnalyzer::analyze() {
 					span.endPosition = this->currentColumn;
 					this->tokenStorage.push_back(new Token(TokenIf, span));
 					this->accumulator = "";
-					if (this->nonSpace()) {
+					if (this->currentlyNonSpace()) {
 						immediatelyFurther = true;
 						this->accumulator += this->currentCharacter;
 					}
@@ -217,7 +217,7 @@ void OolongLexicalAnalyzer::analyze() {
 						span.endPosition = this->currentColumn;
 						this->tokenStorage.push_back(new Token(TokenEnd, span));
 						this->accumulator = "";
-						if (this->nonSpace()) {
+						if (this->currentlyNonSpace()) {
 							immediatelyFurther = true;
 							this->accumulator += this->currentCharacter;
 						}
@@ -230,7 +230,7 @@ void OolongLexicalAnalyzer::analyze() {
 							span.endPosition = this->currentColumn;
 							this->tokenStorage.push_back(new Token(TokenElse, span));
 							this->accumulator = "";
-							if (this->nonSpace()) {
+							if (this->currentlyNonSpace()) {
 								immediatelyFurther = true;
 								this->accumulator += this->currentCharacter;
 							}
@@ -251,7 +251,7 @@ void OolongLexicalAnalyzer::analyze() {
 						span.endPosition = this->currentColumn;
 						this->tokenStorage.push_back(new Token(TokenVar, span));
 						this->accumulator = "";
-						if (this->nonSpace()) {
+						if (this->currentlyNonSpace()) {
 							immediatelyFurther = true;
 							this->accumulator += this->currentCharacter;
 						}
@@ -268,7 +268,7 @@ void OolongLexicalAnalyzer::analyze() {
 			else {
 				this->tokenStorage.push_back(new Token(TokenColon, span));
 				this->accumulator = "";
-				if (this->nonSpace()) {
+				if (this->currentlyNonSpace()) {
 					immediatelyFurther = true;
 					this->accumulator += this->currentCharacter;
 				}
@@ -283,7 +283,7 @@ void OolongLexicalAnalyzer::analyze() {
 							span.endPosition = this->currentColumn;
 							this->tokenStorage.push_back(new Token(TokenThis, span));
 							this->accumulator = "";
-							if (this->nonSpace()) {
+							if (this->currentlyNonSpace()) {
 								immediatelyFurther = true;
 								this->accumulator += this->currentCharacter;
 							}
@@ -296,7 +296,7 @@ void OolongLexicalAnalyzer::analyze() {
 							span.endPosition = this->currentColumn;
 							this->tokenStorage.push_back(new Token(TokenThen, span));
 							this->accumulator = "";
-							if (this->nonSpace()) {
+							if (this->currentlyNonSpace()) {
 								immediatelyFurther = true;
 								this->accumulator += this->currentCharacter;
 							}
@@ -310,7 +310,7 @@ void OolongLexicalAnalyzer::analyze() {
 							span.endPosition = this->currentColumn;
 							this->tokenStorage.push_back(new Boolean(span, true));
 							this->accumulator = "";
-							if (this->nonSpace()) {
+							if (this->currentlyNonSpace()) {
 								immediatelyFurther = true;
 								this->accumulator += this->currentCharacter;
 							}
@@ -327,7 +327,7 @@ void OolongLexicalAnalyzer::analyze() {
 								span.endPosition = this->currentColumn;
 								this->tokenStorage.push_back(new Boolean(span, false));
 								this->accumulator = "";
-								if (this->nonSpace()) {
+								if (this->currentlyNonSpace()) {
 									immediatelyFurther = true;
 									this->accumulator += this->currentCharacter;
 								}
@@ -421,34 +421,42 @@ void OolongLexicalAnalyzer::analyze() {
 				this->tokenStorage.push_back(new Integer(span, stoi(this->accumulator)));
 			}
 			this->accumulator = "";
-			if (this->nonSpace()) {
+			if (this->currentlyNonSpace()) {
 				immediatelyFurther = true;
 				this->accumulator += this->currentCharacter;
 			}
 			continue;
 		}
 
-		if (isspace(this->currentCharacter)) {
-			this->accumulator.pop_back();
-			if (this->accumulator != "") {
-				span.endPosition = this->currentColumn;
-				this->tokenStorage.push_back(new Identifier(span, this->accumulator));
+		if (this->accumulator.length() == 1) {
+			if (!this->currentlyNonSpace()) {
 				this->accumulator = "";
+				continue;
+			}
+			if (!this->correctIdentifierCharacter(this->currentCharacter))
+				throw domain_error("incorrect identifier");
+		}
+		else if (!this->correctIdentifierCharacter(this->currentCharacter)) {
+			this->accumulator.pop_back();
+			span.endPosition = this->currentColumn - 1;
+			this->tokenStorage.push_back(new Identifier(span, this->accumulator));
+			this->accumulator = "";
+			if (this->currentlyNonSpace()) {
+				this->accumulator = this->currentCharacter;
+				immediatelyFurther = true;
 			}
 			continue;
 		}
-		if (!this->correctIdentifierCharacter(this->currentCharacter))
-			throw domain_error("incorrect identifier");
 		do {
 			this->further();
 		} while (this->correctIdentifierCharacter(this->currentCharacter));
-		span.endPosition = this->currentColumn;
+		span.endPosition = this->currentColumn - 1;
 		this->accumulator.pop_back();
 		this->tokenStorage.push_back(new Identifier(span, this->accumulator));
 		this->accumulator = "";
-		if (this->nonSpace()) {
+		if (this->currentlyNonSpace()) {
 			immediatelyFurther = true;
-			this->accumulator += this->currentCharacter;
+			this->accumulator = this->currentCharacter;
 		}
 	}
 }
