@@ -12,7 +12,7 @@ int main() {
 	OolongLexicalAnalyzer* lexer;
 
 	try {
-		lexer = new OolongLexicalAnalyzer("oolongPrograms/CelciusToKelvin.oolong");
+		lexer = new OolongLexicalAnalyzer("oolong_programs/CelciusToKelvin.oolong");
 	}
 	catch (const runtime_error& e) {
 		cout << e.what() << "\n";
