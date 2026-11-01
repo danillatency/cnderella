@@ -2,7 +2,7 @@
 
 #include "lexical_analyzer/Tokens.h"
 #include "lexical_analyzer/LexicalAnalyzer.h"
-#include "syntactical_analyzer/TreeGround.h"
+#include "syntactical_analyzer/ASTreeGround.h"
 
 
 using namespace std;

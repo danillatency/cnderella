@@ -1,8 +1,8 @@
 #include <iostream>
 #include <stdexcept>
 
-#include "TreeVertices.h"
-#include "TreeGround.h"
+#include "ASTreeVertices.h"
+#include "ASTreeGround.h"
 #include "../lexical_analyzer/Tokens.h"
 
 
