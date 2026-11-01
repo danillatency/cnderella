@@ -131,10 +131,9 @@ void AccessAndFurther::selfPrint(unsigned int depth) {
 	printSpace(depth);
 	cout << "[access] ";
 	this->identifier->selfPrint(0);
-	if (this->accessesAndCalls) {
-		cout << "\n";
+	cout << "\n";
+	if (this->accessesAndCalls)
 		this->accessesAndCalls->selfPrint(depth + this->printPadding);
-	}
 }
 
 
