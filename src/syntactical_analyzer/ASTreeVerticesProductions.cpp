@@ -277,18 +277,18 @@ LocalDeclaration* LocalDeclaration::parse(TreeGround* treeGround) {
 
 Expression* Expression::parse(TreeGround* treeGround) {
 	switch (treeGround->nextToken()->code) {
-	case TokenIdentifier: {
+	case TokenIdentifier:
 		treeGround->back();
 		return IdBeginningExpression::parse(treeGround);
-	}
-	case TokenThis: {
+	case TokenThis:
 		treeGround->back();
 		return ThisBeginningExpression::parse(treeGround);
-	}
-	default: {
+	case TokenBase:
+		treeGround->back();
+		return BaseBeginningExpression::parse(treeGround);
+	default:
 		treeGround->back();
 		return LiteralBeginningExpression::parse(treeGround);
-	}
 	}
 }
 
@@ -397,6 +397,24 @@ ThisBeginningExpression* ThisBeginningExpression::parse(TreeGround* treeGround) 
 		return new ThisBeginningExpression();
 	}
 	return new ThisBeginningExpression(accessesAndCalls);
+}
+
+
+BaseBeginningExpression* BaseBeginningExpression::parse(TreeGround* treeGround) {
+	if (treeGround->nextToken()->code != TokenBase) {
+		treeGround->back();
+		throw runtime_error("base expected");
+	}
+	int checkpoint = treeGround->currentTokenIndex;
+	AccessesAndCalls* accessesAndCalls;
+	try {
+		accessesAndCalls = AccessesAndCalls::parse(treeGround);
+	}
+	catch (const runtime_error& e) {
+		treeGround->currentTokenIndex = checkpoint;
+		return new BaseBeginningExpression();
+	}
+	return new BaseBeginningExpression(accessesAndCalls);
 }
 
 

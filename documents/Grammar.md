@@ -87,6 +87,7 @@
 **Expression**  
 &nbsp;&nbsp;&nbsp;&nbsp;: **IdBeginningExpression**  
 &nbsp;&nbsp;&nbsp;&nbsp;| **ThisBeginningExpression**  
+&nbsp;&nbsp;&nbsp;&nbsp;| **BaseBeginningExpression**
 &nbsp;&nbsp;&nbsp;&nbsp;| **LiteralBeginningExpression**  
 &nbsp;&nbsp;&nbsp;&nbsp;;
 
@@ -120,6 +121,10 @@
 &nbsp;&nbsp;&nbsp;&nbsp;: *TokenThis*  
 &nbsp;&nbsp;&nbsp;&nbsp;| *TokenThis* **AccessesAndCalls**  
 &nbsp;&nbsp;&nbsp;&nbsp;;
+
+**BaseBeginningExpression**
+&nbsp;&nbsp;&nbsp;&nbsp;: *TokenBase*
+&nbsp;&nbsp;&nbsp;&nbsp;| *TokenBase* **AccessesAndCalls**
 
 **LiteralBeginningExpression**  
 &nbsp;&nbsp;&nbsp;&nbsp;: **Literal**  

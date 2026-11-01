@@ -71,6 +71,10 @@ ThisBeginningExpression::ThisBeginningExpression() : accessesAndCalls(nullptr) {
 ThisBeginningExpression::ThisBeginningExpression(AccessesAndCalls* accessesAndCalls) : accessesAndCalls(accessesAndCalls) {}
 
 
+BaseBeginningExpression::BaseBeginningExpression() : accessesAndCalls(nullptr) {}
+BaseBeginningExpression::BaseBeginningExpression(AccessesAndCalls* accessesAndCalls) : accessesAndCalls(accessesAndCalls) {}
+
+
 LiteralBeginningExpression::LiteralBeginningExpression(Literal* literal) : literal(literal), accessesAndCalls(nullptr) {}
 LiteralBeginningExpression::LiteralBeginningExpression(Literal* literal, AccessesAndCalls* accessesAndCalls) : literal(literal), accessesAndCalls(accessesAndCalls) {}
 

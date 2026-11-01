@@ -171,6 +171,14 @@ void ThisBeginningExpression::selfPrint(unsigned int depth) {
 }
 
 
+void BaseBeginningExpression::selfPrint(unsigned int depth) {
+	printSpace(depth);
+	cout << "[base-expression]\n";
+	if (this->accessesAndCalls)
+		this->accessesAndCalls->selfPrint(depth + this->printPadding);
+}
+
+
 void LiteralBeginningExpression::selfPrint(unsigned int depth) {
 	printSpace(depth);
 	cout << "[expression]\n";

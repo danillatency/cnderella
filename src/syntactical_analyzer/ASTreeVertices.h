@@ -27,6 +27,7 @@ class AccessAndFurther;
 class CallAndFurther;
 class Expressions;
 class ThisBeginningExpression;
+class BaseBeginningExpression;
 class LiteralBeginningExpression;
 
 class Literal;
@@ -367,6 +368,20 @@ public:
 	void selfPrint(unsigned int depth) override;
 
 	static ThisBeginningExpression* parse(TreeGround* treeGround);
+};
+
+
+class BaseBeginningExpression : public Expression {
+public:
+	AccessesAndCalls* accessesAndCalls;
+
+	BaseBeginningExpression();
+
+	BaseBeginningExpression(AccessesAndCalls* accessesAndCalls);
+
+	void selfPrint(unsigned int depth) override;
+
+	static BaseBeginningExpression* parse(TreeGround* treeGround);
 };
 
 
