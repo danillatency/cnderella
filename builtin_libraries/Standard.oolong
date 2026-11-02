@@ -161,7 +161,7 @@ class Boolean : AnyValue is
     end
 
     method to-integer() is
-        if (this) then return 1
+        if this then return 1 end
         return 0
     end
 
@@ -477,7 +477,7 @@ class ListOfIntegers : AnyReference is
         else
             this.length := this.length.plus(1)
             var next := this.next_list
-            while next.isinstanceof(AnyReference()).not() then
+            while next.isinstanceof(AnyReference()).not() loop
                 next.length := next.length.plus(1)
                 next := next.next_list
             end
@@ -524,7 +524,7 @@ class ListOfBooleans : AnyReference is
         else
             this.length := this.length.plus(1)
             var next := this.next_list
-            while next.isinstanceof(AnyReference()).not() then
+            while next.isinstanceof(AnyReference()).not() loop
                 next.length := next.length.plus(1)
                 next := next.next_list
             end
@@ -571,7 +571,7 @@ class ListOfFloats : AnyReference is
         else
             this.length := this.length.plus(1)
             var next := this.next_list
-            while next.isinstanceof(AnyReference()).not() then
+            while next.isinstanceof(AnyReference()).not() loop
                 next.length := next.length.plus(1)
                 next := next.next_list
             end
@@ -618,7 +618,7 @@ class ListOfCharacters : AnyReference is
         else
             this.length := this.length.plus(1)
             var next := this.next_list
-            while next.isinstanceof(AnyReference()).not() then
+            while next.isinstanceof(AnyReference()).not() loop
                 next.length := next.length.plus(1)
                 next := next.next_list
             end
