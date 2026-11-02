@@ -34,6 +34,8 @@ public:
 
 	~OolongLexicalAnalyzer();
 
+	OolongLexicalAnalyzer& operator+=(const OolongLexicalAnalyzer& other);
+
 	vector<Token*>& getTokenStorage();
 
 	void printTokens();

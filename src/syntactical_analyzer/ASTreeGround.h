@@ -8,10 +8,10 @@
 
 class TreeGround {
 private:
-	Program* program;
 	vector<Token*>& tokens;
 
 public:
+	Program* program;
 	long int currentTokenIndex;
 
 	TreeGround(vector<Token*>& tokens);

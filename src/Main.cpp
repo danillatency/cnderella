@@ -8,11 +8,17 @@
 using namespace std;
 
 
-int main() {
+int main(int argc, char* argv[]) {
+	OolongLexicalAnalyzer* standardLexer;
 	OolongLexicalAnalyzer* lexer;
-
 	try {
-		lexer = new OolongLexicalAnalyzer("oolong_programs/CelciusToKelvin.oolong");
+		standardLexer = new OolongLexicalAnalyzer("builtin_libraries/Standard.oolong");
+		if (argc > 1) {
+			string path = argv[1];
+			lexer = new OolongLexicalAnalyzer(path);
+		}
+		else
+			lexer = new OolongLexicalAnalyzer("oolong_programs/CelciusToKelvin.oolong");
 	}
 	catch (const runtime_error& e) {
 		cout << e.what() << "\n";
@@ -20,17 +26,30 @@ int main() {
 	}
 
 	try {
+		standardLexer->analyze();
 		lexer->analyze();
+		*standardLexer += *lexer;
 	}
 	catch (const domain_error& e) {
 		cout << e.what() << "\n";
 		exit(1);
 	}
 
-	lexer->printTokens();
+	standardLexer->printTokens();
 
-	TreeGround ground(lexer->getTokenStorage());
-	ground.grow();
+	TreeGround ground(standardLexer->getTokenStorage());
+
+	try {
+		ground.grow();
+	}
+	catch (const exception& e) {
+		cout << e.what() << "\n";
+		exit(1);
+	}
+
+	ground.visualize(0, ground.program);
+
+
 
 	cout << "\n";
 	// cin.ignore();

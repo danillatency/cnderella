@@ -5,7 +5,6 @@ TreeGround::TreeGround(vector<Token*>& tokens) : tokens(tokens), currentTokenInd
 
 void TreeGround::grow() {
 	this->program = Program::parse(this);
-	this->visualize(0, this->program);
 }
 
 Token* TreeGround::currentToken() {

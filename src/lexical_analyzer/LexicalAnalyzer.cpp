@@ -51,6 +51,11 @@ OolongLexicalAnalyzer::~OolongLexicalAnalyzer() {
 	this->file.close();
 }
 
+OolongLexicalAnalyzer& OolongLexicalAnalyzer::operator+=(const OolongLexicalAnalyzer& other) {
+	this->tokenStorage.insert(this->tokenStorage.end(), other.tokenStorage.begin(), other.tokenStorage.end());
+	return *this;
+}
+
 vector<Token*>& OolongLexicalAnalyzer::getTokenStorage() {
 	return this->tokenStorage;
 }
