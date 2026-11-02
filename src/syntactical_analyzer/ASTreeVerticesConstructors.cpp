@@ -134,7 +134,7 @@ LiteralCharacterList::LiteralCharacterList(LiteralCharacters* literalCharacters)
 Assignment::Assignment(Expression* expression1, Expression* expression2) : expression1(expression1), expression2(expression2) {}
 
 
-IfStatement::IfStatement(Expression* condition, Statements* trueStatements) : condition(condition), trueStatements(trueStatements) {}
+IfStatement::IfStatement(Expression* condition, Statements* trueStatements) : condition(condition), trueStatements(trueStatements), falseStatements(nullptr) {}
 IfStatement::IfStatement(Expression* condition, Statements* trueStatements, Statements* falseStatements) : condition(condition), trueStatements(trueStatements), falseStatements(falseStatements) {}
 
 

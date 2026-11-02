@@ -11,4 +11,5 @@ add_executable(cnderella Main.cpp  ${CPP_PARTS})
 
 install(TARGETS cnderella RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}")
 install(DIRECTORY "${CMAKE_SOURCE_DIR}/oolong_programs" DESTINATION "${CMAKE_INSTALL_PREFIX}")
+install(DIRECTORY "${CMAKE_SOURCE_DIR}/builtin_libraries" DESTINATION "${CMAKE_INSTALL_PREFIX}")
 	

@@ -157,7 +157,7 @@ void Expressions::selfPrint(unsigned int depth) {
 		this->expression->selfPrint(depth);
 	if (this->expressions) {
 		printSpace(depth);
-		cout << ", ";
+		cout << ", \n";
 		this->expressions->selfPrint(depth);
 	}
 }
@@ -330,7 +330,7 @@ void IfStatement::selfPrint(unsigned int depth) {
 	printSpace(depth);
 	cout << "[then]\n";
 	this->trueStatements->selfPrint(depth + this->printPadding);
-	if (this->falseStatements); {
+	if (this->falseStatements) {
 		printSpace(depth);
 		cout << "[else]\n";
 		this->falseStatements->selfPrint(depth + this->printPadding);
