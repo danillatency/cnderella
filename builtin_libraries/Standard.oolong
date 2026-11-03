@@ -15,7 +15,7 @@ end
 
 
 class Integer : AnyValue is
-    var value := systemint(0)
+    var value := systemint_0
     var min := systemminint()
     var max := systemmaxint()
 
@@ -144,7 +144,7 @@ end
 
 
 class Boolean : AnyValue is
-    var value := systembool(false)
+    var value := systembool_0
 
 
     this() => "pass"
@@ -186,7 +186,7 @@ end
 
 
 class Float : AnyValue is
-    var value := systemfloat(0.0)
+    var value := systemfloat_0_0
     var min := systemminfloat()
     var max := systemmaxfloat()
 
@@ -309,7 +309,7 @@ end
 
 
 class Character : AnyValue is
-    var value := systemcharacter('o')
+    var value := systemcharacter_o
 
     this() => "pass"
 
