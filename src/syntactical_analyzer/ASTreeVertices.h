@@ -1,5 +1,5 @@
-#ifndef treeverticesheader
-#define treeverticesheader
+#ifndef astreeverticesheader
+#define astreeverticesheader
 
 #include "../lexical_analyzer/Tokens.h"
 

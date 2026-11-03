@@ -1,5 +1,5 @@
-#ifndef tokenheaders
-#define tokenheaders
+#ifndef tokensheaders
+#define tokensheaders
 
 #include <string>
 

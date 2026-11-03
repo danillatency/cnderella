@@ -1,5 +1,5 @@
-#ifndef treegroundheader
-#define treegroundheader
+#ifndef astreegroundheader
+#define astreegroundheader
 
 #include <vector>
 
