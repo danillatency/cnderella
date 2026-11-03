@@ -1,7 +1,7 @@
-#include <stdexcept>
 #include <iostream>
 
 #include "LexicalAnalyzer.h"
+#include "../errors/TerminalErrors.h"
 
 
 using namespace std;
@@ -42,9 +42,7 @@ bool OolongLexicalAnalyzer::currentlyNonSpace() {
 OolongLexicalAnalyzer::OolongLexicalAnalyzer(string programPath) : currentCharacter('a'), currentRow(0), currentColumn(-1), accumulator("") {
 	this->programPath = programPath;
 	this->file.open(programPath);
-	if (!this->file.is_open()) {
-		throw runtime_error("Failed to open the file");
-	}
+	if (!this->file.is_open()) throw lexer::CantOpenFile(programPath);
 }
 
 OolongLexicalAnalyzer::~OolongLexicalAnalyzer() {
@@ -182,9 +180,10 @@ void OolongLexicalAnalyzer::analyze() {
 			break;
 
 		case '=':
-			if (this->further() != '>')
-				throw domain_error("Unknown token on the line: " + to_string(span.row) +
-					" from: " + to_string(span.beginPosition) + " to: " + to_string(span.endPosition));
+			if (this->further() != '>') {
+				span.endPosition = this->currentColumn;
+				throw lexer::UnknownToken(span);
+			}
 			span.endPosition = this->currentColumn;
 			this->tokenStorage.push_back(new Token(TokenArrow, span));
 			this->accumulator = "";
@@ -390,9 +389,10 @@ void OolongLexicalAnalyzer::analyze() {
 			this->tokenStorage.push_back(new Token(TokenQuote, span));
 			span.endPosition = this->currentColumn;
 			this->tokenStorage.push_back(new Character(span, this->further()));
-			if (this->further() != '\'')
-				throw domain_error("Unclosed character on the line: " + to_string(span.row) +
-					" from: " + to_string(span.beginPosition) + " to: " + to_string(span.endPosition));
+			if (this->further() != '\'') {
+				span.endPosition = currentColumn;
+				throw lexer::UnclosedCharacterLiteral(span);
+			}
 			span.endPosition = this->currentColumn;
 			this->tokenStorage.push_back(new Token(TokenQuote, span));
 			this->accumulator = "";
@@ -401,9 +401,10 @@ void OolongLexicalAnalyzer::analyze() {
 		case '-': case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
 			do {
 				this->further();
-				if (this->currentCharacter == '-')
-					throw domain_error("Mixed minuses: " + to_string(span.row) +
-						" from: " + to_string(span.beginPosition) + " to: " + to_string(span.endPosition));
+				if (this->currentCharacter == '-') {
+					span.endPosition = this->currentColumn;
+					throw lexer::ConsecutiveMinusSymbols(span);
+				}
 			} while (this->correctIntegerCharacter(this->currentCharacter));
 			if (this->currentCharacter == '.')
 				if (!this->correctIntegerCharacter(this->further())) {
@@ -438,8 +439,10 @@ void OolongLexicalAnalyzer::analyze() {
 				this->accumulator = "";
 				continue;
 			}
-			if (!this->correctIdentifierCharacter(this->currentCharacter))
-				throw domain_error("incorrect identifier");
+			if (!this->correctIdentifierCharacter(this->currentCharacter)) {
+				span.endPosition = this->currentColumn;
+				throw lexer::IncorrectIdentifier(span);
+			}
 		}
 		else if (!this->correctIdentifierCharacter(this->currentCharacter)) {
 			this->accumulator.pop_back();
