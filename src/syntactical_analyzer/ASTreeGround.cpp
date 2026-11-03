@@ -23,6 +23,6 @@ void TreeGround::back(int steps) {
 	this->currentTokenIndex -= steps;
 }
 
-void TreeGround::visualize(unsigned int depth, Entity* entity) {
-	entity->selfPrint(depth);
+void TreeGround::visualize() {
+	this->program->selfPrint(0);
 }

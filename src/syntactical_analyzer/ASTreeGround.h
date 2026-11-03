@@ -26,7 +26,7 @@ public:
 
 	void back(int steps = 1);
 
-	void visualize(unsigned int depth, Entity* entity);
+	void visualize();
 };
 
 

@@ -1,4 +1,5 @@
 #include <iostream>
+#include <stdexcept>
 
 #include "lexical_analyzer/Tokens.h"
 #include "lexical_analyzer/LexicalAnalyzer.h"
@@ -9,53 +10,38 @@
 using namespace std;
 
 
+static string usePlaceholder(int argc, char** argv) {
+	if (argc > 1) return argv[1];
+	return "oolong_programs/CelciusToKelvin.oolong";
+}
+
+
 int main(int argc, char* argv[]) {
-	OolongLexicalAnalyzer* standardLexer;
-	OolongLexicalAnalyzer* lexer;
 	try {
-		standardLexer = new OolongLexicalAnalyzer("builtin_libraries/Standard.oolong");
-		if (argc > 1) {
-			string path = argv[1];
-			lexer = new OolongLexicalAnalyzer(path);
-		}
-		else
-			lexer = new OolongLexicalAnalyzer("oolong_programs/CelciusToKelvin.oolong");
-	}
-	catch (const runtime_error& e) {
-		cout << e.what() << "\n";
-		exit(1);
-	}
+		OolongLexicalAnalyzer standardLexer("builtin_libraries/Standard.oolong");
+		OolongLexicalAnalyzer lexer(usePlaceholder(argc, argv));
+		standardLexer.analyze();
+		lexer.analyze();
+		standardLexer += lexer;
 
-	try {
-		standardLexer->analyze();
-		lexer->analyze();
-		*standardLexer += *lexer;
-	}
-	catch (const domain_error& e) {
-		cout << e.what() << "\n";
-		exit(1);
-	}
+		standardLexer.printTokens();
 
-	standardLexer->printTokens();
-
-	TreeGround ground(standardLexer->getTokenStorage());
-
-	try {
+		TreeGround ground(standardLexer.getTokenStorage());
 		ground.grow();
+
+		ground.visualize();
+
+		SemanticalAnalyzer semanticalAnalyzer;
+
+		//semanticalAnalyzer.mapToAAST(ground.program);
+
+		//semanticalAnalyzer.getTree();
+
+		cout << "\n";
+		// cin.ignore();
 	}
 	catch (const exception& e) {
-		cout << e.what() << "\n";
+		cout << e.what() << endl;
 		exit(1);
 	}
-
-	ground.visualize(0, ground.program);
-
-	SemanticalAnalyzer semanticalAnalyzer;
-
-	semanticalAnalyzer.mapToAAST(ground.program);
-
-	semanticalAnalyzer.getTree();
-
-	cout << "\n";
-	// cin.ignore();
 }
