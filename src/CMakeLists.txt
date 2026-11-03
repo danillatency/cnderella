@@ -5,7 +5,10 @@ set(CPP_PARTS
     "syntactical_analyzer/ASTreeGround.cpp"
     "syntactical_analyzer/ASTreeVerticesProductions.cpp"
     "syntactical_analyzer/ASTreeVerticesConstructors.cpp"
-    "syntactical_analyzer/ASTreeVerticesVisualization.cpp")
+    "syntactical_analyzer/ASTreeVerticesVisualization.cpp"
+    "semantical_analyzer/SemanticalAnalyzerMap.cpp"
+    "semantical_analyzer/AASTreeVertices.cpp"
+)
 
 add_executable(cnderella Main.cpp  ${CPP_PARTS})
 

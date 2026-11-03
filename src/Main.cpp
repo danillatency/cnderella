@@ -3,6 +3,7 @@
 #include "lexical_analyzer/Tokens.h"
 #include "lexical_analyzer/LexicalAnalyzer.h"
 #include "syntactical_analyzer/ASTreeGround.h"
+#include "semantical_analyzer/SemanticalAnalyzer.h"
 
 
 using namespace std;
@@ -49,7 +50,11 @@ int main(int argc, char* argv[]) {
 
 	ground.visualize(0, ground.program);
 
+	SemanticalAnalyzer semanticalAnalyzer;
 
+	semanticalAnalyzer.mapToAAST(ground.program);
+
+	semanticalAnalyzer.getTree();
 
 	cout << "\n";
 	// cin.ignore();

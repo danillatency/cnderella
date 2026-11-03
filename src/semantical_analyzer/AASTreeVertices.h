@@ -1,293 +1,298 @@
-#ifndef treeverticesheader
-#define treeverticesheader
+#ifndef aastreeverticesheader
+#define aastreeverticesheader
 
 #include <vector>
 
 #include "../lexical_analyzer/Tokens.h"
 
 
-class Entity {
-protected:
-	int printPadding = 4;
+namespace aast {
+	class Entity {
+	protected:
+		int printPadding = 4;
 
-public:
-	virtual ~Entity() = default;
+	public:
+		virtual ~Entity() = default;
 
-	virtual void selfPrint(unsigned int depth) = 0;
-};
+		//virtual void selfPrint(unsigned int depth) = 0;
+	};
 
 
-class ClassDeclaration;
-class Program : public Entity {
-private:
-	vector<ClassDeclaration*> classDeclarations;
+	class ClassDeclaration;
+	class Program : public Entity {
+	private:
+		vector<ClassDeclaration*> classDeclarations;
 
-public:
-	void addClassDeclaration(ClassDeclaration* classDeclaration);
+	public:
+		void addClassDeclaration(ClassDeclaration* classDeclaration);
 
-	void selfPrint(unsigned int depth) override;
-};
+		//void selfPrint(unsigned int depth) override;
+	};
 
 
-class ClassBody;
-class ClassDeclaration : public Entity {
-private:
-	string name;
-	string baseName;
-	ClassBody* classBody;
+	class ClassBody;
+	class ClassDeclaration : public Entity {
+	private:
+		string name;
+		string baseName;
+		ClassBody* classBody;
 
-public:
-	void setClassName(string name);
+	public:
+		void setClassName(string name);
 
-	void setClassBaseName(string baseName);
+		void setClassBaseName(string baseName);
 
-	void setClassBody(ClassBody* classBody);
+		void setClassBody(ClassBody* classBody);
 
-	void selfPrint(unsigned int depth) override;
-};
+		//void selfPrint(unsigned int depth) override;
+	};
 
 
-class ClassStatement;
-class ClassBody : public Entity {
-private:
-	vector<ClassStatement*> classStatements;
+	class ClassStatement;
+	class ClassBody : public Entity {
+	private:
+		vector<ClassStatement*> classStatements;
 
-public:
-	void addClassStatement(ClassStatement* classStatement);
+	public:
+		void addClassStatement(ClassStatement* classStatement);
 
-	void selfPrint(unsigned int depth) override;
-};
+		//void selfPrint(unsigned int depth) override;
+	};
 
 
-class ClassStatement : public Entity {
-public:
-	virtual void selfPrint(unsigned int depth) = 0;
-};
+	class ClassStatement : public Entity {
+	public:
+		//virtual void selfPrint(unsigned int depth) = 0;
+	};
 
 
-class ParameterDeclaration;
-class AnyBody;
-class MethodDeclaration : public ClassStatement {
-private:
-	string name;
-	string type;
-	vector<ParameterDeclaration*> parameterDeclarations;
-	AnyBody* body;
+	class ParameterDeclaration;
+	class AnyBody;
+	class MethodDeclaration : public ClassStatement {
+	private:
+		string name;
+		string type;
+		vector<ParameterDeclaration*> parameterDeclarations;
+		AnyBody* body;
 
-public:
-	void setName(string name);
+	public:
+		void setName(string name);
 
-	void setType(string type);
+		void setType(string type);
 
-	void addParameterDeclaration(ParameterDeclaration* parameterDeclaration);
+		void addParameterDeclaration(ParameterDeclaration* parameterDeclaration);
 
-	void setAnyBody(AnyBody* body);
+		void setAnyBody(AnyBody* body);
 
-	void selfPrint(unsigned int depth) override;
-};
+		//void selfPrint(unsigned int depth) override;
+	};
 
 
-class ParameterDeclaration : public Entity {
-private:
-	string name;
-	string type;
+	class ParameterDeclaration : public Entity {
+	private:
+		string name;
+		string type;
 
-public:
-	void setName(string name);
+	public:
+		void setName(string name);
 
-	void setType(string type);
+		void setType(string type);
 
-	void selfPrint(unsigned int depth) override;
-};
+		//void selfPrint(unsigned int depth) override;
+	};
 
 
-class Statement;
-class AnyBody : public Entity {
-private:
-	vector<Statement*> statements;
+	class Statement;
+	class AnyBody : public Entity {
+	private:
+		vector<Statement*> statements;
 
-public:
-	void addStatement(Statement* statement);
+	public:
+		void addStatement(Statement* statement);
 
-	void selfPrint(unsigned int depth) override;
-};
+		//void selfPrint(unsigned int depth) override;
+	};
 
 
-class Statement : public Entity {
-public:
-	virtual void selfPrint(unsigned int depth) = 0;
-};
+	class Statement : public Entity {
+	public:
+		//virtual void selfPrint(unsigned int depth) = 0;
+	};
 
 
-class Expression;
-class LocalDeclaration : public Statement {
-private:
-	string name;
-	Expression* expression;
+	class Expression;
+	class LocalDeclaration : public Statement {
+	private:
+		string name;
+		Expression* expression;
 
-public:
-	void setName(string name);
+	public:
+		void setName(string name);
 
-	void setExpression(Expression* expression);
+		void setExpression(Expression* expression);
 
-	void selfPrint(unsigned int depth) override;
-};
+		//void selfPrint(unsigned int depth) override;
+	};
 
 
-class AccessOrCall;
-class Expression : public Statement {
-protected:
-	vector<AccessOrCall*> accessesAndCalls;
+	class AccessOrCall;
+	class Expression : public Statement {
+	protected:
+		vector<AccessOrCall*> accessesAndCalls;
 
-public:
-	void addAccessOrCall(AccessOrCall* accessOrCall);
+	public:
+		void addAccessOrCall(AccessOrCall* accessOrCall);
 
-	virtual void selfPrint(unsigned int depth) = 0;
-};
+		//virtual void selfPrint(unsigned int depth) = 0;
+	};
 
 
-class IdentifierBeginningExpression : public Expression {
-private:
-	string identifier;
+	class IdentifierBeginningExpression : public Expression {
+	private:
+		string identifier;
 
-public:
-	void setIdentifier(string identifier);
+	public:
+		void setIdentifier(string identifier);
 
-	void selfPrint(unsigned int depth) override;
-};
+		//void selfPrint(unsigned int depth) override;
+	};
 
 
-class AccessOrCall : public Entity {
-public:
-	virtual void selfPrint(unsigned int depth) = 0;
-};
+	class AccessOrCall : public Entity {
+	public:
+		//virtual void selfPrint(unsigned int depth) = 0;
+	};
 
 
-class Access : public AccessOrCall {
-private:
-	string identifier;
+	class Access : public AccessOrCall {
+	private:
+		string identifier;
 
-public:
-	void setIdentifier(string identifier);
+	public:
+		void setIdentifier(string identifier);
 
-	void selfPrint(unsigned int depth) override;
-};
+		//void selfPrint(unsigned int depth) override;
+	};
 
 
-class Call : public AccessOrCall {
-private:
-	vector<Expression*> expressions;
+	class Call : public AccessOrCall {
+	private:
+		vector<Expression*> expressions;
 
-public:
-	void addExpression(Expression* expression);
+	public:
+		void addExpression(Expression* expression);
 
-	void selfPrint(unsigned int depth) override;
-};
+		//void selfPrint(unsigned int depth) override;
+	};
 
 
-class ThisBeginningExpression : public Expression {
-public:
-	void selfPrint(unsigned int depth) override;
-};
+	class ThisBeginningExpression : public Expression {
+	public:
+		//void selfPrint(unsigned int depth) override;
+	};
 
 
-class Assignment;
-class LiteralBeginningExpression : public Expression {
-private:
-	LocalDeclaration* localDeclaration;
-	vector<Assignment*> assignments;
+	class BaseBeginningExpression : public Expression {
+	public:
+		//void selfPrint(unsigned int depth) override;
+	};
 
-public:
-	void setLocalDeclaration(LocalDeclaration* localDeclaration);
 
-	void addAssignment(Assignment* assignment);
+	class Assignment;
+	class LiteralBeginningExpression : public Expression {
+	private:
+		vector<Statement*> literalCreationStatements;
 
-	void selfPrint(unsigned int depth) override;
-};
+	public:
+		void addLiteralCreationStatement(Statement* statement);
 
+		//void selfPrint(unsigned int depth) override;
+	};
 
-class Assignment : public Statement {
-private:
-	Expression* expression1;
-	Expression* expression2;
 
-public:
-	void setExpression1(Expression* expression1);
+	class Assignment : public Statement {
+	private:
+		Expression* expression1;
+		Expression* expression2;
 
-	void setExpression2(Expression* expression2);
+	public:
+		void setExpression1(Expression* expression1);
 
-	void selfPrint(unsigned int depth) override;
-};
+		void setExpression2(Expression* expression2);
 
+		//void selfPrint(unsigned int depth) override;
+	};
 
-class IfStatement : public Statement {
-private:
-	Expression* condition;
-	vector<Statement*> trueStatements;
-	vector<Statement*> falseStatements;
 
-public:
-	void setCondition(Expression* condition);
+	class IfStatement : public Statement {
+	private:
+		Expression* condition;
+		vector<Statement*> trueStatements;
+		vector<Statement*> falseStatements;
 
-	void addTrueStatement(Statement* statement);
+	public:
+		void setCondition(Expression* condition);
 
-	void addFalseStatement(Statement* statement);
+		void addTrueStatement(Statement* statement);
 
-	void selfPrint(unsigned int depth) override;
-};
+		void addFalseStatement(Statement* statement);
 
+		//void selfPrint(unsigned int depth) override;
+	};
 
-class WhileStatement : public Statement {
-private:
-	Expression* condition;
-	vector<Statement*> statements;
 
-public:
-	void setCondition(Expression* condition);
+	class WhileStatement : public Statement {
+	private:
+		Expression* condition;
+		vector<Statement*> statements;
 
-	void addStatement(Statement* statement);
+	public:
+		void setCondition(Expression* condition);
 
-	void selfPrint(unsigned int depth) override;
-};
+		void addStatement(Statement* statement);
 
+		//void selfPrint(unsigned int depth) override;
+	};
 
-class ReturnStatement : public Statement {
-private:
-	Expression* expression;
 
-public:
-	void setExpression(Expression* expression);
+	class ReturnStatement : public Statement {
+	private:
+		Expression* expression;
 
-	void selfPrint(unsigned int depth) override;
-};
+	public:
+		void setExpression(Expression* expression);
 
+		//void selfPrint(unsigned int depth) override;
+	};
 
-class ConstructorDeclaration : public ClassStatement {
-private:
-	vector<ParameterDeclaration*> parameterDeclarations;
-	AnyBody* body;
 
-public:
-	void addParameterDeclaration(ParameterDeclaration* parameterDeclaration);
+	class ConstructorDeclaration : public ClassStatement {
+	private:
+		vector<ParameterDeclaration*> parameterDeclarations;
+		AnyBody* body;
 
-	void setAnyBody(AnyBody* body);
+	public:
+		void addParameterDeclaration(ParameterDeclaration* parameterDeclaration);
 
-	void selfPrint(unsigned int depth) override;
-};
+		void setAnyBody(AnyBody* body);
 
+		//void selfPrint(unsigned int depth) override;
+	};
 
-class Declaration : public ClassStatement {
-private:
-	string name;
-	Expression* expression;
 
-public:
-	void setName(string name);
-	
-	void setExpression(Expression* expression);
+	class Declaration : public ClassStatement {
+	private:
+		string name;
+		Expression* expression;
 
-	void selfPrint(unsigned int depth) override;
-};
+	public:
+		void setName(string name);
+
+		void setExpression(Expression* expression);
+
+		//void selfPrint(unsigned int depth) override;
+	};
+}
 
 
 #endif
