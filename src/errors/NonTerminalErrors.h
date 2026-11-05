@@ -17,7 +17,7 @@ namespace parser {
 
 	class OutOfTokens : public domain_error {
 	public:
-		OutOfTokens();
+		OutOfTokens(Span span);
 	};
 }
 

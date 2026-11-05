@@ -8,4 +8,4 @@
 parser::ClassDeclarationExpected::ClassDeclarationExpected(Span span) : domain_error("Class declaration beginning with \"class\" was expected"s + rowColumn(span)) {}
 
 
-parser::OutOfTokens::OutOfTokens() : domain_error("Tokens end") {}
+parser::OutOfTokens::OutOfTokens(Span span) : domain_error("Incomplete class declaration due to tokens end"s + rowColumn(span)) {}
