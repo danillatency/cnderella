@@ -1,4 +1,5 @@
 #include "ASTreeGround.h"
+#include "../errors/NonTerminalErrors.h"
 
 
 TreeGround::TreeGround(vector<Token*>& tokens) : tokens(tokens), currentTokenIndex(-1) {}
@@ -16,6 +17,8 @@ string TreeGround::currentTokenStringValue() {
 }
 
 Token* TreeGround::nextToken() {
+	if (this->currentTokenIndex + 1 == this->tokens.size())
+		throw parser::OutOfTokens();
 	return this->tokens.at(++this->currentTokenIndex);
 }
 

@@ -10,9 +10,14 @@ using namespace std;
 
 
 namespace parser {
-	class ClassDeclarationExpected : public logic_error {
+	class ClassDeclarationExpected : public domain_error {
 	public:
 		ClassDeclarationExpected(Span span);
+	};
+
+	class OutOfTokens : public domain_error {
+	public:
+		OutOfTokens();
 	};
 }
 

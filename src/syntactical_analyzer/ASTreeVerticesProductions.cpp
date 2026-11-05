@@ -20,7 +20,7 @@ ClassDeclarations* ClassDeclarations::parse(TreeGround* treeGround) {
 	try {
 		classDeclarations = ClassDeclarations::parse(treeGround);
 	} 
-	catch (const exception& e) {
+	catch (const parser::OutOfTokens& e) {
 		treeGround->currentTokenIndex = checkpoint;
 		return new ClassDeclarations(classDeclaration);
 	}
@@ -57,7 +57,7 @@ ClassHead* ClassHead::parse(TreeGround* treeGround) {
 Id* Id::parse(TreeGround* treeGround) {
 	if (treeGround->nextToken()->code != TokenIdentifier) {
 		treeGround->back();
-		throw runtime_error("Identifier expected");
+		throw domain_error("Identifier expected");
 	}
 	return new Id(treeGround->currentTokenStringValue());
 }
@@ -75,13 +75,13 @@ ClassBody* ClassBody::parse(TreeGround* treeGround) {
 		};
 		if (treeGround->nextToken()->code != TokenEnd) {
 			treeGround->currentTokenIndex = checkpoint;
-			throw runtime_error("end expected");
+			throw domain_error("end expected");
 		}
 		return new ClassBody(classStatements);
 	}
 	if (treeGround->currentToken()->code != TokenArrow) {
 		treeGround->back();
-		throw runtime_error("arrow expected");
+		throw domain_error("arrow expected");
 	}
 	ClassStatement* classStatement = ClassStatement::parse(treeGround);
 	return new ClassBody(new ClassStatements(classStatement));
@@ -95,7 +95,7 @@ ClassStatements* ClassStatements::parse(TreeGround* treeGround) {
 	try {
 		classStatements = ClassStatements::parse(treeGround);
 	}
-	catch (const runtime_error& e) {
+	catch (const domain_error& e) {
 		treeGround->currentTokenIndex = checkpoint;
 		return new ClassStatements(classStatement);
 	}
@@ -119,7 +119,7 @@ ClassStatement* ClassStatement::parse(TreeGround* treeGround) {
 		return ConstructorDeclaration::parse(treeGround);
 	default:
 		treeGround->back();
-		throw runtime_error("unexpected token");
+		throw domain_error("unexpected token");
 	}
 }
 
@@ -135,17 +135,17 @@ MethodHead* MethodHead::parse(TreeGround* treeGround) {
 	int checkpoint = treeGround->currentTokenIndex;
 	if (treeGround->nextToken()->code != TokenMethod) {
 		treeGround->back();
-		throw runtime_error("method expected");
+		throw domain_error("method expected");
 	}
 	Id* methodIdentifier = Id::parse(treeGround);
 	if (treeGround->nextToken()->code != TokenOpeningParenthesis) {
 		treeGround->currentTokenIndex = checkpoint;
-		throw runtime_error("opening parenthesis expected");
+		throw domain_error("opening parenthesis expected");
 	}
 	ParameterDeclarations* parameterDeclarations = ParameterDeclarations::parse(treeGround);
 	if (treeGround->nextToken()->code != TokenClosingParenthesis) {
 		treeGround->currentTokenIndex = checkpoint;
-		throw runtime_error("closing parenthesis expected");
+		throw domain_error("closing parenthesis expected");
 	}
 	if (treeGround->nextToken()->code == TokenColon) {
 		Id* returnType = Id::parse(treeGround);
@@ -171,7 +171,7 @@ ParameterDeclarations* ParameterDeclarations::parse(TreeGround* treeGround) {
 	treeGround->back();
 	if (treeGround->nextToken()->code != TokenComma) {
 		treeGround->currentTokenIndex = checkpoint;
-		throw runtime_error("comma expected");
+		throw domain_error("comma expected");
 	}
 	ParameterDeclarations* parameterDeclarations = ParameterDeclarations::parse(treeGround);
 	return new ParameterDeclarations(parameterDeclaration, parameterDeclarations);
@@ -183,7 +183,7 @@ ParameterDeclaration* ParameterDeclaration::parse(TreeGround* treeGround) {
 	Id* parameterIdentifier = Id::parse(treeGround);
 	if (treeGround->nextToken()->code != TokenColon) {
 		treeGround->currentTokenIndex = checkpoint;
-		throw runtime_error("colon expected");
+		throw domain_error("colon expected");
 	}
 	Id* typeIdentifier = Id::parse(treeGround);
 	return new ParameterDeclaration(parameterIdentifier, typeIdentifier);
@@ -202,13 +202,13 @@ AnyBody* AnyBody::parse(TreeGround* treeGround) {
 		};
 		if (treeGround->nextToken()->code != TokenEnd) {
 			treeGround->currentTokenIndex = checkpoint;
-			throw runtime_error("end expected");
+			throw domain_error("end expected");
 		}
 		return new AnyBody(statements);
 	}
 	if (treeGround->currentToken()->code != TokenArrow) {
 		treeGround->back();
-		throw runtime_error("arrow expected");
+		throw domain_error("arrow expected");
 	}
 	Statement* statement = Statement::parse(treeGround);
 	return new AnyBody(new Statements(statement));
@@ -222,7 +222,7 @@ Statements* Statements::parse(TreeGround* treeGround) {
 	try {
 		statements = Statements::parse(treeGround);
 	}
-	catch (const runtime_error& e) {
+	catch (const domain_error& e) {
 		treeGround->currentTokenIndex = checkpoint;
 		return new Statements(statement);
 	}
@@ -253,7 +253,7 @@ Statement* Statement::parse(TreeGround* treeGround) {
 		try {
 			return Assignment::parse(treeGround);
 		}
-		catch (const runtime_error& e) {
+		catch (const domain_error& e) {
 			treeGround->currentTokenIndex = savedTokenIndex;
 			return Expression::parse(treeGround);
 		}
@@ -265,12 +265,12 @@ LocalDeclaration* LocalDeclaration::parse(TreeGround* treeGround) {
 	int checkpoint = treeGround->currentTokenIndex;
 	if (treeGround->nextToken()->code != TokenVar) {
 		treeGround->back();
-		throw runtime_error("var expected");
+		throw domain_error("var expected");
 	}
 	Id* identifier = Id::parse(treeGround);
 	if (treeGround->nextToken()->code != TokenAssignment) {
 		treeGround->currentTokenIndex = checkpoint;
-		throw runtime_error("assignment expected");
+		throw domain_error("assignment expected");
 	}
 	Expression* expression = Expression::parse(treeGround);
 	return new LocalDeclaration(identifier, expression);
@@ -302,7 +302,7 @@ IdBeginningExpression* IdBeginningExpression::parse(TreeGround* treeGround) {
 	try {
 		accessesAndCalls = AccessesAndCalls::parse(treeGround);
 	}
-	catch (const runtime_error& e) {
+	catch (const domain_error& e) {
 		treeGround->currentTokenIndex = checkpoint;
 		return new IdBeginningExpression(identifier);
 	}
@@ -315,7 +315,7 @@ AccessesAndCalls* AccessesAndCalls::parse(TreeGround* treeGround) {
 	try {
 		return AccessAndFurther::parse(treeGround);
 	} 
-	catch (const runtime_error& e) {
+	catch (const domain_error& e) {
 		treeGround->currentTokenIndex = checkpoint;
 		return CallAndFurther::parse(treeGround);
 	}
@@ -325,7 +325,7 @@ AccessesAndCalls* AccessesAndCalls::parse(TreeGround* treeGround) {
 AccessAndFurther* AccessAndFurther::parse(TreeGround* treeGround) {
 	if (treeGround->nextToken()->code != TokenDot) {
 		treeGround->back();
-		throw runtime_error("Dot expected");
+		throw domain_error("Dot expected");
 	}
 	Id* identifier = Id::parse(treeGround);
 	int checkpoint = treeGround->currentTokenIndex;
@@ -333,7 +333,7 @@ AccessAndFurther* AccessAndFurther::parse(TreeGround* treeGround) {
 	try {
 		accessesAndCalls = AccessesAndCalls::parse(treeGround);
 	}
-	catch (const runtime_error& e) {
+	catch (const domain_error& e) {
 		treeGround->currentTokenIndex = checkpoint;
 		return new AccessAndFurther(identifier);
 	}
@@ -345,19 +345,19 @@ CallAndFurther* CallAndFurther::parse(TreeGround* treeGround) {
 	int checkpoint = treeGround->currentTokenIndex;
 	if (treeGround->nextToken()->code != TokenOpeningParenthesis) {
 		treeGround->back();
-		throw runtime_error("Opening parenthesis expected");
+		throw domain_error("Opening parenthesis expected");
 	}
 	Expressions* expressions = Expressions::parse(treeGround);
 	if (treeGround->nextToken()->code != TokenClosingParenthesis) {
 		treeGround->currentTokenIndex = checkpoint;
-		throw runtime_error("Closing parenthesis expected");
+		throw domain_error("Closing parenthesis expected");
 	}
 	checkpoint = treeGround->currentTokenIndex;
 	AccessesAndCalls* accessesAndCalls;
 	try {
 		accessesAndCalls = AccessesAndCalls::parse(treeGround);
 	}
-	catch (const runtime_error& e) {
+	catch (const domain_error& e) {
 		treeGround->currentTokenIndex = checkpoint;
 		return new CallAndFurther(expressions);
 	}
@@ -371,7 +371,7 @@ Expressions* Expressions::parse(TreeGround* treeGround) {
 	try {
 		expression = Expression::parse(treeGround);
 	}
-	catch (const runtime_error& e) {
+	catch (const domain_error& e) {
 		treeGround->currentTokenIndex = checkpoint;
 		return new Expressions();
 	}
@@ -387,14 +387,14 @@ Expressions* Expressions::parse(TreeGround* treeGround) {
 ThisBeginningExpression* ThisBeginningExpression::parse(TreeGround* treeGround) {
 	if (treeGround->nextToken()->code != TokenThis) {
 		treeGround->back();
-		throw runtime_error("this expected");
+		throw domain_error("this expected");
 	}
 	int checkpoint = treeGround->currentTokenIndex;
 	AccessesAndCalls* accessesAndCalls;
 	try {
 		accessesAndCalls = AccessesAndCalls::parse(treeGround);
 	}
-	catch (const runtime_error& e) {
+	catch (const domain_error& e) {
 		treeGround->currentTokenIndex = checkpoint;
 		return new ThisBeginningExpression();
 	}
@@ -405,14 +405,14 @@ ThisBeginningExpression* ThisBeginningExpression::parse(TreeGround* treeGround) 
 BaseBeginningExpression* BaseBeginningExpression::parse(TreeGround* treeGround) {
 	if (treeGround->nextToken()->code != TokenBase) {
 		treeGround->back();
-		throw runtime_error("base expected");
+		throw domain_error("base expected");
 	}
 	int checkpoint = treeGround->currentTokenIndex;
 	AccessesAndCalls* accessesAndCalls;
 	try {
 		accessesAndCalls = AccessesAndCalls::parse(treeGround);
 	}
-	catch (const runtime_error& e) {
+	catch (const domain_error& e) {
 		treeGround->currentTokenIndex = checkpoint;
 		return new BaseBeginningExpression();
 	}
@@ -427,7 +427,7 @@ LiteralBeginningExpression* LiteralBeginningExpression::parse(TreeGround* treeGr
 	try {
 		accessesAndCalls = AccessesAndCalls::parse(treeGround);
 	}
-	catch (const runtime_error& e) {
+	catch (const domain_error& e) {
 		treeGround->currentTokenIndex = checkpoint;
 		return new LiteralBeginningExpression(literal);
 	}
@@ -499,7 +499,7 @@ Literal* Literal::parse(TreeGround* treeGround) {
 	}
 	}
 	treeGround->back();
-	throw runtime_error("Failed to parse");
+	throw domain_error("Failed to parse");
 }
 
 
@@ -507,7 +507,7 @@ LiteralInteger* LiteralInteger::parse(TreeGround* treeGround) {
 	if (treeGround->nextToken()->code == TokenInteger)
 		return new LiteralInteger(dynamic_cast<Integer*>(treeGround->currentToken())->value);
 	treeGround->back();
-	throw runtime_error("Failed to parse");
+	throw domain_error("Failed to parse");
 }
 
 
@@ -516,7 +516,7 @@ LiteralBoolean* LiteralBoolean::parse(TreeGround* treeGround) {
 	if (treeGround->nextToken()->code == TokenBoolean)
 		return new LiteralBoolean(dynamic_cast<Boolean*>(treeGround->currentToken())->value);
 	treeGround->back();
-	throw runtime_error("Failed to parse");
+	throw domain_error("Failed to parse");
 }
 
 
@@ -525,7 +525,7 @@ LiteralFloat* LiteralFloat::parse(TreeGround* treeGround) {
 	if (treeGround->nextToken()->code == TokenFloat)
 		return new LiteralFloat(dynamic_cast<Float*>(treeGround->currentToken())->value);
 	treeGround->back();
-	throw runtime_error("Failed to parse");
+	throw domain_error("Failed to parse");
 }
 
 
@@ -535,12 +535,12 @@ LiteralCharacter* LiteralCharacter::parse(TreeGround* treeGround) {
 		return new LiteralCharacter(dynamic_cast<Character*>(treeGround->currentToken())->value);
 	if (treeGround->currentToken()->code != TokenQuote) {
 		treeGround->back();
-		throw runtime_error("' expected");
+		throw domain_error("' expected");
 	}
 	char character = dynamic_cast<Character*>(treeGround->nextToken())->value;
 	if (treeGround->nextToken()->code != TokenQuote) {
 		treeGround->back(3);
-		throw runtime_error("' expected");
+		throw domain_error("' expected");
 	}
 	return new LiteralCharacter(character);
 }
@@ -551,12 +551,12 @@ LiteralIntegerArray* LiteralIntegerArray::parse(TreeGround* treeGround) {
 	int checkpoint = treeGround->currentTokenIndex;
 	if (treeGround->nextToken()->code != TokenOpeningSquareBracket) {
 		treeGround->back();
-		throw runtime_error("[ expected");
+		throw domain_error("[ expected");
 	}
 	LiteralIntegers* literalIntegers = LiteralIntegers::parse(treeGround);
 	if (treeGround->nextToken()->code != TokenClosingSquareBracket) {
 		treeGround->currentTokenIndex = checkpoint;
-		throw runtime_error("] expected");
+		throw domain_error("] expected");
 	}
 	return new LiteralIntegerArray(literalIntegers);
 }
@@ -579,12 +579,12 @@ LiteralBooleanArray* LiteralBooleanArray::parse(TreeGround* treeGround) {
 	int checkpoint = treeGround->currentTokenIndex;
 	if (treeGround->nextToken()->code != TokenOpeningSquareBracket) {
 		treeGround->back();
-		throw runtime_error("[ expected");
+		throw domain_error("[ expected");
 	}
 	LiteralBooleans* literalBooleans = LiteralBooleans::parse(treeGround);
 	if (treeGround->nextToken()->code != TokenClosingSquareBracket) {
 		treeGround->currentTokenIndex = checkpoint;
-		throw runtime_error("] expected");
+		throw domain_error("] expected");
 	}
 	return new LiteralBooleanArray(literalBooleans);
 }
@@ -607,12 +607,12 @@ LiteralFloatArray* LiteralFloatArray::parse(TreeGround* treeGround) {
 	int checkpoint = treeGround->currentTokenIndex;
 	if (treeGround->nextToken()->code != TokenOpeningSquareBracket) {
 		treeGround->back();
-		throw runtime_error("[ expected");
+		throw domain_error("[ expected");
 	}
 	LiteralFloats* literalFloats = LiteralFloats::parse(treeGround);
 	if (treeGround->nextToken()->code != TokenClosingSquareBracket) {
 		treeGround->currentTokenIndex = checkpoint;
-		throw runtime_error("] expected");
+		throw domain_error("] expected");
 	}
 	return new LiteralFloatArray(literalFloats);
 }
@@ -636,13 +636,13 @@ LiteralCharacterArray* LiteralCharacterArray::parse(TreeGround* treeGround) {
 	if (treeGround->nextToken()->code != TokenOpeningSquareBracket 
 		&& treeGround->currentToken()->code != TokenDoubleQuote) {
 		treeGround->back();
-		throw runtime_error("[ or \" expected");
+		throw domain_error("[ or \" expected");
 	}
 	LiteralCharacters* literalCharacters = LiteralCharacters::parse(treeGround);
 	if (treeGround->nextToken()->code != TokenClosingSquareBracket
 		&& treeGround->currentToken()->code != TokenDoubleQuote) {
 		treeGround->currentTokenIndex = checkpoint;
-		throw runtime_error("] or \" expected");
+		throw domain_error("] or \" expected");
 	}
 	return new LiteralCharacterArray(literalCharacters);
 }
@@ -658,7 +658,7 @@ LiteralCharacters* LiteralCharacters::parse(TreeGround* treeGround) {
 	try {
 		literalCharacters = LiteralCharacters::parse(treeGround);
 	}
-	catch (const runtime_error& e) {
+	catch (const domain_error& e) {
 		treeGround->currentTokenIndex = checkpoint;
 		return new LiteralCharacters(literalCharacter);
 	}
@@ -671,12 +671,12 @@ LiteralIntegerList* LiteralIntegerList::parse(TreeGround* treeGround) {
 	int checkpoint = treeGround->currentTokenIndex;
 	if (treeGround->nextToken()->code != TokenOpeningCurlyBrace) {
 		treeGround->back();
-		throw runtime_error("{ expected");
+		throw domain_error("{ expected");
 	}
 	LiteralIntegers* literalIntegers = LiteralIntegers::parse(treeGround);
 	if (treeGround->nextToken()->code != TokenClosingCurlyBrace) {
 		treeGround->currentTokenIndex = checkpoint;
-		throw runtime_error("} expected");
+		throw domain_error("} expected");
 	}
 	return new LiteralIntegerList(literalIntegers);
 }
@@ -687,12 +687,12 @@ LiteralBooleanList* LiteralBooleanList::parse(TreeGround* treeGround) {
 	int checkpoint = treeGround->currentTokenIndex;
 	if (treeGround->nextToken()->code != TokenOpeningCurlyBrace) {
 		treeGround->back();
-		throw runtime_error("{ expected");
+		throw domain_error("{ expected");
 	}
 	LiteralBooleans* literalBooleans = LiteralBooleans::parse(treeGround);
 	if (treeGround->nextToken()->code != TokenClosingCurlyBrace) {
 		treeGround->currentTokenIndex = checkpoint;
-		throw runtime_error("} expected");
+		throw domain_error("} expected");
 	}
 	return new LiteralBooleanList(literalBooleans);
 }
@@ -703,12 +703,12 @@ LiteralFloatList* LiteralFloatList::parse(TreeGround* treeGround) {
 	int checkpoint = treeGround->currentTokenIndex;
 	if (treeGround->nextToken()->code != TokenOpeningCurlyBrace) {
 		treeGround->back();
-		throw runtime_error("[ expected");
+		throw domain_error("[ expected");
 	}
 	LiteralFloats* literalFloats = LiteralFloats::parse(treeGround);
 	if (treeGround->nextToken()->code != TokenClosingCurlyBrace) {
 		treeGround->currentTokenIndex = checkpoint;
-		throw runtime_error("] expected");
+		throw domain_error("] expected");
 	}
 	return new LiteralFloatList(literalFloats);
 }
@@ -719,12 +719,12 @@ LiteralCharacterList* LiteralCharacterList::parse(TreeGround* treeGround) {
 	int checkpoint = treeGround->currentTokenIndex;
 	if (treeGround->nextToken()->code != TokenOpeningCurlyBrace) {
 		treeGround->back();
-		throw runtime_error("[ expected");
+		throw domain_error("[ expected");
 	}
 	LiteralCharacters* literalCharacters = LiteralCharacters::parse(treeGround);
 	if (treeGround->nextToken()->code != TokenClosingCurlyBrace) {
 		treeGround->currentTokenIndex = checkpoint;
-		throw runtime_error("] expected");
+		throw domain_error("] expected");
 	}
 	return new LiteralCharacterList(literalCharacters);
 }
@@ -736,7 +736,7 @@ Assignment* Assignment::parse(TreeGround* treeGround) {
 	Expression* expression1 = Expression::parse(treeGround);
 	if (treeGround->nextToken()->code != TokenAssignment) {
 		treeGround->currentTokenIndex = checkpoint;
-		throw runtime_error(":= expected");
+		throw domain_error(":= expected");
 	}
 	Expression* expression2 = Expression::parse(treeGround);
 	return new Assignment(expression1, expression2);
@@ -748,12 +748,12 @@ IfStatement* IfStatement::parse(TreeGround* treeGround) {
 	int checkpoint = treeGround->currentTokenIndex;
 	if (treeGround->nextToken()->code != TokenIf) {
 		treeGround->back();
-		throw runtime_error("if expected");
+		throw domain_error("if expected");
 	}
 	Expression* expression = Expression::parse(treeGround);
 	if (treeGround->nextToken()->code != TokenThen) {
 		treeGround->currentTokenIndex = checkpoint;
-		throw runtime_error("then expected");
+		throw domain_error("then expected");
 	}
 	Statements* statements = Statements::parse(treeGround);
 	if (treeGround->nextToken()->code != TokenNewLine) {
@@ -763,7 +763,7 @@ IfStatement* IfStatement::parse(TreeGround* treeGround) {
 		return new IfStatement(expression, statements);
 	if (treeGround->currentToken()->code != TokenElse) {
 		treeGround->currentTokenIndex = checkpoint;
-		throw runtime_error("else expected");
+		throw domain_error("else expected");
 	}
 	Statements* statements2 = Statements::parse(treeGround);
 	if (treeGround->nextToken()->code != TokenNewLine) {
@@ -771,7 +771,7 @@ IfStatement* IfStatement::parse(TreeGround* treeGround) {
 	};
 	if (treeGround->nextToken()->code != TokenEnd) {
 		treeGround->currentTokenIndex = checkpoint;
-		throw runtime_error("end expected");
+		throw domain_error("end expected");
 	}
 	return new IfStatement(expression, statements, statements2);
 }
@@ -782,12 +782,12 @@ WhileStatement* WhileStatement::parse(TreeGround* treeGround) {
 	int checkpoint = treeGround->currentTokenIndex;
 	if (treeGround->nextToken()->code != TokenWhile) {
 		treeGround->back();
-		throw runtime_error("while expected");
+		throw domain_error("while expected");
 	}
 	Expression* expression = Expression::parse(treeGround);
 	if (treeGround->nextToken()->code != TokenLoop) {
 		treeGround->currentTokenIndex = checkpoint;
-		throw runtime_error("loop expected");
+		throw domain_error("loop expected");
 	}
 	Statements* statements = Statements::parse(treeGround);
 	if (treeGround->nextToken()->code != TokenNewLine) {
@@ -795,7 +795,7 @@ WhileStatement* WhileStatement::parse(TreeGround* treeGround) {
 	};
 	if (treeGround->nextToken()->code != TokenEnd) {
 		treeGround->currentTokenIndex = checkpoint;
-		throw runtime_error("end expected");
+		throw domain_error("end expected");
 	}
 	return new WhileStatement(expression, statements);
 }
@@ -805,7 +805,7 @@ WhileStatement* WhileStatement::parse(TreeGround* treeGround) {
 ReturnStatement* ReturnStatement::parse(TreeGround* treeGround) {
 	if (treeGround->nextToken()->code != TokenReturn) {
 		treeGround->back();
-		throw runtime_error("return expected");
+		throw domain_error("return expected");
 	}
 	Expression* expression = Expression::parse(treeGround);
 	return new ReturnStatement(expression);
@@ -825,16 +825,16 @@ ConstructorHead* ConstructorHead::parse(TreeGround* treeGround) {
 	int checkpoint = treeGround->currentTokenIndex;
 	if (treeGround->nextToken()->code != TokenThis) {
 		treeGround->back();
-		throw runtime_error("this expected");
+		throw domain_error("this expected");
 	}
 	if (treeGround->nextToken()->code != TokenOpeningParenthesis) {
 		treeGround->currentTokenIndex = checkpoint;
-		throw runtime_error("opening parenthesis expected");
+		throw domain_error("opening parenthesis expected");
 	}
 	ParameterDeclarations* parameterDeclarations = ParameterDeclarations::parse(treeGround);
 	if (treeGround->nextToken()->code != TokenClosingParenthesis) {
 		treeGround->currentTokenIndex = checkpoint;
-		throw runtime_error("closing parenthesis expected");
+		throw domain_error("closing parenthesis expected");
 	}
 	return new ConstructorHead(parameterDeclarations);
 }
@@ -845,12 +845,12 @@ Declaration* Declaration::parse(TreeGround* treeGround) {
 	int checkpoint = treeGround->currentTokenIndex;
 	if (treeGround->nextToken()->code != TokenVar) {
 		treeGround->back();
-		throw runtime_error("var expected");
+		throw domain_error("var expected");
 	}
 	Id* identifier = Id::parse(treeGround);
 	if (treeGround->nextToken()->code != TokenAssignment) {
 		treeGround->currentTokenIndex = checkpoint;
-		throw runtime_error("assignment expected");
+		throw domain_error("assignment expected");
 	}
 	Expression* expression = Expression::parse(treeGround);
 	return new Declaration(identifier, expression);
