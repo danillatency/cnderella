@@ -4,6 +4,7 @@
 #include "ASTreeVertices.h"
 #include "ASTreeGround.h"
 #include "../lexical_analyzer/Tokens.h"
+#include "../errors/NonTerminalErrors.h"
 
 
 Program* Program::parse(TreeGround* treeGround) {
@@ -39,8 +40,9 @@ ClassHead* ClassHead::parse(TreeGround* treeGround) {
 		treeGround->back();
 	};
 	if (treeGround->nextToken()->code != TokenClass) {
+		Span errorSpan = treeGround->currentToken()->span;
 		treeGround->back();
-		throw runtime_error("class expected");
+		throw parser::ClassDeclarationExpected(errorSpan);
 	}
 	Id* classIdentifier = Id::parse(treeGround);
 	if (treeGround->nextToken()->code == TokenColon) {

@@ -1,16 +1,8 @@
 #include <stdexcept>
 
 #include "TerminalErrors.h"
+#include "PrintRowColumn.h"
 #include "../lexical_analyzer/Tokens.h"
-
-
-using namespace std;
-
-
-static string rowColumn(Span& span) {
-    return "\nrow: " + to_string(span.row)
-        + "\ncolumn: " + to_string(span.beginPosition) + ".." + to_string(span.endPosition);
-}
 
 
 lexer::CantOpenFile::CantOpenFile(string path) : logic_error("Failed to open "s + '\"' + path + "\"\n") {}

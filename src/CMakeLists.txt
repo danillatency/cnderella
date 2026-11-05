@@ -10,6 +10,8 @@ set(CPP_PARTS
     "semantical_analyzer/AASTreeVertices.cpp"
 
     "errors/TerminalErrors.cpp"
+    "errors/NonTerminalErrors.cpp"
+    "errors/PrintRowColumn.cpp"
 )
 
 add_executable(cnderella Main.cpp  ${CPP_PARTS})
