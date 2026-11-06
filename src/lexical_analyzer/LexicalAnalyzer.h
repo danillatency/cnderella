@@ -18,6 +18,7 @@ private:
 	vector<Token*> tokenStorage;
 	unsigned long currentRow;
 	int currentColumn;
+	int previousColumn;
 	char currentCharacter;
 	string accumulator;
 

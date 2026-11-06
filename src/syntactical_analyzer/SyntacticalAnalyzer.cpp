@@ -13,6 +13,10 @@ Token* SyntacticalAnalyzer::currentToken() {
 	return this->tokens.at(this->tokenIndex);
 }
 
+Token* SyntacticalAnalyzer::token(int index) {
+	return this->tokens.at(index);
+}
+ 
 int SyntacticalAnalyzer::currentTokenIndex() const {
 	return this->tokenIndex;
 }

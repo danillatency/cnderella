@@ -196,9 +196,9 @@ namespace parser {
     };
 
 
-    class IfStatementExpressionParsingError : public domain_error {
+    class RuleParseError : public domain_error {
     public:
-        IfStatementExpressionParsingError(string reason, Span span);
+        RuleParseError(string element, Span span, string reason);
     };
 }
 

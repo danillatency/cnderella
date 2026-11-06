@@ -779,7 +779,7 @@ IfStatement* IfStatement::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
 	}
 	catch (const domain_error& e) {
 		syntacticalAnalyzer->setToken(checkpoint);
-		throw parser::IfStatementExpressionParsingError(e.what(), syntacticalAnalyzer->currentToken()->span);
+		throw parser::RuleParseError("expression", syntacticalAnalyzer->token(checkpoint + 2)->span, e.what());
 	}
 	if (syntacticalAnalyzer->nextToken()->code != TokenThen) {
 		Span errorSpan = syntacticalAnalyzer->currentToken()->span;
