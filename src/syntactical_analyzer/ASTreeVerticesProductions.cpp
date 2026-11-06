@@ -29,7 +29,13 @@ ClassDeclarations* ClassDeclarations::parse(SyntacticalAnalyzer* syntacticalAnal
 
 
 ClassDeclaration* ClassDeclaration::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
-	ClassHead* classHead = ClassHead::parse(syntacticalAnalyzer);
+	ClassHead* classHead;
+	try {
+		classHead = ClassHead::parse(syntacticalAnalyzer);
+	}
+	catch (const domain_error& e) {
+		throw parser::RuleParseError("class head", syntacticalAnalyzer->relativeToken()->span, e.what());
+	}
 	ClassBody* classBody = ClassBody::parse(syntacticalAnalyzer);
 	return new ClassDeclaration(classHead, classBody);
 }
@@ -779,7 +785,7 @@ IfStatement* IfStatement::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
 	}
 	catch (const domain_error& e) {
 		syntacticalAnalyzer->setToken(checkpoint);
-		throw parser::RuleParseError("expression", syntacticalAnalyzer->token(checkpoint + 2)->span, e.what());
+		throw parser::RuleParseError("expression", syntacticalAnalyzer->relativeToken(2)->span, e.what());
 	}
 	if (syntacticalAnalyzer->nextToken()->code != TokenThen) {
 		Span errorSpan = syntacticalAnalyzer->currentToken()->span;

@@ -21,6 +21,8 @@ public:
 
 	Token* token(int index);
 
+	Token* relativeToken(int shift = 1);
+
 	int currentTokenIndex() const;
 
 	void setToken(int index);
