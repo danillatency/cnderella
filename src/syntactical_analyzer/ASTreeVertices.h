@@ -56,7 +56,7 @@ class ConstructorDeclaration;
 class ConstructorHead;
 class Declaration;
 
-class TreeGround;
+class SyntacticalAnalyzer;
 
 
 class Entity {
@@ -78,7 +78,7 @@ public:
 
 	void selfPrint(unsigned int depth) override;
 
-	static Program* parse(TreeGround* treeGround);
+	static Program* parse(SyntacticalAnalyzer* syntacticalAnalyzer);
 };
 
 
@@ -93,7 +93,7 @@ public:
 
 	void selfPrint(unsigned int depth) override;
 
-	static ClassDeclarations* parse(TreeGround* treeGround);
+	static ClassDeclarations* parse(SyntacticalAnalyzer* syntacticalAnalyzer);
 };
 
 
@@ -106,7 +106,7 @@ public:
 
 	void selfPrint(unsigned int depth) override;
 
-	static ClassDeclaration* parse(TreeGround* treeGround);
+	static ClassDeclaration* parse(SyntacticalAnalyzer* syntacticalAnalyzer);
 };
 
 
@@ -121,7 +121,7 @@ public:
 
 	void selfPrint(unsigned int depth) override;
 
-	static ClassHead* parse(TreeGround* treeGround);
+	static ClassHead* parse(SyntacticalAnalyzer* syntacticalAnalyzer);
 };
 
 
@@ -133,7 +133,7 @@ public:
 
 	void selfPrint(unsigned int depth) override;
 
-	static Id* parse(TreeGround* treeGround);
+	static Id* parse(SyntacticalAnalyzer* syntacticalAnalyzer);
 };
 
 
@@ -145,7 +145,7 @@ public:
 
 	void selfPrint(unsigned int depth) override;
 
-	static ClassBody* parse(TreeGround* treeGround);
+	static ClassBody* parse(SyntacticalAnalyzer* syntacticalAnalyzer);
 };
 
 
@@ -160,7 +160,7 @@ public:
 
 	void selfPrint(unsigned int depth) override;
 
-	static ClassStatements* parse(TreeGround* treeGround);
+	static ClassStatements* parse(SyntacticalAnalyzer* syntacticalAnalyzer);
 };
 
 
@@ -168,7 +168,7 @@ class ClassStatement : public Entity {
 public:
 	virtual void selfPrint(unsigned int depth) = 0;
 
-	static ClassStatement* parse(TreeGround* treeGround);
+	static ClassStatement* parse(SyntacticalAnalyzer* syntacticalAnalyzer);
 };
 
 
@@ -181,7 +181,7 @@ public:
 
 	void selfPrint(unsigned int depth) override;
 
-	static MethodDeclaration* parse(TreeGround* treeGround);
+	static MethodDeclaration* parse(SyntacticalAnalyzer* syntacticalAnalyzer);
 };
 
 
@@ -197,7 +197,7 @@ public:
 
 	void selfPrint(unsigned int depth) override;
 
-	static MethodHead* parse(TreeGround* treeGround);
+	static MethodHead* parse(SyntacticalAnalyzer* syntacticalAnalyzer);
 };
 
 
@@ -214,7 +214,7 @@ public:
 
 	void selfPrint(unsigned int depth) override;
 
-	static ParameterDeclarations* parse(TreeGround* treeGround);
+	static ParameterDeclarations* parse(SyntacticalAnalyzer* syntacticalAnalyzer);
 };
 
 
@@ -227,7 +227,7 @@ public:
 
 	void selfPrint(unsigned int depth) override;
 
-	static ParameterDeclaration* parse(TreeGround* treeGround);
+	static ParameterDeclaration* parse(SyntacticalAnalyzer* syntacticalAnalyzer);
 };
 
 
@@ -239,7 +239,7 @@ public:
 
 	void selfPrint(unsigned int depth) override;
 
-	static AnyBody* parse(TreeGround* treeGround);
+	static AnyBody* parse(SyntacticalAnalyzer* syntacticalAnalyzer);
 };
 
 
@@ -254,7 +254,7 @@ public:
 
 	void selfPrint(unsigned int depth) override;
 
-	static Statements* parse(TreeGround* treeGround);
+	static Statements* parse(SyntacticalAnalyzer* syntacticalAnalyzer);
 };
 
 
@@ -262,7 +262,7 @@ class Statement : public Entity {
 public:
 	virtual void selfPrint(unsigned int depth) = 0;
 
-	static Statement* parse(TreeGround* treeGround);
+	static Statement* parse(SyntacticalAnalyzer* syntacticalAnalyzer);
 };
 
 
@@ -275,7 +275,7 @@ public:
 
 	void selfPrint(unsigned int depth) override;
 
-	static LocalDeclaration* parse(TreeGround* treeGround);
+	static LocalDeclaration* parse(SyntacticalAnalyzer* syntacticalAnalyzer);
 };
 
 
@@ -283,7 +283,7 @@ class Expression : public Statement {
 public:
 	virtual void selfPrint(unsigned int depth) = 0;
 
-	static Expression* parse(TreeGround* treeGround);
+	static Expression* parse(SyntacticalAnalyzer* syntacticalAnalyzer);
 };
 
 
@@ -298,7 +298,7 @@ public:
 
 	void selfPrint(unsigned int depth) override;
 
-	static IdBeginningExpression* parse(TreeGround* treeGround);
+	static IdBeginningExpression* parse(SyntacticalAnalyzer* syntacticalAnalyzer);
 };
 
 
@@ -306,7 +306,7 @@ class AccessesAndCalls : public Entity {
 public:
 	virtual void selfPrint(unsigned int depth) = 0;
 
-	static AccessesAndCalls* parse(TreeGround* treeGround);
+	static AccessesAndCalls* parse(SyntacticalAnalyzer* syntacticalAnalyzer);
 };
 
 
@@ -321,7 +321,7 @@ public:
 
 	void selfPrint(unsigned int depth) override;
 
-	static AccessAndFurther* parse(TreeGround* treeGround);
+	static AccessAndFurther* parse(SyntacticalAnalyzer* syntacticalAnalyzer);
 };
 
 
@@ -336,7 +336,7 @@ public:
 
 	void selfPrint(unsigned int depth) override;
 
-	static CallAndFurther* parse(TreeGround* treeGround);
+	static CallAndFurther* parse(SyntacticalAnalyzer* syntacticalAnalyzer);
 };
 
 
@@ -353,7 +353,7 @@ public:
 
 	void selfPrint(unsigned int depth) override;
 
-	static Expressions* parse(TreeGround* treeGround);
+	static Expressions* parse(SyntacticalAnalyzer* syntacticalAnalyzer);
 };
 
 
@@ -367,7 +367,7 @@ public:
 
 	void selfPrint(unsigned int depth) override;
 
-	static ThisBeginningExpression* parse(TreeGround* treeGround);
+	static ThisBeginningExpression* parse(SyntacticalAnalyzer* syntacticalAnalyzer);
 };
 
 
@@ -381,7 +381,7 @@ public:
 
 	void selfPrint(unsigned int depth) override;
 
-	static BaseBeginningExpression* parse(TreeGround* treeGround);
+	static BaseBeginningExpression* parse(SyntacticalAnalyzer* syntacticalAnalyzer);
 };
 
 
@@ -396,7 +396,7 @@ public:
 
 	void selfPrint(unsigned int depth) override;
 
-	static LiteralBeginningExpression* parse(TreeGround* treeGround);
+	static LiteralBeginningExpression* parse(SyntacticalAnalyzer* syntacticalAnalyzer);
 };
 
 
@@ -404,7 +404,7 @@ class Literal : public Expression {
 public:
 	virtual void selfPrint(unsigned int depth) = 0;
 
-	static Literal* parse(TreeGround* treeGround);
+	static Literal* parse(SyntacticalAnalyzer* syntacticalAnalyzer);
 };
 
 
@@ -416,7 +416,7 @@ public:
 
 	void selfPrint(unsigned int depth) override;
 
-	static LiteralInteger* parse(TreeGround* treeGround);
+	static LiteralInteger* parse(SyntacticalAnalyzer* syntacticalAnalyzer);
 };
 
 
@@ -428,7 +428,7 @@ public:
 
 	void selfPrint(unsigned int depth) override;
 
-	static LiteralBoolean* parse(TreeGround* treeGround);
+	static LiteralBoolean* parse(SyntacticalAnalyzer* syntacticalAnalyzer);
 };
 
 
@@ -440,7 +440,7 @@ public:
 
 	void selfPrint(unsigned int depth) override;
 
-	static LiteralFloat* parse(TreeGround* treeGround);
+	static LiteralFloat* parse(SyntacticalAnalyzer* syntacticalAnalyzer);
 };
 
 
@@ -452,7 +452,7 @@ public:
 
 	void selfPrint(unsigned int depth) override;
 
-	static LiteralCharacter* parse(TreeGround* treeGround);
+	static LiteralCharacter* parse(SyntacticalAnalyzer* syntacticalAnalyzer);
 };
 
 
@@ -464,7 +464,7 @@ public:
 
 	void selfPrint(unsigned int depth) override;
 
-	static LiteralIntegerArray* parse(TreeGround* treeGround);
+	static LiteralIntegerArray* parse(SyntacticalAnalyzer* syntacticalAnalyzer);
 };
 
 
@@ -479,7 +479,7 @@ public:
 
 	void selfPrint(unsigned int depth) override;
 
-	static LiteralIntegers* parse(TreeGround* treeGround);
+	static LiteralIntegers* parse(SyntacticalAnalyzer* syntacticalAnalyzer);
 };
 
 
@@ -491,7 +491,7 @@ public:
 
 	void selfPrint(unsigned int depth) override;
 
-	static LiteralBooleanArray* parse(TreeGround* treeGround);
+	static LiteralBooleanArray* parse(SyntacticalAnalyzer* syntacticalAnalyzer);
 };
 
 
@@ -506,7 +506,7 @@ public:
 
 	void selfPrint(unsigned int depth) override;
 
-	static LiteralBooleans* parse(TreeGround* treeGround);
+	static LiteralBooleans* parse(SyntacticalAnalyzer* syntacticalAnalyzer);
 };
 
 
@@ -518,7 +518,7 @@ public:
 
 	void selfPrint(unsigned int depth) override;
 
-	static LiteralFloatArray* parse(TreeGround* treeGround);
+	static LiteralFloatArray* parse(SyntacticalAnalyzer* syntacticalAnalyzer);
 };
 
 
@@ -533,7 +533,7 @@ public:
 
 	void selfPrint(unsigned int depth) override;
 
-	static LiteralFloats* parse(TreeGround* treeGround);
+	static LiteralFloats* parse(SyntacticalAnalyzer* syntacticalAnalyzer);
 };
 
 class LiteralCharacterArray : public Literal {
@@ -544,7 +544,7 @@ public:
 
 	void selfPrint(unsigned int depth) override;
 
-	static LiteralCharacterArray* parse(TreeGround* treeGround);
+	static LiteralCharacterArray* parse(SyntacticalAnalyzer* syntacticalAnalyzer);
 };
 
 
@@ -559,7 +559,7 @@ public:
 
 	void selfPrint(unsigned int depth) override;
 
-	static LiteralCharacters* parse(TreeGround* treeGround);
+	static LiteralCharacters* parse(SyntacticalAnalyzer* syntacticalAnalyzer);
 };
 
 
@@ -571,7 +571,7 @@ public:
 
 	void selfPrint(unsigned int depth) override;
 
-	static LiteralIntegerList* parse(TreeGround* treeGround);
+	static LiteralIntegerList* parse(SyntacticalAnalyzer* syntacticalAnalyzer);
 };
 
 
@@ -583,7 +583,7 @@ public:
 
 	void selfPrint(unsigned int depth) override;
 
-	static LiteralBooleanList* parse(TreeGround* treeGround);
+	static LiteralBooleanList* parse(SyntacticalAnalyzer* syntacticalAnalyzer);
 };
 
 
@@ -595,7 +595,7 @@ public:
 
 	void selfPrint(unsigned int depth) override;
 
-	static LiteralFloatList* parse(TreeGround* treeGround);
+	static LiteralFloatList* parse(SyntacticalAnalyzer* syntacticalAnalyzer);
 };
 
 
@@ -607,7 +607,7 @@ public:
 
 	void selfPrint(unsigned int depth) override;
 
-	static LiteralCharacterList* parse(TreeGround* treeGround);
+	static LiteralCharacterList* parse(SyntacticalAnalyzer* syntacticalAnalyzer);
 };
 
 
@@ -620,7 +620,7 @@ public:
 
 	void selfPrint(unsigned int depth) override;
 
-	static Assignment* parse(TreeGround* treeGround);
+	static Assignment* parse(SyntacticalAnalyzer* syntacticalAnalyzer);
 };
 
 
@@ -636,7 +636,7 @@ public:
 
 	void selfPrint(unsigned int depth) override;
 
-	static IfStatement* parse(TreeGround* treeGround);
+	static IfStatement* parse(SyntacticalAnalyzer* syntacticalAnalyzer);
 };
 
 
@@ -649,7 +649,7 @@ public:
 
 	void selfPrint(unsigned int depth) override;
 
-	static WhileStatement* parse(TreeGround* treeGround);
+	static WhileStatement* parse(SyntacticalAnalyzer* syntacticalAnalyzer);
 };
 
 
@@ -661,7 +661,7 @@ public:
 
 	void selfPrint(unsigned int depth) override;
 
-	static ReturnStatement* parse(TreeGround* treeGround);
+	static ReturnStatement* parse(SyntacticalAnalyzer* syntacticalAnalyzer);
 };
 
 
@@ -674,7 +674,7 @@ public:
 
 	void selfPrint(unsigned int depth) override;
 
-	static ConstructorDeclaration* parse(TreeGround* treeGround);
+	static ConstructorDeclaration* parse(SyntacticalAnalyzer* syntacticalAnalyzer);
 };
 
 
@@ -686,7 +686,7 @@ public:
 
 	void selfPrint(unsigned int depth) override;
 
-	static ConstructorHead* parse(TreeGround* treeGround);
+	static ConstructorHead* parse(SyntacticalAnalyzer* syntacticalAnalyzer);
 };
 
 
@@ -699,7 +699,7 @@ public:
 
 	void selfPrint(unsigned int depth) override;
 
-	static Declaration* parse(TreeGround* treeGround);
+	static Declaration* parse(SyntacticalAnalyzer* syntacticalAnalyzer);
 };
 
 

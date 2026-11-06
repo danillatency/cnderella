@@ -3,7 +3,7 @@
 
 #include "lexical_analyzer/Tokens.h"
 #include "lexical_analyzer/LexicalAnalyzer.h"
-#include "syntactical_analyzer/ASTreeGround.h"
+#include "syntactical_analyzer/SyntacticalAnalyzer.h"
 #include "semantical_analyzer/SemanticalAnalyzer.h"
 
 
@@ -26,7 +26,7 @@ int main(int argc, char* argv[]) {
 
 		standardLexer.printTokens();
 
-		TreeGround ground(standardLexer.getTokenStorage());
+		SyntacticalAnalyzer ground(standardLexer.getTokenStorage());
 		ground.grow();
 
 		ground.visualize();

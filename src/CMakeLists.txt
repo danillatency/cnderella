@@ -2,7 +2,7 @@ set(CPP_PARTS
     "lexical_analyzer/Tokens.cpp"
     "lexical_analyzer/LexicalAnalyzer.cpp"
 
-    "syntactical_analyzer/ASTreeGround.cpp"
+    "syntactical_analyzer/SyntacticalAnalyzer.cpp"
     "syntactical_analyzer/ASTreeVerticesProductions.cpp"
     "syntactical_analyzer/ASTreeVerticesConstructors.cpp"
     "syntactical_analyzer/ASTreeVerticesVisualization.cpp"

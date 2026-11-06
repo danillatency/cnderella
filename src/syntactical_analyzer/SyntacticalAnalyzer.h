@@ -6,19 +6,22 @@
 #include "ASTreeVertices.h"
 
 
-class TreeGround {
+class SyntacticalAnalyzer {
 private:
 	vector<Token*>& tokens;
+	Program* program;
+	long int tokenIndex;
 
 public:
-	Program* program;
-	long int currentTokenIndex;
-
-	TreeGround(vector<Token*>& tokens);
+	SyntacticalAnalyzer(vector<Token*>& tokens);
 
 	void grow();
 
 	Token* currentToken();
+
+	int currentTokenIndex() const;
+
+	void setToken(int index);
 
 	string currentTokenStringValue();
 
