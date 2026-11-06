@@ -30,20 +30,26 @@ namespace parser {
 
 	class EndExpected : public domain_error {
 	public:
-		EndExpected(Span span);
+		EndExpected(string context, Span span);
 	};
+
+
+    class NotLiteral : public domain_error {
+    public:
+        NotLiteral(Span span);
+    };
+
+
+    class FailedToParseLiteral : public domain_error {
+    public:
+        FailedToParseLiteral(string context, Span span);
+    };
 
 
 	class ArrowExpected : public domain_error {
 	public:
-		ArrowExpected(Span span);
+        ArrowExpected(string context, Span span);
 	};
-
-
-    class UnexpectedToken : public domain_error {
-    public:
-        UnexpectedToken(Span span);
-    };
 
 
     class MethodExpected : public domain_error {
@@ -60,7 +66,7 @@ namespace parser {
 
     class ClosingParenthesisExpected : public domain_error {
     public:
-        ClosingParenthesisExpected(Span span);
+        ClosingParenthesisExpected(string context, Span span);
     };
 
 
@@ -78,13 +84,7 @@ namespace parser {
 
     class VarExpected : public domain_error {
     public:
-        VarExpected(Span span);
-    };
-
-
-    class AssignmentExpected : public domain_error {
-    public:
-        AssignmentExpected(Span span);
+        VarExpected(string context, Span span);
     };
 
 
@@ -96,7 +96,7 @@ namespace parser {
 
     class ThisExpected : public domain_error {
     public:
-        ThisExpected(Span span);
+        ThisExpected(string context, Span span);
     };
 
 
@@ -126,7 +126,7 @@ namespace parser {
 
     class ClosingSquareBracketExpected : public domain_error {
     public:
-        ClosingSquareBracketExpected(Span span);
+        ClosingSquareBracketExpected(string context, Span span);
     };
 
 
@@ -144,19 +144,19 @@ namespace parser {
 
     class OpeningCurlyBraceExpected : public domain_error {
     public:
-        OpeningCurlyBraceExpected(Span span);
+        OpeningCurlyBraceExpected(string context, Span span);
     };
 
 
     class ClosingCurlyBraceExpected : public domain_error {
     public:
-        ClosingCurlyBraceExpected(Span span);
+        ClosingCurlyBraceExpected(string context, Span span);
     };
 
 
     class AssignmentSignExpected : public domain_error {
     public:
-        AssignmentSignExpected(Span span);
+        AssignmentSignExpected(string context, Span span);
     };
 
 

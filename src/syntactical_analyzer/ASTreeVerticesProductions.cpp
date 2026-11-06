@@ -77,14 +77,14 @@ ClassBody* ClassBody::parse(TreeGround* treeGround) {
 		if (treeGround->nextToken()->code != TokenEnd) {
 			Span errorSpan = treeGround->currentToken()->span;
 			treeGround->currentTokenIndex = checkpoint;
-			throw parser::EndExpected(errorSpan);
+			throw parser::EndExpected("class body", errorSpan);
 		}
 		return new ClassBody(classStatements);
 	}
 	if (treeGround->currentToken()->code != TokenArrow) {
 		Span errorSpan = treeGround->currentToken()->span;
 		treeGround->back();
-		throw parser::ArrowExpected(errorSpan);
+		throw parser::ArrowExpected("class body", errorSpan);
 	}
 	ClassStatement* classStatement = ClassStatement::parse(treeGround);
 	return new ClassBody(new ClassStatements(classStatement));
@@ -117,13 +117,9 @@ ClassStatement* ClassStatement::parse(TreeGround* treeGround) {
 	case TokenMethod:
 		treeGround->back();
 		return MethodDeclaration::parse(treeGround);
-	case TokenThis:
+	default:
 		treeGround->back();
 		return ConstructorDeclaration::parse(treeGround);
-	default:
-		Span errorSpan = treeGround->currentToken()->span;
-		treeGround->back();
-		throw parser::UnexpectedToken(errorSpan);
 	}
 }
 
@@ -152,7 +148,7 @@ MethodHead* MethodHead::parse(TreeGround* treeGround) {
 	if (treeGround->nextToken()->code != TokenClosingParenthesis) {
 		Span errorSpan = treeGround->currentToken()->span;
 		treeGround->currentTokenIndex = checkpoint;
-		throw parser::ClosingParenthesisExpected(errorSpan);
+		throw parser::ClosingParenthesisExpected("method head", errorSpan);
 	}
 	if (treeGround->nextToken()->code == TokenColon) {
 		Id* returnType = Id::parse(treeGround);
@@ -212,14 +208,14 @@ AnyBody* AnyBody::parse(TreeGround* treeGround) {
 		if (treeGround->nextToken()->code != TokenEnd) {
 			Span errorSpan = treeGround->currentToken()->span;
 			treeGround->currentTokenIndex = checkpoint;
-			throw parser::EndExpected(errorSpan);
+			throw parser::EndExpected("body", errorSpan);
 		}
 		return new AnyBody(statements);
 	}
 	if (treeGround->currentToken()->code != TokenArrow) {
 		Span errorSpan = treeGround->currentToken()->span;
 		treeGround->back();
-		throw parser::ArrowExpected(errorSpan);
+		throw parser::ArrowExpected("body", errorSpan);
 	}
 	Statement* statement = Statement::parse(treeGround);
 	return new AnyBody(new Statements(statement));
@@ -277,13 +273,13 @@ LocalDeclaration* LocalDeclaration::parse(TreeGround* treeGround) {
 	if (treeGround->nextToken()->code != TokenVar) {
 		Span errorSpan = treeGround->currentToken()->span;
 		treeGround->back();
-		throw parser::VarExpected(errorSpan);
+		throw parser::VarExpected("local declaration", errorSpan);
 	}
 	Id* identifier = Id::parse(treeGround);
 	if (treeGround->nextToken()->code != TokenAssignment) {
 		Span errorSpan = treeGround->currentToken()->span;
 		treeGround->currentTokenIndex = checkpoint;
-		throw parser::AssignmentExpected(errorSpan);
+		throw parser::AssignmentSignExpected("local declaration", errorSpan);
 	}
 	Expression* expression = Expression::parse(treeGround);
 	return new LocalDeclaration(identifier, expression);
@@ -366,7 +362,7 @@ CallAndFurther* CallAndFurther::parse(TreeGround* treeGround) {
 	if (treeGround->nextToken()->code != TokenClosingParenthesis) {
 		Span errorSpan = treeGround->currentToken()->span;
 		treeGround->currentTokenIndex = checkpoint;
-		throw parser::ClosingParenthesisExpected(errorSpan);
+		throw parser::ClosingParenthesisExpected("call", errorSpan);
 	}
 	checkpoint = treeGround->currentTokenIndex;
 	AccessesAndCalls* accessesAndCalls;
@@ -404,7 +400,7 @@ ThisBeginningExpression* ThisBeginningExpression::parse(TreeGround* treeGround) 
 	if (treeGround->nextToken()->code != TokenThis) {
 		Span errorSpan = treeGround->currentToken()->span;
 		treeGround->back();
-		throw parser::ThisExpected(errorSpan);
+		throw parser::ThisExpected("expression", errorSpan);
 	}
 	int checkpoint = treeGround->currentTokenIndex;
 	AccessesAndCalls* accessesAndCalls;
@@ -503,7 +499,7 @@ Literal* Literal::parse(TreeGround* treeGround) {
 	}
 	Span errorSpan = treeGround->currentToken()->span;
 	treeGround->back();
-	throw parser::FailedToParse(errorSpan);
+	throw parser::NotLiteral(errorSpan);
 }
 
 
@@ -512,7 +508,7 @@ LiteralInteger* LiteralInteger::parse(TreeGround* treeGround) {
 		return new LiteralInteger(dynamic_cast<Integer*>(treeGround->currentToken())->value);
 	Span errorSpan = treeGround->currentToken()->span;
 	treeGround->back();
-	throw parser::FailedToParse(errorSpan);
+	throw parser::FailedToParseLiteral("an integer", errorSpan);
 }
 
 
@@ -522,7 +518,7 @@ LiteralBoolean* LiteralBoolean::parse(TreeGround* treeGround) {
 		return new LiteralBoolean(dynamic_cast<Boolean*>(treeGround->currentToken())->value);
 	Span errorSpan = treeGround->currentToken()->span;
 	treeGround->back();
-	throw parser::FailedToParse(errorSpan);
+	throw parser::FailedToParseLiteral("a boolean", errorSpan);
 }
 
 
@@ -532,7 +528,7 @@ LiteralFloat* LiteralFloat::parse(TreeGround* treeGround) {
 		return new LiteralFloat(dynamic_cast<Float*>(treeGround->currentToken())->value);
 	Span errorSpan = treeGround->currentToken()->span;
 	treeGround->back();
-	throw parser::FailedToParse(errorSpan);
+	throw parser::FailedToParseLiteral("a float", errorSpan);
 }
 
 
@@ -567,7 +563,7 @@ LiteralIntegerArray* LiteralIntegerArray::parse(TreeGround* treeGround) {
 	if (treeGround->nextToken()->code != TokenClosingSquareBracket) {
 		Span errorSpan = treeGround->currentToken()->span;
 		treeGround->currentTokenIndex = checkpoint;
-		throw parser::ClosingSquareBracketExpected(errorSpan);
+		throw parser::ClosingSquareBracketExpected("literal integer array", errorSpan);
 	}
 	return new LiteralIntegerArray(literalIntegers);
 }
@@ -597,7 +593,7 @@ LiteralBooleanArray* LiteralBooleanArray::parse(TreeGround* treeGround) {
 	if (treeGround->nextToken()->code != TokenClosingSquareBracket) {
 		Span errorSpan = treeGround->currentToken()->span;
 		treeGround->currentTokenIndex = checkpoint;
-		throw parser::ClosingSquareBracketExpected(errorSpan);
+		throw parser::ClosingSquareBracketExpected("literal boolean array", errorSpan);
 	}
 	return new LiteralBooleanArray(literalBooleans);
 }
@@ -627,7 +623,7 @@ LiteralFloatArray* LiteralFloatArray::parse(TreeGround* treeGround) {
 	if (treeGround->nextToken()->code != TokenClosingSquareBracket) {
 		Span errorSpan = treeGround->currentToken()->span;
 		treeGround->currentTokenIndex = checkpoint;
-		throw parser::ClosingSquareBracketExpected(errorSpan);
+		throw parser::ClosingSquareBracketExpected("literal float array", errorSpan);
 	}
 	return new LiteralFloatArray(literalFloats);
 }
@@ -689,13 +685,13 @@ LiteralIntegerList* LiteralIntegerList::parse(TreeGround* treeGround) {
 	if (treeGround->nextToken()->code != TokenOpeningCurlyBrace) {
 		Span errorSpan = treeGround->currentToken()->span;
 		treeGround->back();
-		throw parser::OpeningCurlyBraceExpected(errorSpan);
+		throw parser::OpeningCurlyBraceExpected("literal integer list", errorSpan);
 	}
 	LiteralIntegers* literalIntegers = LiteralIntegers::parse(treeGround);
 	if (treeGround->nextToken()->code != TokenClosingCurlyBrace) {
 		Span errorSpan = treeGround->currentToken()->span;
 		treeGround->currentTokenIndex = checkpoint;
-		throw parser::ClosingCurlyBraceExpected(errorSpan);
+		throw parser::ClosingCurlyBraceExpected("literal integer list", errorSpan);
 	}
 	return new LiteralIntegerList(literalIntegers);
 }
@@ -707,13 +703,13 @@ LiteralBooleanList* LiteralBooleanList::parse(TreeGround* treeGround) {
 	if (treeGround->nextToken()->code != TokenOpeningCurlyBrace) {
 		Span errorSpan = treeGround->currentToken()->span;
 		treeGround->back();
-		throw parser::OpeningCurlyBraceExpected(errorSpan);
+		throw parser::OpeningCurlyBraceExpected("literal boolean list", errorSpan);
 	}
 	LiteralBooleans* literalBooleans = LiteralBooleans::parse(treeGround);
 	if (treeGround->nextToken()->code != TokenClosingCurlyBrace) {
 		Span errorSpan = treeGround->currentToken()->span;
 		treeGround->currentTokenIndex = checkpoint;
-		throw parser::ClosingCurlyBraceExpected(errorSpan);
+		throw parser::ClosingCurlyBraceExpected("literal boolean list", errorSpan);
 	}
 	return new LiteralBooleanList(literalBooleans);
 }
@@ -725,13 +721,13 @@ LiteralFloatList* LiteralFloatList::parse(TreeGround* treeGround) {
 	if (treeGround->nextToken()->code != TokenOpeningCurlyBrace) {
 		Span errorSpan = treeGround->currentToken()->span;
 		treeGround->back();
-		throw parser::OpeningSquareBracketOrQuotesExpected(errorSpan);
+		throw parser::OpeningCurlyBraceExpected("literal float list", errorSpan);
 	}
 	LiteralFloats* literalFloats = LiteralFloats::parse(treeGround);
 	if (treeGround->nextToken()->code != TokenClosingCurlyBrace) {
 		Span errorSpan = treeGround->currentToken()->span;
 		treeGround->currentTokenIndex = checkpoint;
-		throw parser::ClosingSquareBracketOrQuotesExpected(errorSpan);
+		throw parser::ClosingCurlyBraceExpected("literal float list", errorSpan);
 	}
 	return new LiteralFloatList(literalFloats);
 }
@@ -743,13 +739,13 @@ LiteralCharacterList* LiteralCharacterList::parse(TreeGround* treeGround) {
 	if (treeGround->nextToken()->code != TokenOpeningCurlyBrace) {
 		Span errorSpan = treeGround->currentToken()->span;
 		treeGround->back();
-		throw parser::OpeningSquareBracketOrQuotesExpected(errorSpan);
+		throw parser::OpeningCurlyBraceExpected("literal character list", errorSpan);
 	}
 	LiteralCharacters* literalCharacters = LiteralCharacters::parse(treeGround);
 	if (treeGround->nextToken()->code != TokenClosingCurlyBrace) {
 		Span errorSpan = treeGround->currentToken()->span;
 		treeGround->currentTokenIndex = checkpoint;
-		throw parser::ClosingSquareBracketOrQuotesExpected(errorSpan);
+		throw parser::ClosingCurlyBraceExpected("literal character list", errorSpan);
 	}
 	return new LiteralCharacterList(literalCharacters);
 }
@@ -762,7 +758,7 @@ Assignment* Assignment::parse(TreeGround* treeGround) {
 	if (treeGround->nextToken()->code != TokenAssignment) {
 		Span errorSpan = treeGround->currentToken()->span;
 		treeGround->currentTokenIndex = checkpoint;
-		throw parser::AssignmentSignExpected(errorSpan);
+		throw parser::AssignmentSignExpected("assignment expression", errorSpan);
 	}
 	Expression* expression2 = Expression::parse(treeGround);
 	return new Assignment(expression1, expression2);
@@ -801,7 +797,7 @@ IfStatement* IfStatement::parse(TreeGround* treeGround) {
 	if (treeGround->nextToken()->code != TokenEnd) {
 		Span errorSpan = treeGround->currentToken()->span;
 		treeGround->currentTokenIndex = checkpoint;
-		throw parser::EndExpected(errorSpan);
+		throw parser::EndExpected("\"if\" statement", errorSpan);
 	}
 	return new IfStatement(expression, statements, statements2);
 }
@@ -828,7 +824,7 @@ WhileStatement* WhileStatement::parse(TreeGround* treeGround) {
 	if (treeGround->nextToken()->code != TokenEnd) {
 		Span errorSpan = treeGround->currentToken()->span;
 		treeGround->currentTokenIndex = checkpoint;
-		throw parser::EndExpected(errorSpan);
+		throw parser::EndExpected("\"while\" statement", errorSpan);
 	}
 	return new WhileStatement(expression, statements);
 }
@@ -860,7 +856,7 @@ ConstructorHead* ConstructorHead::parse(TreeGround* treeGround) {
 	if (treeGround->nextToken()->code != TokenThis) {
 		Span errorSpan = treeGround->currentToken()->span;
 		treeGround->back();
-		throw parser::ThisExpected(errorSpan);
+		throw parser::ThisExpected("constructor head", errorSpan);
 	}
 	if (treeGround->nextToken()->code != TokenOpeningParenthesis) {
 		Span errorSpan = treeGround->currentToken()->span;
@@ -871,7 +867,7 @@ ConstructorHead* ConstructorHead::parse(TreeGround* treeGround) {
 	if (treeGround->nextToken()->code != TokenClosingParenthesis) {
 		Span errorSpan = treeGround->currentToken()->span;
 		treeGround->currentTokenIndex = checkpoint;
-		throw parser::ClosingParenthesisExpected(errorSpan);
+		throw parser::ClosingParenthesisExpected("constructor head", errorSpan);
 	}
 	return new ConstructorHead(parameterDeclarations);
 }
@@ -883,13 +879,13 @@ Declaration* Declaration::parse(TreeGround* treeGround) {
 	if (treeGround->nextToken()->code != TokenVar) {
 		Span errorSpan = treeGround->currentToken()->span;
 		treeGround->back();
-		throw parser::VarExpected(errorSpan);
+		throw parser::VarExpected("class declaration", errorSpan);
 	}
 	Id* identifier = Id::parse(treeGround);
 	if (treeGround->nextToken()->code != TokenAssignment) {
 		Span errorSpan = treeGround->currentToken()->span;
 		treeGround->currentTokenIndex = checkpoint;
-		throw parser::AssignmentExpected(errorSpan);
+		throw parser::AssignmentSignExpected("class declaration", errorSpan);
 	}
 	Expression* expression = Expression::parse(treeGround);
 	return new Declaration(identifier, expression);
