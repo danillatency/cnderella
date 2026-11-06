@@ -773,7 +773,14 @@ IfStatement* IfStatement::parse(TreeGround* treeGround) {
 		treeGround->back();
 		throw parser::IfExpected(errorSpan);
 	}
-	Expression* expression = Expression::parse(treeGround);
+	Expression* expression;
+	try {
+		expression = Expression::parse(treeGround);
+	}
+	catch (const domain_error& e) {
+		treeGround->currentTokenIndex = checkpoint;
+		throw parser::IfStatementExpressionParsingError(e.what(), treeGround->currentToken()->span);
+	}
 	if (treeGround->nextToken()->code != TokenThen) {
 		Span errorSpan = treeGround->currentToken()->span;
 		treeGround->currentTokenIndex = checkpoint;

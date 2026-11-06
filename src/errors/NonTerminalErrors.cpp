@@ -95,3 +95,4 @@ parser::CommaExpected::CommaExpected(Span span) : domain_error("Comma between pa
 parser::DotExpected::DotExpected(Span span) : domain_error("Access expression dot was expected"s + rowColumn(span)) {}
 
 
+parser::IfStatementExpressionParsingError::IfStatementExpressionParsingError(string reason, Span span) : domain_error("Cannot parse the if statement"s + rowColumn(span) + "\n\ndue to an error in its expression\n\n" + reason) {}

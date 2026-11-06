@@ -194,6 +194,12 @@ namespace parser {
     public:
         ReturnExpected(Span span);
     };
+
+
+    class IfStatementExpressionParsingError : public domain_error {
+    public:
+        IfStatementExpressionParsingError(string reason, Span span);
+    };
 }
 
 
