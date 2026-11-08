@@ -16,7 +16,7 @@ char& OolongLexicalAnalyzer::further() {
 	this->accumulator += this->currentCharacter;
 	this->currentColumn++;
 	if (this->currentCharacter == '\n') {
-		this->currentColumn = 0;
+		this->currentColumn = -1;
 		this->currentRow++;
 	}
 	return this->currentCharacter;
@@ -69,8 +69,10 @@ void OolongLexicalAnalyzer::printTokens() {
 void OolongLexicalAnalyzer::analyze() {
 	bool immediatelyFurther = false;
 	while (immediatelyFurther || this->further()) {
+		if (immediatelyFurther)
+			this->currentColumn++;
 		immediatelyFurther = false;
-		Span span(this->currentRow, this->currentColumn, this->currentColumn);
+		Span span(this->currentRow, this->currentColumn == -1 ? 0 : this->currentColumn, this->currentColumn == -1 ? 0 : this->currentColumn);
 
 		switch (this->currentCharacter) {
 		case 'c':
