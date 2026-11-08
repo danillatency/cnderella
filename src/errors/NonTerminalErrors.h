@@ -22,6 +22,12 @@ namespace parser {
 	};
 
 
+    class EnumerationEnd : public domain_error {
+    public:
+        EnumerationEnd(Span span);
+    };
+
+
 	class IdentifierExpected : public domain_error {
 	public:
 		IdentifierExpected(Span span);
@@ -193,6 +199,12 @@ namespace parser {
     class ReturnExpected : public domain_error {
     public:
         ReturnExpected(Span span);
+    };
+
+
+    class VarMethodOrThisExpected : public domain_error {
+    public:
+        VarMethodOrThisExpected(Span span);
     };
 
 

@@ -43,6 +43,10 @@ void SyntacticalAnalyzer::back(int steps) {
 	this->tokenIndex -= steps;
 }
 
+void SyntacticalAnalyzer::skipPossibleNewLines() {
+	if (this->nextToken()->code != TokenNewLine) this->back();
+}
+
 void SyntacticalAnalyzer::visualize() {
 	this->program->selfPrint(0);
 }

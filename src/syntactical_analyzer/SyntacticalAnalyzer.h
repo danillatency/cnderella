@@ -33,6 +33,8 @@ public:
 
 	void back(int steps = 1);
 
+	void skipPossibleNewLines();
+
 	void visualize();
 };
 

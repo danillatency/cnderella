@@ -11,6 +11,9 @@ parser::ClassDeclarationExpected::ClassDeclarationExpected(Span span) : domain_e
 parser::OutOfTokens::OutOfTokens(Span span) : domain_error("Incomplete class declaration due to tokens end"s + rowColumn(span)) {}
 
 
+parser::EnumerationEnd::EnumerationEnd(Span span) : domain_error("Statements have ended"s + rowColumn(span)) {}
+
+
 parser::IdentifierExpected::IdentifierExpected(Span span) : domain_error("Identifier was expected"s + rowColumn(span)) {}
 
 
@@ -93,6 +96,9 @@ parser::CommaExpected::CommaExpected(Span span) : domain_error("Comma between pa
 
 
 parser::DotExpected::DotExpected(Span span) : domain_error("Access expression dot was expected"s + rowColumn(span)) {}
+
+
+parser::VarMethodOrThisExpected::VarMethodOrThisExpected(Span span) : domain_error("Here must be such keywords as \"var\", \"method\", or \"this\""s + rowColumn(span)) {}
 
 
 parser::RuleParseError::RuleParseError(string element, Span span, string reason) : domain_error("Cannot parse the "s + element + rowColumn(span) + "\n\ndue to\n\n" + reason) {}
