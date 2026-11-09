@@ -554,32 +554,44 @@ IdBeginningExpression* IdBeginningExpression::parse(SyntacticalAnalyzer* syntact
 
 
 AccessesAndCalls* AccessesAndCalls::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
-	int checkpoint = syntacticalAnalyzer->currentTokenIndex();
-	try {
+	switch (syntacticalAnalyzer->nextToken()->code) {
+	case TokenDot:
+		syntacticalAnalyzer->back();
 		return AccessAndFurther::parse(syntacticalAnalyzer);
-	} 
-	catch (const domain_error& e) {
-		syntacticalAnalyzer->setToken(checkpoint);
+	case TokenOpeningParenthesis:
+		syntacticalAnalyzer->back();
 		return CallAndFurther::parse(syntacticalAnalyzer);
+	default:
+		syntacticalAnalyzer->back();
+		throw parser::EnumerationEnd("accesses and calls", syntacticalAnalyzer->relativeToken()->span);
 	}
 }
 
 
 AccessAndFurther* AccessAndFurther::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
-	if (syntacticalAnalyzer->nextToken()->code != TokenDot) {
-		Span errorSpan = syntacticalAnalyzer->currentToken()->span;
-		syntacticalAnalyzer->back();
-		throw parser::DotExpected(errorSpan);
-	}
-	Id* identifier = Id::parse(syntacticalAnalyzer);
 	int checkpoint = syntacticalAnalyzer->currentTokenIndex();
+	if (syntacticalAnalyzer->nextToken()->code != TokenDot) {
+		syntacticalAnalyzer->back();
+		throw parser::DotExpected(syntacticalAnalyzer->relativeToken()->span);
+	}
+	Id* identifier;
+	try {
+		identifier = Id::parse(syntacticalAnalyzer);
+	}
+	catch (const domain_error& e) {
+		syntacticalAnalyzer->back();
+		throw parser::RuleParseError("identifier", syntacticalAnalyzer->relativeToken(2)->span, e.what());
+	}
 	AccessesAndCalls* accessesAndCalls;
 	try {
 		accessesAndCalls = AccessesAndCalls::parse(syntacticalAnalyzer);
 	}
+	catch (const parser::EnumerationEnd& e) {
+		return new AccessAndFurther(identifier);
+	}
 	catch (const domain_error& e) {
 		syntacticalAnalyzer->setToken(checkpoint);
-		return new AccessAndFurther(identifier);
+		throw e;
 	}
 	return new AccessAndFurther(identifier, accessesAndCalls);
 }
@@ -588,9 +600,8 @@ AccessAndFurther* AccessAndFurther::parse(SyntacticalAnalyzer* syntacticalAnalyz
 CallAndFurther* CallAndFurther::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
 	int checkpoint = syntacticalAnalyzer->currentTokenIndex();
 	if (syntacticalAnalyzer->nextToken()->code != TokenOpeningParenthesis) {
-		Span errorSpan = syntacticalAnalyzer->currentToken()->span;
 		syntacticalAnalyzer->back();
-		throw parser::OpeningParenthesisExpected(errorSpan);
+		throw parser::OpeningParenthesisExpected(syntacticalAnalyzer->relativeToken()->span;
 	}
 	Expressions* expressions = Expressions::parse(syntacticalAnalyzer);
 	if (syntacticalAnalyzer->nextToken()->code != TokenClosingParenthesis) {
