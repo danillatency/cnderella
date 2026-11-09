@@ -252,6 +252,8 @@ public:
 	Statement* statement;
 	Statements* statements;
 
+	Statements();
+
 	Statements(Statement* statement);
 
 	Statements(Statement* statement, Statements* statements);

@@ -24,7 +24,7 @@ namespace parser {
 
     class EnumerationEnd : public domain_error {
     public:
-        EnumerationEnd(Span span);
+        EnumerationEnd(string context, Span span);
     };
 
 

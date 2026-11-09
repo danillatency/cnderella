@@ -11,7 +11,7 @@ parser::ClassDeclarationExpected::ClassDeclarationExpected(Span span) : domain_e
 parser::OutOfTokens::OutOfTokens(Span span) : domain_error("Incomplete class declaration due to tokens end"s + rowColumn(span)) {}
 
 
-parser::EnumerationEnd::EnumerationEnd(Span span) : domain_error("Statements have ended"s + rowColumn(span)) {}
+parser::EnumerationEnd::EnumerationEnd(string context, Span span) : domain_error(context + " have ended" + rowColumn(span)) {}
 
 
 parser::IdentifierExpected::IdentifierExpected(Span span) : domain_error("Identifier was expected"s + rowColumn(span)) {}

@@ -204,7 +204,7 @@ ClassStatement* ClassStatement::parse(SyntacticalAnalyzer* syntacticalAnalyzer) 
 	case TokenEnd: {
 		Span errorSpan = syntacticalAnalyzer->currentToken()->span;
 		syntacticalAnalyzer->setToken(checkpoint);
-		throw parser::EnumerationEnd(errorSpan);
+		throw parser::EnumerationEnd("class statements", errorSpan);
 	}
 	default:
 		Span errorSpan = syntacticalAnalyzer->currentToken()->span;
@@ -299,6 +299,7 @@ ParameterDeclarations* ParameterDeclarations::parse(SyntacticalAnalyzer* syntact
 		throw parser::RuleParseError("parameter declaration", syntacticalAnalyzer->relativeToken()->span, e.what());
 	}
 	if (syntacticalAnalyzer->nextToken()->code != TokenComma) {
+		syntacticalAnalyzer->back();
 		return new ParameterDeclarations(parameterDeclaration);
 	}
 	ParameterDeclarations* parameterDeclarations;
@@ -317,7 +318,7 @@ ParameterDeclaration* ParameterDeclaration::parse(SyntacticalAnalyzer* syntactic
 	// separate empty case
 	if (syntacticalAnalyzer->nextToken()->code == TokenClosingParenthesis) {
 		syntacticalAnalyzer->back();
-		throw parser::EnumerationEnd(syntacticalAnalyzer->relativeToken()->span);
+		throw parser::EnumerationEnd("parameter declarations", syntacticalAnalyzer->relativeToken()->span);
 	}
 	int checkpoint = syntacticalAnalyzer->currentTokenIndex();
 	Id* parameterIdentifier;
@@ -385,13 +386,19 @@ AnyBody* AnyBody::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
 
 Statements* Statements::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
 	int checkpoint = syntacticalAnalyzer->currentTokenIndex();
-	Statement* statement = Statement::parse(syntacticalAnalyzer);
+	Statement* statement;
+	try {
+		statement = Statement::parse(syntacticalAnalyzer);
+	}
+	catch (const parser::EnumerationEnd& e) {
+		return new Statements();
+	}
+	catch (const domain_error& e) {
+		throw parser::RuleParseError("statement", syntacticalAnalyzer->relativeToken()->span, e.what());
+	}
 	Statements* statements;
 	try {
 		statements = Statements::parse(syntacticalAnalyzer);
-	}
-	catch (const parser::EnumerationEnd& e) {
-		return new Statements(statement);
 	}
 	catch (const domain_error& e) {
 		syntacticalAnalyzer->setToken(checkpoint);
@@ -463,7 +470,7 @@ Statement* Statement::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
 	case TokenEnd: {
 		Span errorSpan = syntacticalAnalyzer->relativeToken()->span;
 		syntacticalAnalyzer->setToken(checkpoint);
-		throw parser::EnumerationEnd(errorSpan);
+		throw parser::EnumerationEnd("statements", errorSpan);
 	}
 	default:
 		Span errorSpan = syntacticalAnalyzer->relativeToken()->span;
@@ -508,6 +515,9 @@ LocalDeclaration* LocalDeclaration::parse(SyntacticalAnalyzer* syntacticalAnalyz
 
 Expression* Expression::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
 	switch (syntacticalAnalyzer->nextToken()->code) {
+	case TokenClosingParenthesis:
+		syntacticalAnalyzer->back();
+		throw parser::EnumerationEnd("expressions", syntacticalAnalyzer->relativeToken()->span);
 	case TokenIdentifier:
 		syntacticalAnalyzer->back();
 		return IdBeginningExpression::parse(syntacticalAnalyzer);
@@ -525,14 +535,18 @@ Expression* Expression::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
 
 
 IdBeginningExpression* IdBeginningExpression::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
-	Id* identifier = Id::parse(syntacticalAnalyzer);
-	int checkpoint = syntacticalAnalyzer->currentTokenIndex();
+	Id* identifier;
+	try {
+		identifier = Id::parse(syntacticalAnalyzer);
+	}
+	catch (const domain_error& e) {
+		throw parser::RuleParseError("identifier", syntacticalAnalyzer->relativeToken()->span, e.what());
+	}
 	AccessesAndCalls* accessesAndCalls;
 	try {
 		accessesAndCalls = AccessesAndCalls::parse(syntacticalAnalyzer);
 	}
 	catch (const domain_error& e) {
-		syntacticalAnalyzer->setToken(checkpoint);
 		return new IdBeginningExpression(identifier);
 	}
 	return new IdBeginningExpression(identifier, accessesAndCalls);
@@ -598,15 +612,13 @@ CallAndFurther* CallAndFurther::parse(SyntacticalAnalyzer* syntacticalAnalyzer) 
 
 
 Expressions* Expressions::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
-	if (syntacticalAnalyzer->nextToken()->code == TokenClosingParenthesis) {
-		syntacticalAnalyzer->back();
-		return new Expressions();
-	}
-	syntacticalAnalyzer->back();
 	int checkpoint = syntacticalAnalyzer->currentTokenIndex();
 	Expression* expression;
 	try {
 		expression = Expression::parse(syntacticalAnalyzer);
+	}
+	catch (const parser::EnumerationEnd& e) {
+		return new Expressions();
 	}
 	catch (const domain_error& e) {
 		throw parser::RuleParseError("expression", syntacticalAnalyzer->relativeToken()->span, e.what());
@@ -615,7 +627,14 @@ Expressions* Expressions::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
 		syntacticalAnalyzer->back();
 		return new Expressions(expression);
 	}
-	Expressions* expressions = Expressions::parse(syntacticalAnalyzer);
+	Expressions* expressions;
+	try {
+		expressions = Expressions::parse(syntacticalAnalyzer);
+	}
+	catch (const domain_error& e) {
+		syntacticalAnalyzer->setToken(checkpoint);
+		throw e;
+	}
 	return new Expressions(expression, expressions);
 }
 

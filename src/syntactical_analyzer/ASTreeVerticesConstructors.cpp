@@ -45,6 +45,7 @@ ParameterDeclaration::ParameterDeclaration(Id* name, Id* identifier) : name(name
 AnyBody::AnyBody(Statements* statements) : statements(statements) {}
 
 
+Statements::Statements() : statement(nullptr), statements(nullptr) {}
 Statements::Statements(Statement* statement) : statement(statement), statements(nullptr) {}
 Statements::Statements(Statement* statement, Statements* statements) : statement(statement), statements(statements) {}
 
