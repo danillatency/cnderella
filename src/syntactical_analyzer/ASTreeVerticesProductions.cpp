@@ -535,6 +535,7 @@ Expression* Expression::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
 
 
 IdBeginningExpression* IdBeginningExpression::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
+	int checkpoint = syntacticalAnalyzer->currentTokenIndex();
 	Id* identifier;
 	try {
 		identifier = Id::parse(syntacticalAnalyzer);
@@ -546,8 +547,12 @@ IdBeginningExpression* IdBeginningExpression::parse(SyntacticalAnalyzer* syntact
 	try {
 		accessesAndCalls = AccessesAndCalls::parse(syntacticalAnalyzer);
 	}
-	catch (const domain_error& e) {
+	catch (const parser::EnumerationEnd& e) {
 		return new IdBeginningExpression(identifier);
+	}
+	catch (const domain_error& e) {
+		syntacticalAnalyzer->setToken(checkpoint);
+		throw e;
 	}
 	return new IdBeginningExpression(identifier, accessesAndCalls);
 }
@@ -601,9 +606,16 @@ CallAndFurther* CallAndFurther::parse(SyntacticalAnalyzer* syntacticalAnalyzer) 
 	int checkpoint = syntacticalAnalyzer->currentTokenIndex();
 	if (syntacticalAnalyzer->nextToken()->code != TokenOpeningParenthesis) {
 		syntacticalAnalyzer->back();
-		throw parser::OpeningParenthesisExpected(syntacticalAnalyzer->relativeToken()->span;
+		throw parser::OpeningParenthesisExpected(syntacticalAnalyzer->relativeToken()->span);
 	}
-	Expressions* expressions = Expressions::parse(syntacticalAnalyzer);
+	Expressions* expressions;
+	try {
+		expressions = Expressions::parse(syntacticalAnalyzer);
+	}
+	catch (const domain_error& e) {
+		syntacticalAnalyzer->back();
+		throw e;
+	}
 	if (syntacticalAnalyzer->nextToken()->code != TokenClosingParenthesis) {
 		Span errorSpan = syntacticalAnalyzer->currentToken()->span;
 		syntacticalAnalyzer->setToken(checkpoint);
@@ -614,9 +626,12 @@ CallAndFurther* CallAndFurther::parse(SyntacticalAnalyzer* syntacticalAnalyzer) 
 	try {
 		accessesAndCalls = AccessesAndCalls::parse(syntacticalAnalyzer);
 	}
+	catch (const parser::EnumerationEnd& e) {
+		return new CallAndFurther(expressions);
+	}
 	catch (const domain_error& e) {
 		syntacticalAnalyzer->setToken(checkpoint);
-		return new CallAndFurther(expressions);
+		throw e;
 	}
 	return new CallAndFurther(expressions, accessesAndCalls);
 }
@@ -651,53 +666,66 @@ Expressions* Expressions::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
 
 
 ThisBeginningExpression* ThisBeginningExpression::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
-	if (syntacticalAnalyzer->nextToken()->code != TokenThis) {
-		Span errorSpan = syntacticalAnalyzer->currentToken()->span;
-		syntacticalAnalyzer->back();
-		throw parser::ThisExpected("expression", errorSpan);
-	}
 	int checkpoint = syntacticalAnalyzer->currentTokenIndex();
+	if (syntacticalAnalyzer->nextToken()->code != TokenThis) {
+		syntacticalAnalyzer->back();
+		throw parser::ThisExpected("expression", syntacticalAnalyzer->relativeToken()->span);
+	}
 	AccessesAndCalls* accessesAndCalls;
 	try {
 		accessesAndCalls = AccessesAndCalls::parse(syntacticalAnalyzer);
 	}
+	catch (const parser::EnumerationEnd& e) {
+		return new ThisBeginningExpression();
+	}
 	catch (const domain_error& e) {
 		syntacticalAnalyzer->setToken(checkpoint);
-		return new ThisBeginningExpression();
+		throw e;
 	}
 	return new ThisBeginningExpression(accessesAndCalls);
 }
 
 
 BaseBeginningExpression* BaseBeginningExpression::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
-	if (syntacticalAnalyzer->nextToken()->code != TokenBase) {
-		Span errorSpan = syntacticalAnalyzer->currentToken()->span;
-		syntacticalAnalyzer->back();
-		throw parser::BaseExpected(errorSpan);
-	}
 	int checkpoint = syntacticalAnalyzer->currentTokenIndex();
+	if (syntacticalAnalyzer->nextToken()->code != TokenBase) {
+		syntacticalAnalyzer->back();
+		throw parser::BaseExpected(syntacticalAnalyzer->relativeToken()->span);
+	}
 	AccessesAndCalls* accessesAndCalls;
 	try {
 		accessesAndCalls = AccessesAndCalls::parse(syntacticalAnalyzer);
 	}
+	catch (const parser::EnumerationEnd& e) {
+		return new BaseBeginningExpression();
+	}
 	catch (const domain_error& e) {
 		syntacticalAnalyzer->setToken(checkpoint);
-		return new BaseBeginningExpression();
+		throw e;
 	}
 	return new BaseBeginningExpression(accessesAndCalls);
 }
 
 
 LiteralBeginningExpression* LiteralBeginningExpression::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
-	Literal* literal = Literal::parse(syntacticalAnalyzer);
 	int checkpoint = syntacticalAnalyzer->currentTokenIndex();
+	Literal* literal;
+	try {
+		literal = Literal::parse(syntacticalAnalyzer);
+	}
+	catch (const domain_error& e) {
+		throw parser::RuleParseError("literal", syntacticalAnalyzer->relativeToken()->span, e.what());
+	}
 	AccessesAndCalls* accessesAndCalls;
 	try {
 		accessesAndCalls = AccessesAndCalls::parse(syntacticalAnalyzer);
 	}
+	catch (const parser::EnumerationEnd& e) {
+		return new LiteralBeginningExpression(literal);
+	}
 	catch (const domain_error& e) {
 		syntacticalAnalyzer->setToken(checkpoint);
-		return new LiteralBeginningExpression(literal);
+		throw e;
 	}
 	return new LiteralBeginningExpression(literal, accessesAndCalls);
 }
@@ -750,70 +778,71 @@ Literal* Literal::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
 			syntacticalAnalyzer->back(2);
 			return LiteralCharacterList::parse(syntacticalAnalyzer);
 		}
+	default:
+		syntacticalAnalyzer->back();
+		throw parser::NotLiteral(syntacticalAnalyzer->relativeToken()->span);
 	}
-	Span errorSpan = syntacticalAnalyzer->currentToken()->span;
-	syntacticalAnalyzer->back();
-	throw parser::NotLiteral(errorSpan);
 }
 
 
 LiteralInteger* LiteralInteger::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
 	if (syntacticalAnalyzer->nextToken()->code == TokenInteger)
 		return new LiteralInteger(dynamic_cast<Integer*>(syntacticalAnalyzer->currentToken())->value);
-	Span errorSpan = syntacticalAnalyzer->currentToken()->span;
 	syntacticalAnalyzer->back();
-	throw parser::FailedToParseLiteral("an integer", errorSpan);
+	throw parser::FailedToParseLiteral("an integer", syntacticalAnalyzer->relativeToken()->span);
 }
-
 
 
 LiteralBoolean* LiteralBoolean::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
 	if (syntacticalAnalyzer->nextToken()->code == TokenBoolean)
 		return new LiteralBoolean(dynamic_cast<Boolean*>(syntacticalAnalyzer->currentToken())->value);
-	Span errorSpan = syntacticalAnalyzer->currentToken()->span;
 	syntacticalAnalyzer->back();
-	throw parser::FailedToParseLiteral("a boolean", errorSpan);
+	throw parser::FailedToParseLiteral("a boolean", syntacticalAnalyzer->relativeToken()->span);
 }
-
 
 
 LiteralFloat* LiteralFloat::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
 	if (syntacticalAnalyzer->nextToken()->code == TokenFloat)
 		return new LiteralFloat(dynamic_cast<Float*>(syntacticalAnalyzer->currentToken())->value);
-	Span errorSpan = syntacticalAnalyzer->currentToken()->span;
 	syntacticalAnalyzer->back();
-	throw parser::FailedToParseLiteral("a float", errorSpan);
+	throw parser::FailedToParseLiteral("a float", syntacticalAnalyzer->relativeToken()->span);
 }
 
 
-
 LiteralCharacter* LiteralCharacter::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
+	if (syntacticalAnalyzer->nextToken()->code == TokenClosingSquareBracket) {
+		syntacticalAnalyzer->back();
+		throw parser::EnumerationEnd("literal character", syntacticalAnalyzer->relativeToken()->span);
+	}
 	if (syntacticalAnalyzer->nextToken()->code == TokenCharacter)
 		return new LiteralCharacter(dynamic_cast<Character*>(syntacticalAnalyzer->currentToken())->value);
 	if (syntacticalAnalyzer->currentToken()->code != TokenQuote) {
-		Span errorSpan = syntacticalAnalyzer->currentToken()->span;
 		syntacticalAnalyzer->back();
-		throw parser::QuoteExpected(errorSpan);
+		throw parser::QuoteExpected(syntacticalAnalyzer->relativeToken()->span);
 	}
 	char character = dynamic_cast<Character*>(syntacticalAnalyzer->nextToken())->value;
 	if (syntacticalAnalyzer->nextToken()->code != TokenQuote) {
-		Span errorSpan = syntacticalAnalyzer->currentToken()->span;
 		syntacticalAnalyzer->back(3);
-		throw parser::QuoteExpected(errorSpan);
+		throw parser::QuoteExpected(syntacticalAnalyzer->relativeToken(3)->span);
 	}
 	return new LiteralCharacter(character);
 }
 
 
-
 LiteralIntegerArray* LiteralIntegerArray::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
 	int checkpoint = syntacticalAnalyzer->currentTokenIndex();
 	if (syntacticalAnalyzer->nextToken()->code != TokenOpeningSquareBracket) {
-		Span errorSpan = syntacticalAnalyzer->currentToken()->span;
 		syntacticalAnalyzer->back();
-		throw parser::OpeningSquareBracketExpected(errorSpan);
+		throw parser::OpeningSquareBracketExpected(syntacticalAnalyzer->relativeToken()->span);
 	}
-	LiteralIntegers* literalIntegers = LiteralIntegers::parse(syntacticalAnalyzer);
+	LiteralIntegers* literalIntegers;
+	try {
+		literalIntegers = LiteralIntegers::parse(syntacticalAnalyzer);
+	}
+	catch (const domain_error& e) {
+		syntacticalAnalyzer->setToken(checkpoint);
+		throw e;
+	}
 	if (syntacticalAnalyzer->nextToken()->code != TokenClosingSquareBracket) {
 		Span errorSpan = syntacticalAnalyzer->currentToken()->span;
 		syntacticalAnalyzer->setToken(checkpoint);
@@ -823,27 +852,39 @@ LiteralIntegerArray* LiteralIntegerArray::parse(SyntacticalAnalyzer* syntactical
 }
 
 
-
 LiteralIntegers* LiteralIntegers::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
+	int checkpoint = syntacticalAnalyzer->currentTokenIndex();
 	LiteralInteger* integer = LiteralInteger::parse(syntacticalAnalyzer);
 	if (syntacticalAnalyzer->nextToken()->code != TokenComma) {
 		syntacticalAnalyzer->back();
 		return new LiteralIntegers(integer);
 	}
-	LiteralIntegers* integers = LiteralIntegers::parse(syntacticalAnalyzer);
+	LiteralIntegers* integers;
+	try {
+		integers = LiteralIntegers::parse(syntacticalAnalyzer);
+	}
+	catch (const domain_error& e) {
+		syntacticalAnalyzer->setToken(checkpoint);
+		throw e;
+	}
 	return new LiteralIntegers(integer, integers);
 }
-
 
 
 LiteralBooleanArray* LiteralBooleanArray::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
 	int checkpoint = syntacticalAnalyzer->currentTokenIndex();
 	if (syntacticalAnalyzer->nextToken()->code != TokenOpeningSquareBracket) {
-		Span errorSpan = syntacticalAnalyzer->currentToken()->span;
 		syntacticalAnalyzer->back();
-		throw parser::OpeningSquareBracketExpected(errorSpan);
+		throw parser::OpeningSquareBracketExpected(syntacticalAnalyzer->relativeToken()->span);
 	}
-	LiteralBooleans* literalBooleans = LiteralBooleans::parse(syntacticalAnalyzer);
+	LiteralBooleans* literalBooleans;
+	try {
+		literalBooleans = LiteralBooleans::parse(syntacticalAnalyzer);
+	}
+	catch (const domain_error& e) {
+		syntacticalAnalyzer->setToken(checkpoint);
+		throw e;
+	}
 	if (syntacticalAnalyzer->nextToken()->code != TokenClosingSquareBracket) {
 		Span errorSpan = syntacticalAnalyzer->currentToken()->span;
 		syntacticalAnalyzer->setToken(checkpoint);
@@ -853,27 +894,39 @@ LiteralBooleanArray* LiteralBooleanArray::parse(SyntacticalAnalyzer* syntactical
 }
 
 
-
 LiteralBooleans* LiteralBooleans::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
+	int checkpoint = syntacticalAnalyzer->currentTokenIndex();
 	LiteralBoolean* boolean = LiteralBoolean::parse(syntacticalAnalyzer);
 	if (syntacticalAnalyzer->nextToken()->code != TokenComma) {
 		syntacticalAnalyzer->back();
 		return new LiteralBooleans(boolean);
 	}
-	LiteralBooleans* booleans = LiteralBooleans::parse(syntacticalAnalyzer);
+	LiteralBooleans* booleans;
+	try {
+		booleans = LiteralBooleans::parse(syntacticalAnalyzer);
+	}
+	catch (const domain_error& e) {
+		syntacticalAnalyzer->setToken(checkpoint);
+		throw e;
+	}
 	return new LiteralBooleans(boolean, booleans);
 }
-
 
 
 LiteralFloatArray* LiteralFloatArray::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
 	int checkpoint = syntacticalAnalyzer->currentTokenIndex();
 	if (syntacticalAnalyzer->nextToken()->code != TokenOpeningSquareBracket) {
-		Span errorSpan = syntacticalAnalyzer->currentToken()->span;
 		syntacticalAnalyzer->back();
-		throw parser::OpeningSquareBracketExpected(errorSpan);
+		throw parser::OpeningSquareBracketExpected(syntacticalAnalyzer->relativeToken()->span);
 	}
-	LiteralFloats* literalFloats = LiteralFloats::parse(syntacticalAnalyzer);
+	LiteralFloats* literalFloats;
+	try {
+		literalFloats = LiteralFloats::parse(syntacticalAnalyzer);
+	}
+	catch (const domain_error& e) {
+		syntacticalAnalyzer->setToken(checkpoint);
+		throw e;
+	}
 	if (syntacticalAnalyzer->nextToken()->code != TokenClosingSquareBracket) {
 		Span errorSpan = syntacticalAnalyzer->currentToken()->span;
 		syntacticalAnalyzer->setToken(checkpoint);
@@ -883,28 +936,40 @@ LiteralFloatArray* LiteralFloatArray::parse(SyntacticalAnalyzer* syntacticalAnal
 }
 
 
-
 LiteralFloats* LiteralFloats::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
+	int checkpoint = syntacticalAnalyzer->currentTokenIndex();
 	LiteralFloat* literalFloat = LiteralFloat::parse(syntacticalAnalyzer);
 	if (syntacticalAnalyzer->nextToken()->code != TokenComma) {
 		syntacticalAnalyzer->back();
 		return new LiteralFloats(literalFloat);
 	}
-	LiteralFloats* literalFloats = LiteralFloats::parse(syntacticalAnalyzer);
+	LiteralFloats* literalFloats;
+	try {
+		literalFloats = LiteralFloats::parse(syntacticalAnalyzer);
+	}
+	catch (const domain_error& e) {
+		syntacticalAnalyzer->setToken(checkpoint);
+		throw e;
+	}
 	return new LiteralFloats(literalFloat, literalFloats);
 }
-
 
 
 LiteralCharacterArray* LiteralCharacterArray::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
 	int checkpoint = syntacticalAnalyzer->currentTokenIndex();
 	if (syntacticalAnalyzer->nextToken()->code != TokenOpeningSquareBracket 
 		&& syntacticalAnalyzer->currentToken()->code != TokenDoubleQuote) {
-		Span errorSpan = syntacticalAnalyzer->currentToken()->span;
 		syntacticalAnalyzer->back();
-		throw parser::OpeningSquareBracketOrQuotesExpected(errorSpan);
+		throw parser::OpeningSquareBracketOrQuotesExpected(syntacticalAnalyzer->relativeToken()->span);
 	}
-	LiteralCharacters* literalCharacters = LiteralCharacters::parse(syntacticalAnalyzer);
+	LiteralCharacters* literalCharacters;
+	try {
+		literalCharacters = LiteralCharacters::parse(syntacticalAnalyzer);
+	}
+	catch (const domain_error& e) {
+		syntacticalAnalyzer->setToken(checkpoint);
+		throw e;
+	}
 	if (syntacticalAnalyzer->nextToken()->code != TokenClosingSquareBracket
 		&& syntacticalAnalyzer->currentToken()->code != TokenDoubleQuote) {
 		Span errorSpan = syntacticalAnalyzer->currentToken()->span;
@@ -915,33 +980,40 @@ LiteralCharacterArray* LiteralCharacterArray::parse(SyntacticalAnalyzer* syntact
 }
 
 
-
 LiteralCharacters* LiteralCharacters::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
+	int checkpoint = syntacticalAnalyzer->currentTokenIndex();
 	LiteralCharacter* literalCharacter = LiteralCharacter::parse(syntacticalAnalyzer);
 	if (syntacticalAnalyzer->nextToken()->code != TokenComma)
 		syntacticalAnalyzer->back();
-	int checkpoint = syntacticalAnalyzer->currentTokenIndex();
 	LiteralCharacters* literalCharacters;
 	try {
 		literalCharacters = LiteralCharacters::parse(syntacticalAnalyzer);
 	}
+	catch (const parser::EnumerationEnd& e) {
+		return new LiteralCharacters(literalCharacter);
+	}
 	catch (const domain_error& e) {
 		syntacticalAnalyzer->setToken(checkpoint);
-		return new LiteralCharacters(literalCharacter);
+		throw e;
 	}
 	return new LiteralCharacters(literalCharacter, literalCharacters);
 }
 
 
-
 LiteralIntegerList* LiteralIntegerList::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
 	int checkpoint = syntacticalAnalyzer->currentTokenIndex();
 	if (syntacticalAnalyzer->nextToken()->code != TokenOpeningCurlyBrace) {
-		Span errorSpan = syntacticalAnalyzer->currentToken()->span;
 		syntacticalAnalyzer->back();
-		throw parser::OpeningCurlyBraceExpected("literal integer list", errorSpan);
+		throw parser::OpeningCurlyBraceExpected("literal integer list", syntacticalAnalyzer->relativeToken()->span);
 	}
-	LiteralIntegers* literalIntegers = LiteralIntegers::parse(syntacticalAnalyzer);
+	LiteralIntegers* literalIntegers;
+	try {
+		literalIntegers = LiteralIntegers::parse(syntacticalAnalyzer);
+	}
+	catch (const domain_error& e) {
+		syntacticalAnalyzer->setToken(checkpoint);
+		throw e;
+	}
 	if (syntacticalAnalyzer->nextToken()->code != TokenClosingCurlyBrace) {
 		Span errorSpan = syntacticalAnalyzer->currentToken()->span;
 		syntacticalAnalyzer->setToken(checkpoint);
@@ -951,15 +1023,20 @@ LiteralIntegerList* LiteralIntegerList::parse(SyntacticalAnalyzer* syntacticalAn
 }
 
 
-
 LiteralBooleanList* LiteralBooleanList::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
 	int checkpoint = syntacticalAnalyzer->currentTokenIndex();
 	if (syntacticalAnalyzer->nextToken()->code != TokenOpeningCurlyBrace) {
-		Span errorSpan = syntacticalAnalyzer->currentToken()->span;
 		syntacticalAnalyzer->back();
-		throw parser::OpeningCurlyBraceExpected("literal boolean list", errorSpan);
+		throw parser::OpeningCurlyBraceExpected("literal boolean list", syntacticalAnalyzer->relativeToken()->span);
 	}
-	LiteralBooleans* literalBooleans = LiteralBooleans::parse(syntacticalAnalyzer);
+	LiteralBooleans* literalBooleans;
+	try {
+		literalBooleans = LiteralBooleans::parse(syntacticalAnalyzer);
+	}
+	catch (const domain_error& e) {
+		syntacticalAnalyzer->setToken(checkpoint);
+		throw e;
+	}
 	if (syntacticalAnalyzer->nextToken()->code != TokenClosingCurlyBrace) {
 		Span errorSpan = syntacticalAnalyzer->currentToken()->span;
 		syntacticalAnalyzer->setToken(checkpoint);
@@ -969,15 +1046,20 @@ LiteralBooleanList* LiteralBooleanList::parse(SyntacticalAnalyzer* syntacticalAn
 }
 
 
-
 LiteralFloatList* LiteralFloatList::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
 	int checkpoint = syntacticalAnalyzer->currentTokenIndex();
 	if (syntacticalAnalyzer->nextToken()->code != TokenOpeningCurlyBrace) {
-		Span errorSpan = syntacticalAnalyzer->currentToken()->span;
 		syntacticalAnalyzer->back();
-		throw parser::OpeningCurlyBraceExpected("literal float list", errorSpan);
+		throw parser::OpeningCurlyBraceExpected("literal float list", syntacticalAnalyzer->relativeToken()->span);
 	}
-	LiteralFloats* literalFloats = LiteralFloats::parse(syntacticalAnalyzer);
+	LiteralFloats* literalFloats;
+	try {
+		literalFloats = LiteralFloats::parse(syntacticalAnalyzer);
+	}
+	catch (const domain_error& e) {
+		syntacticalAnalyzer->setToken(checkpoint);
+		throw e;
+	}
 	if (syntacticalAnalyzer->nextToken()->code != TokenClosingCurlyBrace) {
 		Span errorSpan = syntacticalAnalyzer->currentToken()->span;
 		syntacticalAnalyzer->setToken(checkpoint);
@@ -987,15 +1069,20 @@ LiteralFloatList* LiteralFloatList::parse(SyntacticalAnalyzer* syntacticalAnalyz
 }
 
 
-
 LiteralCharacterList* LiteralCharacterList::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
 	int checkpoint = syntacticalAnalyzer->currentTokenIndex();
 	if (syntacticalAnalyzer->nextToken()->code != TokenOpeningCurlyBrace) {
-		Span errorSpan = syntacticalAnalyzer->currentToken()->span;
 		syntacticalAnalyzer->back();
-		throw parser::OpeningCurlyBraceExpected("literal character list", errorSpan);
+		throw parser::OpeningCurlyBraceExpected("literal character list", syntacticalAnalyzer->relativeToken()->span);
 	}
-	LiteralCharacters* literalCharacters = LiteralCharacters::parse(syntacticalAnalyzer);
+	LiteralCharacters* literalCharacters;
+	try {
+		literalCharacters = LiteralCharacters::parse(syntacticalAnalyzer);
+	}
+	catch (const domain_error& e) {
+		syntacticalAnalyzer->setToken(checkpoint);
+		throw e;
+	}
 	if (syntacticalAnalyzer->nextToken()->code != TokenClosingCurlyBrace) {
 		Span errorSpan = syntacticalAnalyzer->currentToken()->span;
 		syntacticalAnalyzer->setToken(checkpoint);
@@ -1003,7 +1090,6 @@ LiteralCharacterList* LiteralCharacterList::parse(SyntacticalAnalyzer* syntactic
 	}
 	return new LiteralCharacterList(literalCharacters);
 }
-
 
 
 Assignment* Assignment::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
@@ -1017,7 +1103,6 @@ Assignment* Assignment::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
 	Expression* expression2 = Expression::parse(syntacticalAnalyzer);
 	return new Assignment(expression1, expression2);
 }
-
 
 
 IfStatement* IfStatement::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
@@ -1060,7 +1145,6 @@ IfStatement* IfStatement::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
 }
 
 
-
 WhileStatement* WhileStatement::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
 	int checkpoint = syntacticalAnalyzer->currentTokenIndex();
 	if (syntacticalAnalyzer->nextToken()->code != TokenWhile) {
@@ -1085,7 +1169,6 @@ WhileStatement* WhileStatement::parse(SyntacticalAnalyzer* syntacticalAnalyzer) 
 }
 
 
-
 ReturnStatement* ReturnStatement::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
 	if (syntacticalAnalyzer->nextToken()->code != TokenReturn) {
 		Span errorSpan = syntacticalAnalyzer->currentToken()->span;
@@ -1097,13 +1180,11 @@ ReturnStatement* ReturnStatement::parse(SyntacticalAnalyzer* syntacticalAnalyzer
 }
 
 
-
 ConstructorDeclaration* ConstructorDeclaration::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
 	ConstructorHead* constructorHead = ConstructorHead::parse(syntacticalAnalyzer);
 	AnyBody* body = AnyBody::parse(syntacticalAnalyzer);
 	return new ConstructorDeclaration(constructorHead, body);
 }
-
 
 
 ConstructorHead* ConstructorHead::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
@@ -1126,7 +1207,6 @@ ConstructorHead* ConstructorHead::parse(SyntacticalAnalyzer* syntacticalAnalyzer
 	}
 	return new ConstructorHead(parameterDeclarations);
 }
-
 
 
 Declaration* Declaration::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
