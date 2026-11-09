@@ -15,10 +15,12 @@ void Program::selfPrint(unsigned int depth) {
 
 
 void ClassDeclarations::selfPrint(unsigned int depth) {
-	this->classDeclaration->selfPrint(depth);
-	if (this->classDeclarations) {
-		cout << "\n";
-		this->classDeclarations->selfPrint(depth);
+	if (this->classDeclaration) {
+		this->classDeclaration->selfPrint(depth);
+		if (this->classDeclarations) {
+			cout << "\n";
+			this->classDeclarations->selfPrint(depth);
+		}
 	}
 }
 
@@ -55,9 +57,11 @@ void ClassBody::selfPrint(unsigned int depth) {
 
 
 void ClassStatements::selfPrint(unsigned int depth) {
-	this->classStatement->selfPrint(depth);
-	if (this->classStatements)
-		this->classStatements->selfPrint(depth);
+	if (this->classStatement) {
+		this->classStatement->selfPrint(depth);
+		if (this->classStatements)
+			this->classStatements->selfPrint(depth);
+	}
 }
 
 

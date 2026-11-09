@@ -4,8 +4,9 @@
 Program::Program(ClassDeclarations* classDeclarations) : classDeclarations(classDeclarations) {}
 
 
-ClassDeclarations::ClassDeclarations(ClassDeclaration* classDeclaration, ClassDeclarations* classDeclarations) : classDeclaration(classDeclaration), classDeclarations(classDeclarations) {}
+ClassDeclarations::ClassDeclarations() : classDeclaration(nullptr), classDeclarations(nullptr) {}
 ClassDeclarations::ClassDeclarations(ClassDeclaration* classDeclaration) : classDeclaration(classDeclaration), classDeclarations(nullptr) {}
+ClassDeclarations::ClassDeclarations(ClassDeclaration* classDeclaration, ClassDeclarations* classDeclarations) : classDeclaration(classDeclaration), classDeclarations(classDeclarations) {}
 
 
 ClassDeclaration::ClassDeclaration(ClassHead* classHead, ClassBody* classBody) : classHead(classHead), classBody(classBody) {}
@@ -21,6 +22,7 @@ Id::Id(string identifier) : identifier(identifier) {}
 ClassBody::ClassBody(ClassStatements* classStatements) : classStatements(classStatements) {}
 
 
+ClassStatements::ClassStatements() : classStatement(nullptr), classStatements(nullptr) {}
 ClassStatements::ClassStatements(ClassStatement* classStatement) : classStatement(classStatement), classStatements(nullptr) {}
 ClassStatements::ClassStatements(ClassStatement* classStatement, ClassStatements* classStatements) : classStatement(classStatement), classStatements(classStatements) {}
 

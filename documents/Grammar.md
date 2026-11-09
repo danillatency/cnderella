@@ -5,7 +5,8 @@
 &nbsp;&nbsp;&nbsp;&nbsp;;
 
 **ClassDeclarations**  
-&nbsp;&nbsp;&nbsp;&nbsp;: **ClassDeclaration**  
+&nbsp;&nbsp;&nbsp;&nbsp;:  
+&nbsp;&nbsp;&nbsp;&nbsp;| **ClassDeclaration**  
 &nbsp;&nbsp;&nbsp;&nbsp;| **ClassDeclaration ClassDeclarations**  
 &nbsp;&nbsp;&nbsp;&nbsp;;
 
@@ -32,7 +33,8 @@
 &nbsp;&nbsp;&nbsp;&nbsp;;
 
 **ClassStatements**  
-&nbsp;&nbsp;&nbsp;&nbsp;: **ClassStatement**  
+&nbsp;&nbsp;&nbsp;&nbsp;:  
+&nbsp;&nbsp;&nbsp;&nbsp;| **ClassStatement**  
 &nbsp;&nbsp;&nbsp;&nbsp;| **ClassStatement ClassStatements**  
 &nbsp;&nbsp;&nbsp;&nbsp;;
 

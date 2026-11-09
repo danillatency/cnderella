@@ -87,9 +87,11 @@ public:
 	ClassDeclaration* classDeclaration;
 	ClassDeclarations* classDeclarations;
 
-	ClassDeclarations(ClassDeclaration* classDeclaration, ClassDeclarations* classDeclarations);
+	ClassDeclarations();
 
 	ClassDeclarations(ClassDeclaration* classDeclaration);
+
+	ClassDeclarations(ClassDeclaration* classDeclaration, ClassDeclarations* classDeclarations);
 
 	void selfPrint(unsigned int depth) override;
 
@@ -153,6 +155,8 @@ class ClassStatements : public Entity {
 public:
 	ClassStatement* classStatement;
 	ClassStatements* classStatements;
+
+	ClassStatements();
 
 	ClassStatements(ClassStatement* classStatement);
 

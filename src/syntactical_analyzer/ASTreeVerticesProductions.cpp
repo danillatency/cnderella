@@ -18,14 +18,20 @@ Program* Program::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
 
 ClassDeclarations* ClassDeclarations::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
 	int checkpoint = syntacticalAnalyzer->currentTokenIndex();
-	ClassDeclaration* classDeclaration = ClassDeclaration::parse(syntacticalAnalyzer);
+	ClassDeclaration* classDeclaration;
+	try {
+		classDeclaration = ClassDeclaration::parse(syntacticalAnalyzer);
+	}
+	catch (const parser::OutOfTokens& e) {
+		return new ClassDeclarations();
+	}
+	catch (const domain_error& e) {
+		throw parser::RuleParseError("class declaration", syntacticalAnalyzer->relativeToken()->span, e.what());
+	}
 	ClassDeclarations* classDeclarations;
 	try {
 		classDeclarations = ClassDeclarations::parse(syntacticalAnalyzer);
 	} 
-	catch (const parser::OutOfTokens& e) {
-		return new ClassDeclarations(classDeclaration);
-	}
 	catch (const domain_error& e) {
 		syntacticalAnalyzer->setToken(checkpoint);
 		throw e;
@@ -139,13 +145,19 @@ ClassBody* ClassBody::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
 
 ClassStatements* ClassStatements::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
 	int checkpoint = syntacticalAnalyzer->currentTokenIndex();
-	ClassStatement* classStatement = ClassStatement::parse(syntacticalAnalyzer);
+	ClassStatement* classStatement;
+	try {
+		classStatement = ClassStatement::parse(syntacticalAnalyzer);
+	}
+	catch (const parser::EnumerationEnd& e) {
+		return new ClassStatements();
+	}
+	catch (const domain_error& e) {
+		throw parser::RuleParseError("class statement", syntacticalAnalyzer->relativeToken()->span, e.what());
+	}
 	ClassStatements* classStatements;
 	try {
 		classStatements = ClassStatements::parse(syntacticalAnalyzer);
-	}
-	catch (const parser::EnumerationEnd& e) {
-		return new ClassStatements(classStatement);
 	}
 	catch (const domain_error& e) {
 		syntacticalAnalyzer->setToken(checkpoint);
@@ -275,22 +287,19 @@ MethodHead* MethodHead::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
 
 
 ParameterDeclarations* ParameterDeclarations::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
-	if (syntacticalAnalyzer->nextToken()->code == TokenClosingParenthesis) {
-		syntacticalAnalyzer->back();
+	int checkpoint = syntacticalAnalyzer->currentTokenIndex();
+	ParameterDeclaration* parameterDeclaration;
+	try {
+		parameterDeclaration = ParameterDeclaration::parse(syntacticalAnalyzer);
+	}
+	catch (const parser::EnumerationEnd& e) {
 		return new ParameterDeclarations();
 	}
-	syntacticalAnalyzer->back();
-	int checkpoint = syntacticalAnalyzer->currentTokenIndex();
-	ParameterDeclaration* parameterDeclaration = ParameterDeclaration::parse(syntacticalAnalyzer);
-	if (syntacticalAnalyzer->nextToken()->code == TokenClosingParenthesis) {
-		syntacticalAnalyzer->back();
-		return new ParameterDeclarations(parameterDeclaration);
+	catch (const domain_error& e) {
+		throw parser::RuleParseError("parameter declaration", syntacticalAnalyzer->relativeToken()->span, e.what());
 	}
-	syntacticalAnalyzer->back();
 	if (syntacticalAnalyzer->nextToken()->code != TokenComma) {
-		Span errorSpan = syntacticalAnalyzer->currentToken()->span;
-		syntacticalAnalyzer->setToken(checkpoint);
-		throw parser::CommaExpected(errorSpan);
+		return new ParameterDeclarations(parameterDeclaration);
 	}
 	ParameterDeclarations* parameterDeclarations;
 	try {
@@ -305,6 +314,11 @@ ParameterDeclarations* ParameterDeclarations::parse(SyntacticalAnalyzer* syntact
 
 
 ParameterDeclaration* ParameterDeclaration::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
+	// separate empty case
+	if (syntacticalAnalyzer->nextToken()->code == TokenClosingParenthesis) {
+		syntacticalAnalyzer->back();
+		throw parser::EnumerationEnd(syntacticalAnalyzer->relativeToken()->span);
+	}
 	int checkpoint = syntacticalAnalyzer->currentTokenIndex();
 	Id* parameterIdentifier;
 	try {
@@ -462,17 +476,32 @@ Statement* Statement::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
 LocalDeclaration* LocalDeclaration::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
 	int checkpoint = syntacticalAnalyzer->currentTokenIndex();
 	if (syntacticalAnalyzer->nextToken()->code != TokenVar) {
-		Span errorSpan = syntacticalAnalyzer->currentToken()->span;
 		syntacticalAnalyzer->back();
-		throw parser::VarExpected("local declaration", errorSpan);
+		throw parser::VarExpected("local declaration", syntacticalAnalyzer->relativeToken()->span);
 	}
-	Id* identifier = Id::parse(syntacticalAnalyzer);
+	Id* identifier;
+	try {
+		identifier = Id::parse(syntacticalAnalyzer);
+	}
+	catch (const domain_error& e) {
+		Span errorSpan = syntacticalAnalyzer->relativeToken()->span;
+		syntacticalAnalyzer->setToken(checkpoint);
+		throw parser::RuleParseError("identifiier", errorSpan, e.what());
+	}
 	if (syntacticalAnalyzer->nextToken()->code != TokenAssignment) {
 		Span errorSpan = syntacticalAnalyzer->currentToken()->span;
 		syntacticalAnalyzer->setToken(checkpoint);
 		throw parser::AssignmentSignExpected("local declaration", errorSpan);
 	}
-	Expression* expression = Expression::parse(syntacticalAnalyzer);
+	Expression* expression;
+	try {
+		expression = Expression::parse(syntacticalAnalyzer);
+	}
+	catch (const domain_error& e) {
+		Span errorSpan = syntacticalAnalyzer->relativeToken()->span;
+		syntacticalAnalyzer->setToken(checkpoint);
+		throw parser::RuleParseError("expression", errorSpan, e.what());
+	}
 	return new LocalDeclaration(identifier, expression);
 }
 
@@ -569,14 +598,18 @@ CallAndFurther* CallAndFurther::parse(SyntacticalAnalyzer* syntacticalAnalyzer) 
 
 
 Expressions* Expressions::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
+	if (syntacticalAnalyzer->nextToken()->code == TokenClosingParenthesis) {
+		syntacticalAnalyzer->back();
+		return new Expressions();
+	}
+	syntacticalAnalyzer->back();
 	int checkpoint = syntacticalAnalyzer->currentTokenIndex();
 	Expression* expression;
 	try {
 		expression = Expression::parse(syntacticalAnalyzer);
 	}
 	catch (const domain_error& e) {
-		syntacticalAnalyzer->setToken(checkpoint);
-		return new Expressions();
+		throw parser::RuleParseError("expression", syntacticalAnalyzer->relativeToken()->span, e.what());
 	}
 	if (syntacticalAnalyzer->nextToken()->code != TokenComma) {
 		syntacticalAnalyzer->back();
