@@ -1094,13 +1094,27 @@ LiteralCharacterList* LiteralCharacterList::parse(SyntacticalAnalyzer* syntactic
 
 Assignment* Assignment::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
 	int checkpoint = syntacticalAnalyzer->currentTokenIndex();
-	Expression* expression1 = Expression::parse(syntacticalAnalyzer);
+	Expression* expression1;
+	try {
+		expression1 = Expression::parse(syntacticalAnalyzer);
+	}
+	catch (const domain_error& e) {
+		throw parser::RuleParseError("left part expression", syntacticalAnalyzer->relativeToken()->span, e.what());
+	}
 	if (syntacticalAnalyzer->nextToken()->code != TokenAssignment) {
 		Span errorSpan = syntacticalAnalyzer->currentToken()->span;
 		syntacticalAnalyzer->setToken(checkpoint);
 		throw parser::AssignmentSignExpected("assignment expression", errorSpan);
 	}
-	Expression* expression2 = Expression::parse(syntacticalAnalyzer);
+	Expression* expression2;
+	try {
+		expression2 = Expression::parse(syntacticalAnalyzer);
+	}
+	catch (const domain_error& e) {
+		Span errorSpan = syntacticalAnalyzer->relativeToken()->span;
+		syntacticalAnalyzer->setToken(checkpoint);
+		throw parser::RuleParseError("right part expression", errorSpan, e.what());
+	}
 	return new Assignment(expression1, expression2);
 }
 
@@ -1108,16 +1122,15 @@ Assignment* Assignment::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
 IfStatement* IfStatement::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
 	int checkpoint = syntacticalAnalyzer->currentTokenIndex();
 	if (syntacticalAnalyzer->nextToken()->code != TokenIf) {
-		Span errorSpan = syntacticalAnalyzer->currentToken()->span;
 		syntacticalAnalyzer->back();
-		throw parser::IfExpected(errorSpan);
+		throw parser::IfExpected(syntacticalAnalyzer->relativeToken()->span);
 	}
 	Expression* expression;
 	try {
 		expression = Expression::parse(syntacticalAnalyzer);
 	}
 	catch (const domain_error& e) {
-		syntacticalAnalyzer->setToken(checkpoint);
+		syntacticalAnalyzer->back();
 		throw parser::RuleParseError("expression", syntacticalAnalyzer->relativeToken(2)->span, e.what());
 	}
 	if (syntacticalAnalyzer->nextToken()->code != TokenThen) {
@@ -1125,7 +1138,14 @@ IfStatement* IfStatement::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
 		syntacticalAnalyzer->setToken(checkpoint);
 		throw parser::ThenExpected(errorSpan);
 	}
-	Statements* statements = Statements::parse(syntacticalAnalyzer);
+	Statements* statements;
+	try {
+		statements = Statements::parse(syntacticalAnalyzer);
+	}
+	catch (const domain_error& e) {
+		syntacticalAnalyzer->setToken(checkpoint);
+		throw e;
+	}
 	syntacticalAnalyzer->skipPossibleNewLines();
 	if (syntacticalAnalyzer->nextToken()->code == TokenEnd)
 		return new IfStatement(expression, statements);
@@ -1134,7 +1154,14 @@ IfStatement* IfStatement::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
 		syntacticalAnalyzer->setToken(checkpoint);
 		throw parser::ElseExpected(errorSpan);
 	}
-	Statements* statements2 = Statements::parse(syntacticalAnalyzer);
+	Statements* statements2;
+	try {
+		statements2 = Statements::parse(syntacticalAnalyzer);
+	}
+	catch (const domain_error& e) {
+		syntacticalAnalyzer->setToken(checkpoint);
+		throw e;
+	}
 	syntacticalAnalyzer->skipPossibleNewLines();
 	if (syntacticalAnalyzer->nextToken()->code != TokenEnd) {
 		Span errorSpan = syntacticalAnalyzer->currentToken()->span;
@@ -1148,17 +1175,30 @@ IfStatement* IfStatement::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
 WhileStatement* WhileStatement::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
 	int checkpoint = syntacticalAnalyzer->currentTokenIndex();
 	if (syntacticalAnalyzer->nextToken()->code != TokenWhile) {
-		Span errorSpan = syntacticalAnalyzer->currentToken()->span;
 		syntacticalAnalyzer->back();
-		throw parser::WhileExpected(errorSpan);
+		throw parser::WhileExpected(syntacticalAnalyzer->relativeToken()->span);
 	}
-	Expression* expression = Expression::parse(syntacticalAnalyzer);
+	Expression* expression;
+	try {
+		expression = Expression::parse(syntacticalAnalyzer);
+	}
+	catch (const domain_error& e) {
+		syntacticalAnalyzer->back();
+		throw parser::RuleParseError("expression", syntacticalAnalyzer->relativeToken(2)->span, e.what());
+	}
 	if (syntacticalAnalyzer->nextToken()->code != TokenLoop) {
 		Span errorSpan = syntacticalAnalyzer->currentToken()->span;
 		syntacticalAnalyzer->setToken(checkpoint);
 		throw parser::LoopExpected(errorSpan);
 	}
-	Statements* statements = Statements::parse(syntacticalAnalyzer);
+	Statements* statements;
+	try {
+		statements = Statements::parse(syntacticalAnalyzer);
+	}
+	catch (const domain_error& e) {
+		syntacticalAnalyzer->setToken(checkpoint);
+		throw e;
+	}
 	syntacticalAnalyzer->skipPossibleNewLines();
 	if (syntacticalAnalyzer->nextToken()->code != TokenEnd) {
 		Span errorSpan = syntacticalAnalyzer->currentToken()->span;
@@ -1175,14 +1215,36 @@ ReturnStatement* ReturnStatement::parse(SyntacticalAnalyzer* syntacticalAnalyzer
 		syntacticalAnalyzer->back();
 		throw parser::ReturnExpected(errorSpan);
 	}
-	Expression* expression = Expression::parse(syntacticalAnalyzer);
+	Expression* expression;
+	try {
+		expression = Expression::parse(syntacticalAnalyzer);
+	}
+	catch (const domain_error& e) {
+		syntacticalAnalyzer->back();
+		throw parser::RuleParseError("expression", syntacticalAnalyzer->relativeToken(2)->span, e.what());
+	}
 	return new ReturnStatement(expression);
 }
 
 
 ConstructorDeclaration* ConstructorDeclaration::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
-	ConstructorHead* constructorHead = ConstructorHead::parse(syntacticalAnalyzer);
-	AnyBody* body = AnyBody::parse(syntacticalAnalyzer);
+	int checkpoint = syntacticalAnalyzer->currentTokenIndex();
+	ConstructorHead* constructorHead;
+	try {
+		constructorHead = ConstructorHead::parse(syntacticalAnalyzer);
+	}
+	catch (const domain_error& e) {
+		throw parser::RuleParseError("constructor head", syntacticalAnalyzer->relativeToken()->span, e.what());
+	}
+	AnyBody* body;
+	try {
+		body = AnyBody::parse(syntacticalAnalyzer);
+	}
+	catch (const domain_error& e) {
+		Span errorSpan = syntacticalAnalyzer->relativeToken()->span;
+		syntacticalAnalyzer->setToken(checkpoint);
+		throw parser::RuleParseError("constructor body", errorSpan, e.what());
+	}
 	return new ConstructorDeclaration(constructorHead, body);
 }
 
@@ -1190,16 +1252,21 @@ ConstructorDeclaration* ConstructorDeclaration::parse(SyntacticalAnalyzer* synta
 ConstructorHead* ConstructorHead::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
 	int checkpoint = syntacticalAnalyzer->currentTokenIndex();
 	if (syntacticalAnalyzer->nextToken()->code != TokenThis) {
-		Span errorSpan = syntacticalAnalyzer->currentToken()->span;
 		syntacticalAnalyzer->back();
-		throw parser::ThisExpected("constructor head", errorSpan);
+		throw parser::ThisExpected("constructor head", syntacticalAnalyzer->relativeToken()->span);
 	}
 	if (syntacticalAnalyzer->nextToken()->code != TokenOpeningParenthesis) {
-		Span errorSpan = syntacticalAnalyzer->currentToken()->span;
 		syntacticalAnalyzer->setToken(checkpoint);
-		throw parser::OpeningParenthesisExpected(errorSpan);
+		throw parser::OpeningParenthesisExpected(syntacticalAnalyzer->relativeToken(2)->span);
 	}
-	ParameterDeclarations* parameterDeclarations = ParameterDeclarations::parse(syntacticalAnalyzer);
+	ParameterDeclarations* parameterDeclarations;
+	try {
+		parameterDeclarations = ParameterDeclarations::parse(syntacticalAnalyzer);
+	}
+	catch (const domain_error& e) {
+		syntacticalAnalyzer->setToken(checkpoint);
+		throw e;
+	}
 	if (syntacticalAnalyzer->nextToken()->code != TokenClosingParenthesis) {
 		Span errorSpan = syntacticalAnalyzer->currentToken()->span;
 		syntacticalAnalyzer->setToken(checkpoint);
@@ -1212,16 +1279,30 @@ ConstructorHead* ConstructorHead::parse(SyntacticalAnalyzer* syntacticalAnalyzer
 Declaration* Declaration::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
 	int checkpoint = syntacticalAnalyzer->currentTokenIndex();
 	if (syntacticalAnalyzer->nextToken()->code != TokenVar) {
-		Span errorSpan = syntacticalAnalyzer->currentToken()->span;
 		syntacticalAnalyzer->back();
-		throw parser::VarExpected("class declaration", errorSpan);
+		throw parser::VarExpected("class declaration", syntacticalAnalyzer->relativeToken()->span);
 	}
-	Id* identifier = Id::parse(syntacticalAnalyzer);
+	Id* identifier;
+	try {
+		identifier = Id::parse(syntacticalAnalyzer);
+	}
+	catch (const domain_error& e) {
+		syntacticalAnalyzer->back();
+		throw parser::RuleParseError("identifier", syntacticalAnalyzer->relativeToken(2)->span, e.what());
+	}
 	if (syntacticalAnalyzer->nextToken()->code != TokenAssignment) {
 		Span errorSpan = syntacticalAnalyzer->currentToken()->span;
 		syntacticalAnalyzer->setToken(checkpoint);
 		throw parser::AssignmentSignExpected("class declaration", errorSpan);
 	}
-	Expression* expression = Expression::parse(syntacticalAnalyzer);
+	Expression* expression;
+	try {
+		expression = Expression::parse(syntacticalAnalyzer);
+	}
+	catch (const domain_error& e) {
+		Span errorSpan = syntacticalAnalyzer->relativeToken()->span;
+		syntacticalAnalyzer->setToken(checkpoint);
+		throw parser::RuleParseError("expression", errorSpan, e.what());
+	}
 	return new Declaration(identifier, expression);
 }
