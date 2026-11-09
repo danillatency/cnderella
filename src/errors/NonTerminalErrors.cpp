@@ -101,4 +101,7 @@ parser::DotExpected::DotExpected(Span span) : domain_error("Access expression do
 parser::VarMethodOrThisExpected::VarMethodOrThisExpected(Span span) : domain_error("Here must be such keywords as \"var\", \"method\", or \"this\""s + rowColumn(span)) {}
 
 
+parser::VarIfWhileReturnIdentifier::VarIfWhileReturnIdentifier(Span span) : domain_error("Here must be such keywords as \"var\", \"if\", \"while\", or \"return\" or an identifier"s + rowColumn(span)) {}
+
+
 parser::RuleParseError::RuleParseError(string element, Span span, string reason) : domain_error("Cannot parse the "s + element + rowColumn(span) + "\n\ndue to\n\n" + reason) {}

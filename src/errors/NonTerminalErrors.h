@@ -208,6 +208,12 @@ namespace parser {
     };
 
 
+    class VarIfWhileReturnIdentifier : public domain_error {
+    public:
+        VarIfWhileReturnIdentifier(Span span);
+    };
+
+
     class RuleParseError : public domain_error {
     public:
         RuleParseError(string element, Span span, string reason);
