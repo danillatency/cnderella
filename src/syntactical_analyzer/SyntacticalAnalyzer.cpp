@@ -18,6 +18,8 @@ Token* SyntacticalAnalyzer::token(int index) {
 }
 
 Token* SyntacticalAnalyzer::relativeToken(int shift) {
+	if (this->tokenIndex + shift >= this->tokens.size())
+		return this->tokens.at(this->tokens.size() - 1);
 	return this->tokens.at(this->tokenIndex + shift);
 }
  
@@ -35,7 +37,7 @@ string SyntacticalAnalyzer::currentTokenStringValue() {
 
 Token* SyntacticalAnalyzer::nextToken() {
 	if (this->tokenIndex + 1 == this->tokens.size())
-		throw parser::OutOfTokens(this->currentToken()->span);
+			throw parser::OutOfTokens(this->currentToken()->span);
 	return this->tokens.at(++this->tokenIndex);
 }
 

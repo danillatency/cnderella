@@ -42,11 +42,13 @@ ClassDeclarations* ClassDeclarations::parse(SyntacticalAnalyzer* syntacticalAnal
 
 ClassDeclaration* ClassDeclaration::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
 	int checkpoint = syntacticalAnalyzer->currentTokenIndex();
+	syntacticalAnalyzer->skipPossibleNewLines();
 	ClassHead* classHead;
 	try {
 		classHead = ClassHead::parse(syntacticalAnalyzer);
 	}
 	catch (const domain_error& e) {
+		syntacticalAnalyzer->setToken(checkpoint);
 		throw parser::RuleParseError("class head", syntacticalAnalyzer->relativeToken()->span, e.what());
 	}
 	ClassBody* classBody;
@@ -64,20 +66,17 @@ ClassDeclaration* ClassDeclaration::parse(SyntacticalAnalyzer* syntacticalAnalyz
 
 ClassHead* ClassHead::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
 	int checkpoint = syntacticalAnalyzer->currentTokenIndex();
-	syntacticalAnalyzer->skipPossibleNewLines();
 	if (syntacticalAnalyzer->nextToken()->code != TokenClass) {
-		Span errorSpan = syntacticalAnalyzer->currentToken()->span;
-		syntacticalAnalyzer->setToken(checkpoint);
-		throw parser::ClassDeclarationExpected(errorSpan);
+		syntacticalAnalyzer->back();
+		throw parser::ClassDeclarationExpected(syntacticalAnalyzer->relativeToken()->span);
 	}
 	Id* classIdentifier;
 	try {
 		classIdentifier = Id::parse(syntacticalAnalyzer);
 	}
 	catch (const domain_error& e) {
-		Span errorSpan = syntacticalAnalyzer->relativeToken()->span;
-		syntacticalAnalyzer->setToken(checkpoint);
-		throw parser::RuleParseError("identifier", errorSpan, e.what());
+		syntacticalAnalyzer->back();
+		throw parser::RuleParseError("identifier", syntacticalAnalyzer->relativeToken(2)->span, e.what());
 	}
 	if (syntacticalAnalyzer->nextToken()->code == TokenColon) {
 		Id* baseIdentifier;
@@ -320,6 +319,7 @@ ParameterDeclaration* ParameterDeclaration::parse(SyntacticalAnalyzer* syntactic
 		syntacticalAnalyzer->back();
 		throw parser::EnumerationEnd("parameter declarations", syntacticalAnalyzer->relativeToken()->span);
 	}
+	syntacticalAnalyzer->back();
 	int checkpoint = syntacticalAnalyzer->currentTokenIndex();
 	Id* parameterIdentifier;
 	try {

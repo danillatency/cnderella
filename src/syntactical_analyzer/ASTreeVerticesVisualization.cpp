@@ -106,9 +106,11 @@ void AnyBody::selfPrint(unsigned int depth) {
 
 
 void Statements::selfPrint(unsigned int depth) {
-	this->statement->selfPrint(depth);
-	if (this->statements)
-		this->statements->selfPrint(depth);
+	if (this->statement) {
+		this->statement->selfPrint(depth);
+		if (this->statements)
+			this->statements->selfPrint(depth);
+	}
 }
 
 
