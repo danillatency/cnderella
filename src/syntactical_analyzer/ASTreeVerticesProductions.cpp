@@ -452,7 +452,7 @@ Statement* Statement::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
 			syntacticalAnalyzer->setToken(checkpoint);
 			throw parser::RuleParseError("return statement", errorSpan, e.what());
 		}
-	case TokenIdentifier:
+	case TokenIdentifier: case TokenThis: case TokenBase:
 		syntacticalAnalyzer->back();
 		try {
 			return Assignment::parse(syntacticalAnalyzer);
@@ -467,7 +467,17 @@ Statement* Statement::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
 				throw parser::RuleParseError("expression", errorSpan, e.what());
 			}
 		}
-	case TokenEnd: {
+	case TokenInteger: case TokenBoolean: case TokenFloat: case TokenDoubleQuote: case TokenQuote: case TokenOpeningSquareBracket: case TokenOpeningCurlyBrace:
+		syntacticalAnalyzer->back();
+		try {
+			return Expression::parse(syntacticalAnalyzer);
+		}
+		catch (const domain_error& e) {
+			Span errorSpan = syntacticalAnalyzer->relativeToken()->span;
+			syntacticalAnalyzer->setToken(checkpoint);
+			throw parser::RuleParseError("literal", errorSpan, e.what());
+		}
+	case TokenEnd: case TokenElse: {
 		Span errorSpan = syntacticalAnalyzer->relativeToken()->span;
 		syntacticalAnalyzer->setToken(checkpoint);
 		throw parser::EnumerationEnd("statements", errorSpan);
@@ -810,11 +820,11 @@ LiteralFloat* LiteralFloat::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
 
 
 LiteralCharacter* LiteralCharacter::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
-	if (syntacticalAnalyzer->nextToken()->code == TokenClosingSquareBracket) {
+	if (syntacticalAnalyzer->nextToken()->code == TokenClosingSquareBracket || syntacticalAnalyzer->currentToken()->code == TokenDoubleQuote) {
 		syntacticalAnalyzer->back();
 		throw parser::EnumerationEnd("literal character", syntacticalAnalyzer->relativeToken()->span);
 	}
-	if (syntacticalAnalyzer->nextToken()->code == TokenCharacter)
+	if (syntacticalAnalyzer->currentToken()->code == TokenCharacter)
 		return new LiteralCharacter(dynamic_cast<Character*>(syntacticalAnalyzer->currentToken())->value);
 	if (syntacticalAnalyzer->currentToken()->code != TokenQuote) {
 		syntacticalAnalyzer->back();
