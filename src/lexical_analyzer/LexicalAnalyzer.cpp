@@ -69,8 +69,6 @@ void OolongLexicalAnalyzer::printTokens() {
 void OolongLexicalAnalyzer::analyze() {
 	bool immediatelyFurther = false;
 	while (immediatelyFurther || this->further()) {
-		if (immediatelyFurther)
-			this->currentColumn++;
 		immediatelyFurther = false;
 		Span span(this->currentRow, this->currentColumn == -1 ? 0 : this->currentColumn, this->currentColumn == -1 ? 0 : this->currentColumn);
 

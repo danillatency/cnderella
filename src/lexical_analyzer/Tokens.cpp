@@ -85,6 +85,6 @@ Boolean::Boolean(Span span, bool value) : Token(TokenBoolean, span), value(value
 
 
 string Character::toString() {
-	return "Identifier: "s + this->value;
+	return "Character: "s + this->value;
 }
 Character::Character(Span span, char value) : Token(TokenCharacter, span), value(value) {}
