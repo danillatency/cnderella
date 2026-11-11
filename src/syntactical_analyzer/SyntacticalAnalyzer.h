@@ -15,7 +15,9 @@ private:
 public:
 	SyntacticalAnalyzer(vector<Token*>& tokens);
 
-	void grow();
+	void growTree();
+
+	Program* getProgram();
 
 	Token* currentToken();
 

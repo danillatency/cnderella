@@ -18,22 +18,22 @@ static string usePlaceholder(int argc, char** argv) {
 
 int main(int argc, char* argv[]) {
 	try {
-		OolongLexicalAnalyzer standardLexer("builtin_libraries/Standard.oolong");
-		OolongLexicalAnalyzer lexer(usePlaceholder(argc, argv));
+		OolongLexicalAnalyzer standardLexer(usePlaceholder(argc, argv));
+		//OolongLexicalAnalyzer lexer(usePlaceholder(argc, argv));
 		standardLexer.analyze();
-		lexer.analyze();
-		standardLexer += lexer;
+		//lexer.analyze();
+		//standardLexer += lexer;
 
 		standardLexer.printTokens();
 
 		SyntacticalAnalyzer ground(standardLexer.getTokenStorage());
-		ground.grow();
+		ground.growTree();
 
 		ground.visualize();
 
 		SemanticalAnalyzer semanticalAnalyzer;
 
-		//semanticalAnalyzer.mapToAAST(ground.program);
+		semanticalAnalyzer.mapToAAST(ground.getProgram());
 
 		//semanticalAnalyzer.getTree();
 

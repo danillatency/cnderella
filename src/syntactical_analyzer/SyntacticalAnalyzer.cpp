@@ -5,8 +5,12 @@
 
 SyntacticalAnalyzer::SyntacticalAnalyzer(vector<Token*>& tokens) : tokens(tokens), tokenIndex(-1) {}
 
-void SyntacticalAnalyzer::grow() {
+void SyntacticalAnalyzer::growTree() {
 	this->program = Program::parse(this);
+}
+
+Program* SyntacticalAnalyzer::getProgram() {
+	return this->program;
 }
 
 Token* SyntacticalAnalyzer::currentToken() {
