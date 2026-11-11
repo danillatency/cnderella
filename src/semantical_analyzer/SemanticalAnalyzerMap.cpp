@@ -505,6 +505,7 @@ aast::Entity* SemanticalAnalyzer::mapToAAST(Entity* oldVertex) {
             oldTrueStatements = oldTrueStatements->statements;
         } while (oldTrueStatements);
         Statements* oldFalseStatements = oldIfStatement->falseStatements;
+        if (oldFalseStatements)
         do {
             newIfStatement->addFalseStatement(dynamic_cast<aast::Expression*>(this->mapToAAST(oldFalseStatements->statement)));
             oldFalseStatements = oldFalseStatements->statements;
