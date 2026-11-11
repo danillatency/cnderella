@@ -1,633 +1,455 @@
 class Class is
-    method isinstanceof(other: Class) => return systemclassname(this).equal(systemclassname(other))
-
-    method print() => "root class".print()
-
-    method print-line() => "root class".print-line()
+    var dynamic_type := "Class"
+    
+    method same-dynamic-type(other: Class) => return this.dynamic_type.equal(other.dynamic_type)
+    method print() => this.dynamic_type.print()
+    method print-line() => this.dynamic_type.print-line()
 end
 
 
 class AnyValue : Class is
-    method print() => "any value class".print()
-
-    method print-line() => "any value class".print-line()
+    var dynamic_type := "AnyValue"
 end
 
 
 class Integer : AnyValue is
-    var value := systemint_0
-    var min := systemminint()
-    var max := systemmaxint()
+    var dynamic_type := "Integer"
+    var value := systemAllocateInteger()
+    var min := systemMinimalInteger()
+    var max := systemMaximalInteger()
 
-
-    this() => "pass"
-
+    this() is end
     this(literal: Integer) => this.value := literal.value
+    this(literal: Float) => this.value := systemFloatToInteger(literal.value)
 
-    this(literal: Float) => this.value := systemfloattoint(literal.value)
-
-
-    method print() => systemprint(this.value)
-
-    method print-line() is
-        systemprint(this.value)
-        '
-'.print()
-    end
-
+    method print() => systemPrintInteger(this.value)
+    method print-line() => systemPrintLineInteger(this.value)
     method to-float() => return Float(this)
-
-    method to-boolean() => return Boolean(this.equal(0).not())
-
+    method to-boolean() => return Boolean(this.equal(Integer()).not())
     method plus(other: Integer) is
         var temp := Integer()
-        temp.value := systemintplus(this.value, other.value)
+        temp.value := systemIntegerPlus(this.value, other.value)
         return temp
     end
-
     method plus(other: Float) is
         var temp := Float()
-        temp.value := systemfloatplus(Float(this).value, other.value)
+        temp.value := systemFloatPlus(Float(this).value, other.value)
         return temp
     end
-
     method multiply(other: Integer) is
         var temp := Integer()
-        temp.value := systemintmul(this.value, other.value)
+        temp.value := systemIntegerMultiply(this.value, other.value)
         return temp
     end
-
     method multiply(other: Float) is
         var temp := Float()
-        temp.value := systemfloatmul(Float(this).value, other.value)
+        temp.value := systemFloatMultiply(Float(this).value, other.value)
         return temp
     end
-
     method divide(other: Integer) is
         var temp := Integer()
-        temp.value := systemintdiv(this.value, other.value)
+        temp.value := systemDivide(this.value, other.value)
         return temp
     end
-
     method divide(other: Float) is
         var temp := Float()
-        temp.value := systemfloatdiv(Float(this).value, other.value)
+        temp.value := systemFloatDivide(Float(this).value, other.value)
         return temp
     end
-
     method remainder(other: Integer) is
         var temp := Integer()
-        temp.value := systemintmod(this.value, other.value)
+        temp.value := systemModulo(this.value, other.value)
         return temp
     end
-
     method less(other: Integer) is
         var temp := Boolean()
-        temp.value := systemintless(this.value, other.value)
+        temp.value := systemIntegerLess(this.value, other.value)
         return temp
     end
-
     method less(other: Float) is
         var temp := Boolean()
-        temp.value := systemfloatless(Float(this).value, other.value)
+        temp.value := systemFloatLess(Float(this).value, other.value)
         return temp
     end
-
-    method lessequal(other: Integer) is
+    method less-equal(other: Integer) is
         var temp := Boolean()
-        temp.value := systemintlessequal(this.value, other.value)
+        temp.value := systemIntegerLessEqual(this.value, other.value)
         return temp
     end
-
-    method lessequal(other: Float) is
+    method less-equal(other: Float) is
         var temp := Boolean()
-        temp.value := systemfloatlessequal(Float(this).value, other.value)
+        temp.value := systemFloatLessEqual(Float(this).value, other.value)
         return temp
     end
-
     method greater(other: Integer) is
         var temp := Boolean()
-        temp.value := systemintgreater(this.value, other.value)
+        temp.value := systemIntegerGreater(this.value, other.value)
         return temp
     end
-
     method greater(other: Float) is
         var temp := Boolean()
-        temp.value := systemfloatgreater(Float(this).value, other.value)
+        temp.value := systemFloatGreater(Float(this).value, other.value)
         return temp
     end
-
-    method greaterequal(other: Integer) is
+    method greater-equal(other: Integer) is
         var temp := Boolean()
-        temp.value := systemintgreaterequal(this.value, other.value)
+        temp.value := systemIntegerGreaterEqual(this.value, other.value)
         return temp
     end
-
-    method greaterequal(other: Float) is
+    method greater-equal(other: Float) is
         var temp := Boolean()
-        temp.value := systemfloatgreaterequal(Float(this).value, other.value)
+        temp.value := systemFloatGreaterEqual(Float(this).value, other.value)
         return temp
     end
-
     method equal(other: Integer) is
         var temp := Boolean()
-        temp.value := systemintequal(this.value, other.value)
+        temp.value := systemIntegerEqual(this.value, other.value)
         return temp
     end
-
     method equal(other: Float) is
         var temp := Boolean()
-        temp.value := systemfloatequal(Float(this).value, other.value)
+        temp.value := systemFloatEqual(Float(this).value, other.value)
         return temp
     end
 end
 
 
 class Boolean : AnyValue is
-    var value := systembool_0
+    var dynamic_type := "Boolean"
+    var value := systemAllocateBoolean()
 
-
-    this() => "pass"
-
+    this() is end
     this(literal: Boolean) => this.value := literal.value
 
-
-    method print() => systemprint(this.value)
-
-    method print-line() is
-        systemprint(this.value)
-        '
-'.print()
-    end
-
-    method to-integer() is
-        if this then return 1 end
-        return 0
-    end
-
+    method print() => if this then "True".print() else "False".print() end
+    method print-line() => if this then "True".print-line() else "False".print-line() end
+    method to-integer() => if this then return Integer(1) else return Integer() end
     method not() is
         var temp := Boolean()
-        temp.value := systemnot(this.value)
+        temp.value := systemNot(this.value)
         return temp
     end
-
     method and(other: Boolean) is
         var temp := Boolean()
-        temp.value := systemnand(this.value, other.value)
+        temp.value := systemAnd(this.value, other.value)
         return temp
     end
-
     method or(other: Boolean) is
         var temp := Boolean()
-        temp.value := systemor(this.value, other.value)
+        temp.value := systemOr(this.value, other.value)
         return temp
     end
 end
 
 
 class Float : AnyValue is
-    var value := systemfloat_0_0
-    var min := systemminfloat()
-    var max := systemmaxfloat()
+    var dynamic_type := "Float"
+    var value := systemAllocateFloat()
+    var min := systemMinimalFloat()
+    var max := systemMaximalFloat()
 
-
-    this() => "pass"
-
+    this() is end
     this(literal: Float) => this.value := literal.value
+    this(literal: Integer) => this.value := systemIntegerToFloat(literal.value)
 
-    this(literal: Integer) => this.value := systeminttofloat(literal.value)
-
-
-    method print() => systemprint(this.value)
-
-    method print-line() is
-        systemprint(this.value)
-        '
-'.print()
-    end
-
+    method print() => systemPrintFloat(this.value)
+    method print-line() => systemPrintLineFloat(this.value)
     method to-integer() => return Integer(this)
-
-    method to-boolean() => return Boolean(this.equal(0.0).not())
-
+    method to-boolean() => return Boolean(this.equal(Float()).not())
     method plus(other: Integer) is
         var temp := Float()
-        temp.value := systemfloatplus(this.value, Float(other).value)
+        temp.value := systemFloatPlus(this.value, Float(other).value)
         return temp
     end
-
     method plus(other: Float) is
         var temp := Float()
-        temp.value := systemfloatplus(this.value, other.value)
+        temp.value := systemFloatPlus(this.value, other.value)
         return temp
     end
-
     method multiply(other: Integer) is
         var temp := Float()
-        temp.value := systemfloatmul(this.value, Float(other).value)
+        temp.value := systemFloatMultiply(this.value, Float(other).value)
         return temp
     end
-
     method multiply(other: Float) is
         var temp := Float()
-        temp.value := systemfloatmul(this.value, other.value)
+        temp.value := systemFloatMultiply(this.value, other.value)
         return temp
     end
-
     method divide(other: Integer) is
         var temp := Float()
-        temp.value := systemfloatdiv(this.value, other.value)
+        temp.value := systemFloatDivide(this.value, other.value)
         return temp
     end
-
     method divide(other: Float) is
         var temp := Float()
-        temp.value := systemfloatdiv(this.value, other.value)
+        temp.value := systemFloatDivide(this.value, other.value)
         return temp
     end
-
     method less(other: Integer) is
         var temp := Boolean()
-        temp.value := systemfloatless(this.value, Float(other).value)
+        temp.value := systemFloatLess(this.value, Float(other).value)
         return temp
     end
-
     method less(other: Float) is
         var temp := Boolean()
-        temp.value := systemfloatless(this.value, other.value)
+        temp.value := systemFloatLess(this.value, other.value)
         return temp
     end
-
-    method lessequal(other: Integer) is
+    method less-equal(other: Integer) is
         var temp := Boolean()
-        temp.value := systemfloatlessequal(this.value, Float(other).value)
+        temp.value := systemFloatLessEqual(this.value, Float(other).value)
         return temp
     end
-
-    method lessequal(other: Float) is
+    method less-equal(other: Float) is
         var temp := Boolean()
-        temp.value := systemfloatlessequal(this.value, other.value)
+        temp.value := systemFloatLessEqual(this.value, other.value)
         return temp
     end
-
     method greater(other: Integer) is
         var temp := Boolean()
-        temp.value := systemfloatgreater(this.value, Float(other).value)
+        temp.value := systemFloatGreater(this.value, Float(other).value)
         return temp
     end
-
     method greater(other: Float) is
         var temp := Boolean()
-        temp.value := systemfloatgreater(this.value, other.value)
+        temp.value := systemFloatGreater(this.value, other.value)
         return temp
     end
-
-    method greaterequal(other: Integer) is
+    method greater-equal(other: Integer) is
         var temp := Boolean()
-        temp.value := systemfloatgreaterequal(this.value, Float(other).value)
+        temp.value := systemFloatGreaterEqual(this.value, Float(other).value)
         return temp
     end
-
-    method greaterequal(other: Float) is
+    method greater-equal(other: Float) is
         var temp := Boolean()
-        temp.value := systemfloatgreaterequal(this.value, other.value)
+        temp.value := systemFloatGreaterEqual(this.value, other.value)
         return temp
     end
-
     method equal(other: Integer) is
         var temp := Boolean()
-        temp.value := systemfloatequal(this.value, Float(other).value)
+        temp.value := systemFloatEqual(this.value, Float(other).value)
         return temp
     end
-
     method equal(other: Float) is
         var temp := Boolean()
-        temp.value := systemfloatequal(this.value, other.value)
+        temp.value := systemFloatEqual(this.value, other.value)
         return temp
     end
 end
 
 
 class Character : AnyValue is
-    var value := systemcharacter_o
+    var dynamic_type := "Character"
+    var value := systemAllocateCharacter()
 
-    this() => "pass"
+    this() is end
+    this(literal: Character) => this.value := literal.value
 
-    this(literal: Character) => this.value := systemcharacter(literal.value)
-
-    method print() => systemprint(this.value)
-
-    method print-line() is
-        systemprint(this.value)
-        '
-'.print()
-    end
+    method print() => systemPrintCharacter(this.value)
+    method print-line() => systemPrintLineCharacter(this.value)
 end
 
 
 class AnyReference : Class is
-    var length := Integer(0)
-    var address := systemmaloc(0)
+    var dynamic_type := "AnyReference"
+    var length := Integer()
+    var memory := systemAllocateMemory()
+end
 
-    this(length: Integer) is
-        this.length := length
-        this.address := systemmaloc(length.value)
+
+class AnyArray : AnyReference is
+    var dynamic_type := "AnyArray"
+
+    this(length: Integer) => this.memory := systemAllocateMemory(length.value)
+
+    method print() is
+        '['.print()
+        var i := 0
+        while i.less(this.length) loop
+            systemShiftMemory(this.memory, i.value).print()
+            ", ".print()
+            i := i.plus(1)
+        end
+        ']'.print()
     end
-
-    method print() => "any reference class".print()
-
-    method print-line() => "any reference class".print-line()
+    method print-line() is
+        this.print()
+        '
+'.print()
+    end
 end
 
 
 class ArrayOfIntegers : AnyReference is
+    var dynamic_type := "ArrayOfIntegers"
+
     this(length: Integer) => base(length)
-
-
-    method print() is
-        '['.print()
-        var i := 0
-        while i.less(this.length) loop
-            systemaccess(systemshift(this.address, i.value)).print()
-            ", ".print()
-            i := i.plus(1)
-        end
-        ']'.print()
-    end
-
-    method print-line() is
-        this.print()
-        '
-'.print()
-    end
-
-    method get(shift: Integer) => return systemaccess(systemshift(this.address, shift.value))
-
-    method set(shift: Integer, integer: Integer) => systemput(systemshift(this.address, shift.value), integer.value)
+    
+    method get(shift: Integer) : Integer => return systemShiftMemory(this.address, shift.value)
+    method set(shift: Integer, integer: Integer) => systemShiftMemory(this.address, shift.value) := integer
 end
 
 
 class ArrayOfBooleans : AnyReference is
+    var dynamic_type := "ArrayOfBooleans"
+
     this(length: Integer) => base(length)
-
-    method print() is
-        '['.print()
-        var i := 0
-        while i.less(this.length) loop
-            systemaccess(systemshift(this.address, i.value)).print()
-            ", ".print()
-            i := i.plus(1)
-        end
-        ']'.print()
-    end
-
-    method print-line() is
-        this.print()
-        '
-'.print()
-    end
-
-    method get(shift: Integer) => return systemaccess(systemshift(this.address, shift.value))
-
-    method set(shift: Integer, boolean: Boolean) => systemput(systemshift(this.address, shift.value), boolean.value)
+    
+    method get(shift: Integer) : Boolean => return systemShiftMemory(this.address, shift.value)
+    method set(shift: Integer, boolean: Boolean) => systemShiftMemory(this.address, shift.value) := boolean
 end
 
 
 class ArrayOfFloats : AnyReference is
+    var dynamic_type := "ArrayOfFloats"
+
     this(length: Integer) => base(length)
-
-    method print() is
-        '['.print()
-        var i := 0
-        while i.less(this.length) loop
-            systemaccess(systemshift(this.address, i.value)).print()
-            ", ".print()
-            i := i.plus(1)
-        end
-        ']'.print()
-    end
-
-    method print-line() is
-        this.print()
-        '
-'.print()
-    end
-
-    method get(shift: Integer) => return systemaccess(systemshift(this.address, shift.value))
-
-    method set(shift: Integer, float: Float) => systemput(systemshift(this.address, shift.value), float.value)
+    
+    method get(shift: Integer) : Float => return systemShiftMemory(this.address, shift.value)
+    method set(shift: Integer, float: Float) => systemShiftMemory(this.address, shift.value) := float
 end
 
 
 class ArrayOfCharacters : AnyReference is
+    var dynamic_type := "ArrayOfCharacters"
+
     this(length: Integer) => base(length)
+    
+    method get(shift: Integer) : Character => return systemShiftMemory(this.address, shift.value)
+    method set(shift: Integer, character: Character) => systemShiftMemory(this.address, shift.value) := character
+end
+
+
+class AnyList : AnyReference is
+    var dynamic_type := "AnyList"
+    var next_list := AnyList()
 
     method print() is
-        '['.print()
-        var i := 0
-        while i.less(this.length) loop
-            systemaccess(systemshift(this.address, i.value)).print()
-            ", ".print()
-            i := i.plus(1)
+        '{'.print()
+        if this.length.equal(Integer()).not() then
+            this.memory.print()
+            var next := this.next_list
+            while next.is-nothing().not() loop
+                next.memory.print()
+                ", ".print()
+                next := next.next_list
+            end
+            '}'.print()
         end
-        ']'.print()
+        '}'.print()
     end
-
     method print-line() is
         this.print()
         '
 '.print()
     end
-
-    method get(shift: Integer) => return systemaccess(systemshift(this.address, shift.value))
-
-    method set(shift: Integer, character: Character) => systemput(systemshift(this.address, shift.value), character.value)
+    method is-nothing() is
+        var temp := Boolean()
+        if this.length.equal(Integer()) then temp.not() else temp end
+    end
 end
 
 
 class ListOfIntegers : AnyReference is
-    var next_list := AnyReference()
+    var dynamic_type := "ListOfIntegers"
 
-    method print() is
-        '{'.print()
-        if this.length.equal(0).not() then
-            systemaccess(this.address).print()
-            var next := this.next_list
-            while next.isinstanceof(ListOfIntegers()).not() loop
-                systemaccess(next.address).print()
-                ", ".print()
-                next := next.next_list
-            end
-            '}'.print()
-        end
-        '}'.print()
-    end
-
-    method print-line() is
-        this.print()
-        '
-'.print()
-    end
+    this() is end
 
     method append(integer: Integer) =>
-        if this.length.equal(0) then
-            base(1)
+        if this.length.equal(Integer()) then
             this.length := 1
-            this.address := systempointer(integer)
+            this.memory := integer
+            this.next_list := ListOfIntegers()
         else
             this.length := this.length.plus(1)
             var next := this.next_list
-            while next.isinstanceof(AnyReference()).not() loop
+            while next.is-nothing().not() loop
                 next.length := next.length.plus(1)
                 next := next.next_list
             end
-            var new_elem := ListOfIntegers()
-            new_elem.append(integer)
-            next.next_list := new_elem
+            next.append(integer)
         end
 
-    method head(): Integer => return systemaccess(this.address)
+    method head(): Integer => return this.memory
 
-    method tail() => this.next_list
+    method tail(): ListOfIntegers => return this.next_list
 end
 
 
 class ListOfBooleans : AnyReference is
-    var next_list := AnyReference()
+    var dynamic_type := "ListOfBooleans"
 
-    method print() is
-        '{'.print()
-        if this.length.equal(0).not() then
-            systemaccess(this.address).print()
-            var next := this.next_list
-            while next.isinstanceof(ListOfBooleans()).not() loop
-                systemaccess(next.address).print()
-                ", ".print()
-                next := next.next_list
-            end
-            '}'.print()
-        end
-        '}'.print()
-    end
-
-    method print-line() is
-        this.print()
-        '
-'.print()
-    end
+    this() is end
 
     method append(boolean: Boolean) =>
-        if this.length.equal(0) then
-            base(1)
+        if this.length.equal(Integer()) then
             this.length := 1
-            this.address := systempointer(boolean)
+            this.memory := boolean
+            this.next_list := ListOfBooleans()
         else
             this.length := this.length.plus(1)
             var next := this.next_list
-            while next.isinstanceof(AnyReference()).not() loop
+            while next.is-nothing().not() loop
                 next.length := next.length.plus(1)
                 next := next.next_list
             end
-            var new_elem := ListOfBooleans()
-            new_elem.append(boolean)
-            next.next_list := new_elem
+            next.append(boolean)
         end
 
-    method head(): Integer => return systemaccess(this.address)
+    method head(): Boolean => return this.memory
 
-    method tail() => this.next_list
+    method tail(): ListOfBooleans => return this.next_list
 end
 
 
 class ListOfFloats : AnyReference is
-    var next_list := AnyReference()
+    var dynamic_type := "ListOfFloats"
 
-    method print() is
-        '{'.print()
-        if this.length.equal(0).not() then
-            systemaccess(this.address).print()
-            var next := this.next_list
-            while next.isinstanceof(ListOfFloats()).not() loop
-                systemaccess(next.address).print()
-                ", ".print()
-                next := next.next_list
-            end
-            '}'.print()
-        end
-        '}'.print()
-    end
-
-    method print-line() is
-        this.print()
-        '
-'.print()
-    end
+    this() is end
 
     method append(float: Float) =>
-        if this.length.equal(0) then
-            base(1)
+        if this.length.equal(Integer()) then
             this.length := 1
-            this.address := systempointer(float)
+            this.memory := float
+            this.next_list := ListOfFloats()
         else
             this.length := this.length.plus(1)
             var next := this.next_list
-            while next.isinstanceof(AnyReference()).not() loop
+            while next.is-nothing().not() loop
                 next.length := next.length.plus(1)
                 next := next.next_list
             end
-            var new_elem := ListOfFloats()
-            new_elem.append(float)
-            next.next_list := new_elem
+            next.append(float)
         end
 
-    method head(): Integer => return systemaccess(this.address)
+    method head(): Float => return this.memory
 
-    method tail() => this.next_list
+    method tail(): ListOfFloats => return this.next_list
 end
 
 
 class ListOfCharacters : AnyReference is
-    var next_list := AnyReference()
+    var dynamic_type := "ListOfCharacters"
 
-    method print() is
-        '{'.print()
-        if this.length.equal(0).not() then
-            systemaccess(this.address).print()
-            var next := this.next_list
-            while next.isinstanceof(ListOfCharacters()).not() loop
-                systemaccess(next.address).print()
-                ", ".print()
-                next := next.next_list
-            end
-            '}'.print()
-        end
-        '}'.print()
-    end
-
-    method print-line() is
-        this.print()
-        '
-'.print()
-    end
+    this() is end
 
     method append(character: Character) =>
-        if this.length.equal(0) then
-            base(1)
+        if this.length.equal(Integer()) then
             this.length := 1
-            this.address := systempointer(character)
+            this.memory := character
+            this.next_list := ListOfCharacters()
         else
             this.length := this.length.plus(1)
             var next := this.next_list
-            while next.isinstanceof(AnyReference()).not() loop
+            while next.is-nothing().not() loop
                 next.length := next.length.plus(1)
                 next := next.next_list
             end
-            var new_elem := ListOfCharacters()
-            new_elem.append(character)
-            next.next_list := new_elem
+            next.append(character)
         end
 
-    method head(): Character => return systemaccess(this.address)
+    method head(): Character => return this.memory
 
-    method tail() => this.next_list
+    method tail(): ListOfCharacters => return this.next_list
 end
