@@ -820,7 +820,7 @@ LiteralFloat* LiteralFloat::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
 
 
 LiteralCharacter* LiteralCharacter::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
-	if (syntacticalAnalyzer->nextToken()->code == TokenClosingSquareBracket || syntacticalAnalyzer->currentToken()->code == TokenDoubleQuote) {
+	if (syntacticalAnalyzer->nextToken()->code == TokenClosingSquareBracket || syntacticalAnalyzer->currentToken()->code == TokenDoubleQuote || syntacticalAnalyzer->currentToken()->code == TokenClosingCurlyBrace) {
 		syntacticalAnalyzer->back();
 		throw parser::EnumerationEnd("literal character", syntacticalAnalyzer->relativeToken()->span);
 	}
