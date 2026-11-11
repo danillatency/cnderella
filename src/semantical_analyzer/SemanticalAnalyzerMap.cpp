@@ -59,7 +59,7 @@ void populateLiteralCreationStatements(aast::LiteralBeginningExpression& express
         else if (oldLiteralFloat) {
             newIdentifierBeginningExpression->setIdentifier("Float");
             float integerPart;
-            float fractionalPart = modf(oldLiteralFloat->value, &integerPart);
+            float fractionalPart = abs(modf(oldLiteralFloat->value, &integerPart));
             fractionalPart *= pow(10, 6);
             string identifier = "systemfloat_"s + to_string(static_cast<int>(integerPart)) + "_"s + to_string(static_cast<int>(fractionalPart));
             systemAssignmentExpression->setIdentifier(identifier);
@@ -296,6 +296,10 @@ aast::Entity* SemanticalAnalyzer::mapToAAST(Entity* oldVertex) {
         aast::Program* newProgram = new aast::Program();
         ClassDeclarations* oldDeclarations = oldProgram->classDeclarations;
         do {
+            if (!oldDeclarations->classDeclaration) {
+                oldDeclarations = oldDeclarations->classDeclarations;
+                continue;
+            }
             aast::ClassDeclaration* newDeclaration = dynamic_cast<aast::ClassDeclaration*>(this->mapToAAST(oldDeclarations->classDeclaration));
             newProgram->addClassDeclaration(newDeclaration);
             oldDeclarations = oldDeclarations->classDeclarations;
@@ -307,7 +311,10 @@ aast::Entity* SemanticalAnalyzer::mapToAAST(Entity* oldVertex) {
     else if (oldClassDeclaration) {
         aast::ClassDeclaration* newClassDeclaration = new aast::ClassDeclaration();
         newClassDeclaration->setClassName(oldClassDeclaration->classHead->name->identifier);
-        newClassDeclaration->setClassBaseName(oldClassDeclaration->classHead->baseName->identifier);
+        if (oldClassDeclaration->classHead->baseName)
+            newClassDeclaration->setClassBaseName(oldClassDeclaration->classHead->baseName->identifier);
+        else
+            newClassDeclaration->setClassBaseName("");
         aast::ClassBody* newBody = dynamic_cast<aast::ClassBody*>(this->mapToAAST(oldClassDeclaration->classBody));
         newClassDeclaration->setClassBody(newBody);
         return newClassDeclaration;
@@ -317,6 +324,10 @@ aast::Entity* SemanticalAnalyzer::mapToAAST(Entity* oldVertex) {
         aast::ClassBody* newClassBody = new aast::ClassBody();
         ClassStatements* oldClassStatements = oldClassBody->classStatements;
         do {
+            if (!oldClassStatements->classStatement) {
+                oldClassStatements = oldClassStatements->classStatements;
+                continue;
+            }
             aast::ClassStatement* newClassStatement = dynamic_cast<aast::ClassStatement*>(this->mapToAAST(oldClassStatements->classStatement));
             newClassBody->addClassStatement(newClassStatement);
             oldClassStatements = oldClassStatements->classStatements;
@@ -343,6 +354,10 @@ aast::Entity* SemanticalAnalyzer::mapToAAST(Entity* oldVertex) {
         aast::AnyBody* newAnyBody = new aast::AnyBody();
         Statements* oldStatements = oldAnyBody->statements;
         do {
+            if (!oldStatements->statement) {
+                oldStatements = oldStatements->statements;
+                continue;
+            }
             aast::Statement* newStatement = dynamic_cast<aast::Statement*>(this->mapToAAST(oldStatements->statement));
             newAnyBody->addStatement(newStatement);
             oldStatements = oldStatements->statements;
@@ -377,7 +392,7 @@ aast::Entity* SemanticalAnalyzer::mapToAAST(Entity* oldVertex) {
                 newIdentifierBeginningExpression->addAccessOrCall(newAccess);
                 oldAccessesAndCalls = oldAccessAndFurther->accessesAndCalls;
             }
-            else {
+            else if (oldAccessesAndCalls) {
                 CallAndFurther* oldCallAndFurther = dynamic_cast<CallAndFurther*>(oldAccessesAndCalls);
                 aast::Call* newCall = new aast::Call();
                 Expressions* oldExpressions = oldCallAndFurther->expressions;
@@ -403,7 +418,7 @@ aast::Entity* SemanticalAnalyzer::mapToAAST(Entity* oldVertex) {
                 newThisBeginningExpression->addAccessOrCall(newAccess);
                 oldAccessesAndCalls = oldAccessAndFurther->accessesAndCalls;
             }
-            else {
+            else if (oldAccessesAndCalls) {
                 CallAndFurther* oldCallAndFurther = dynamic_cast<CallAndFurther*>(oldAccessesAndCalls);
                 aast::Call* newCall = new aast::Call();
                 Expressions* oldExpressions = oldCallAndFurther->expressions;
@@ -429,7 +444,7 @@ aast::Entity* SemanticalAnalyzer::mapToAAST(Entity* oldVertex) {
                 newBaseBeginningExpression->addAccessOrCall(newAccess);
                 oldAccessesAndCalls = oldAccessAndFurther->accessesAndCalls;
             }
-            else {
+            else if (oldAccessesAndCalls) {
                 CallAndFurther* oldCallAndFurther = dynamic_cast<CallAndFurther*>(oldAccessesAndCalls);
                 aast::Call* newCall = new aast::Call();
                 Expressions* oldExpressions = oldCallAndFurther->expressions;
@@ -456,7 +471,7 @@ aast::Entity* SemanticalAnalyzer::mapToAAST(Entity* oldVertex) {
                 newLiteralBeginningExpression->addAccessOrCall(newAccess);
                 oldAccessesAndCalls = oldAccessAndFurther->accessesAndCalls;
             }
-            else {
+            else if (oldAccessesAndCalls) {
                 CallAndFurther* oldCallAndFurther = dynamic_cast<CallAndFurther*>(oldAccessesAndCalls);
                 aast::Call* newCall = new aast::Call();
                 Expressions* oldExpressions = oldCallAndFurther->expressions;
