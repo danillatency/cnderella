@@ -338,7 +338,10 @@ aast::Entity* SemanticalAnalyzer::mapToAAST(Entity* oldVertex) {
     else if (oldMethodDeclaration) {
         aast::MethodDeclaration* newMethodDeclaration = new aast::MethodDeclaration();
         newMethodDeclaration->setName(oldMethodDeclaration->methodHead->name->identifier);
-        newMethodDeclaration->setType(oldMethodDeclaration->methodHead->returnType->identifier);
+        if (oldMethodDeclaration->methodHead->returnType)
+            newMethodDeclaration->setType(oldMethodDeclaration->methodHead->returnType->identifier);
+        else
+            newMethodDeclaration->setType("");
         aast::AnyBody* newAnyBody = dynamic_cast<aast::AnyBody*>(this->mapToAAST(oldMethodDeclaration->body));
         newMethodDeclaration->setAnyBody(newAnyBody);
         ParameterDeclarations* oldParameterDeclarations = oldMethodDeclaration->methodHead->parameterDeclarations;
@@ -435,7 +438,7 @@ aast::Entity* SemanticalAnalyzer::mapToAAST(Entity* oldVertex) {
 
     else if (oldBaseBeginningExpression) {
         aast::BaseBeginningExpression* newBaseBeginningExpression = new aast::BaseBeginningExpression();
-        AccessesAndCalls* oldAccessesAndCalls = oldIdentifierBeginningExpression->accessesAndCalls;
+        AccessesAndCalls* oldAccessesAndCalls = oldBaseBeginningExpression->accessesAndCalls;
         do {
             if (dynamic_cast<AccessAndFurther*>(oldAccessesAndCalls)) {
                 AccessAndFurther* oldAccessAndFurther = dynamic_cast<AccessAndFurther*>(oldAccessesAndCalls);
