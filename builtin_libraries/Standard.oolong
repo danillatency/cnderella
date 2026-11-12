@@ -323,14 +323,14 @@ end
 
 class AnyList : AnyReference is
     var dynamic_type := "AnyList"
-    var next_list := AnyList()
+    var next_list := AnyReference()
 
     method print() is
         '{'.print()
         if this.length.equal(Integer()).not() then
             this.memory.print()
             var next := this.next_list
-            while next.is-nothing().not() loop
+            while next.is-empty().not() loop
                 next.memory.print()
                 ", ".print()
                 next := next.next_list
@@ -344,7 +344,7 @@ class AnyList : AnyReference is
         '
 '.print()
     end
-    method is-nothing() is
+    method is-empty() is
         var temp := Boolean()
         if this.length.equal(Integer()) then temp.not() else temp end
     end
@@ -364,7 +364,7 @@ class ListOfIntegers : AnyReference is
         else
             this.length := this.length.plus(1)
             var next := this.next_list
-            while next.is-nothing().not() loop
+            while next.is-empty().not() loop
                 next.length := next.length.plus(1)
                 next := next.next_list
             end
@@ -390,7 +390,7 @@ class ListOfBooleans : AnyReference is
         else
             this.length := this.length.plus(1)
             var next := this.next_list
-            while next.is-nothing().not() loop
+            while next.is-empty().not() loop
                 next.length := next.length.plus(1)
                 next := next.next_list
             end
@@ -416,7 +416,7 @@ class ListOfFloats : AnyReference is
         else
             this.length := this.length.plus(1)
             var next := this.next_list
-            while next.is-nothing().not() loop
+            while next.is-empty().not() loop
                 next.length := next.length.plus(1)
                 next := next.next_list
             end
@@ -442,7 +442,7 @@ class ListOfCharacters : AnyReference is
         else
             this.length := this.length.plus(1)
             var next := this.next_list
-            while next.is-nothing().not() loop
+            while next.is-empty().not() loop
                 next.length := next.length.plus(1)
                 next := next.next_list
             end
