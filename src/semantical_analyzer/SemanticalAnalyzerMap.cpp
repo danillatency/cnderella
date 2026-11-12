@@ -36,24 +36,26 @@ void populateLiteralCreationStatements(aast::LiteralBeginningExpression& express
 
     if (oldLiteralInteger || oldLiteralBoolean || oldLiteralFloat || oldLiteralCharacter) {
         aast::Assignment* newAssignment = new aast::Assignment();
-        // this = previous anonymous local declaration
+        // this = the first previous local declaration if it is anonymous
         aast::ThisBeginningExpression* thisAssignmentExpression = new aast::ThisBeginningExpression();
         aast::Access* accessForThis = new aast::Access();
         aast::IdentifierBeginningExpression* systemAssignmentExpression = new aast::IdentifierBeginningExpression();
+        aast::Call* systemAssignmentExpressionCall = new aast::Call();
         accessForThis->setIdentifier("value");
         thisAssignmentExpression->addAccessOrCall(accessForThis);
         newAssignment->setExpression1(thisAssignmentExpression);
+        systemAssignmentExpression->addAccessOrCall(systemAssignmentExpressionCall);
         newAssignment->setExpression2(systemAssignmentExpression);
         expression.addLiteralCreationStatement(newAssignment);
 
         if (oldLiteralInteger) {
             newIdentifierBeginningExpression->setIdentifier("Integer");
-            systemAssignmentExpression->setIdentifier("systemint_"s + to_string(oldLiteralInteger->value));
+            systemAssignmentExpression->setIdentifier("systemAllocateInteger_"s + to_string(oldLiteralInteger->value));
         }
 
         else if (oldLiteralBoolean) {
             newIdentifierBeginningExpression->setIdentifier("Boolean");
-            systemAssignmentExpression->setIdentifier("systembool_"s + to_string(oldLiteralBoolean->value));
+            systemAssignmentExpression->setIdentifier("systemAllocateBoolean_"s + to_string(oldLiteralBoolean->value));
         }
 
         else if (oldLiteralFloat) {
@@ -61,13 +63,13 @@ void populateLiteralCreationStatements(aast::LiteralBeginningExpression& express
             float integerPart;
             float fractionalPart = abs(modf(oldLiteralFloat->value, &integerPart));
             fractionalPart *= pow(10, 6);
-            string identifier = "systemfloat_"s + to_string(static_cast<int>(integerPart)) + "_"s + to_string(static_cast<int>(fractionalPart));
+            string identifier = "systemAllocateFloat_"s + to_string(static_cast<int>(integerPart)) + "_"s + to_string(static_cast<int>(fractionalPart));
             systemAssignmentExpression->setIdentifier(identifier);
         }
 
         else if (oldLiteralCharacter) {
             newIdentifierBeginningExpression->setIdentifier("Character");
-            systemAssignmentExpression->setIdentifier("systemchar_"s + to_string(oldLiteralCharacter->value));
+            systemAssignmentExpression->setIdentifier("systemAllocateCharacter_"s + to_string(oldLiteralCharacter->value));
         }
     }
 

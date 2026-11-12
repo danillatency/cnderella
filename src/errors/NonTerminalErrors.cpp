@@ -35,7 +35,7 @@ parser::QuoteExpected::QuoteExpected(Span span) : domain_error("A quote for the 
 parser::ColonExpected::ColonExpected(Span span) : domain_error("Parameter declaration colon was expected"s + rowColumn(span)) {}
 
 
-parser::ClosingParenthesisExpected::ClosingParenthesisExpected(string context, Span span) : domain_error("Closing parenthesis  of the "s + context + " was expected" + rowColumn(span)) {}
+parser::ClosingParenthesisExpected::ClosingParenthesisExpected(string context, Span span) : domain_error("Closing parenthesis of the "s + context + " was expected" + rowColumn(span)) {}
 
 
 parser::ThenExpected::ThenExpected(Span span) : domain_error("\"then\" for the \"if\" statement was expected"s + rowColumn(span)) {}
