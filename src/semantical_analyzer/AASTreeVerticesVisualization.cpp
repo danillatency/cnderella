@@ -38,10 +38,9 @@ static void printSpace(unsigned int times) {
 
 
 void aast::Program::selfPrint(unsigned int depth) {
-	for (int i = 0; i < this->classDeclarations.size(); i++) {
+	for (int i = 0; i < this->classDeclarations.size(); i++)
 		this->classDeclarations.at(i)->selfPrint(0);
-		cout << endl << endl;
-	}
+
 }
 
 
@@ -74,29 +73,36 @@ void aast::ClassBody::selfPrint(unsigned int depth) {
 	printSpace(depth + this->printPadding);
 	cout << "\\_";
 	this->classStatements.at(this->classStatements.size() - 1)->selfPrint(depth + this->printPadding);
-	cout << endl;
 }
 
 
 void aast::MethodDeclaration::selfPrint(unsigned int depth) {
 	cout << "[method]\n";
-	printSpace(depth);
-	cout << "|- " << this->name << endl;
+	sticks.push_back(depth + this->printPadding);
+	printSpace(depth + this->printPadding + 1);
+	cout << "-" << this->name << endl;
 	if (this->type != "") {
-		printSpace(depth);
-		cout << "|-[returns] " << this->type << endl;
+		printSpace(depth + this->printPadding + 1);
+		cout << "-[returns] " << this->type << endl;
 	}
-	printSpace(depth);
-	cout << "|-[parameters]\n";
-	for (int i = 1; i < this->parameterDeclarations.size(); i++) {
-		printSpace(depth + this->printPadding);
-		cout << (i == this->parameterDeclarations.size() - 1 ? "⌊" : "|-");
-		this->parameterDeclarations.at(i - 1)->selfPrint(depth + this->printPadding);
-		cout << endl;
+	if (this->parameterDeclarations.size()) {
+		printSpace(depth + this->printPadding + 1);
+		cout << "-[parameters]\n";
+		sticks.push_back(depth + this->printPadding * 2);
+		for (int i = 1; i < this->parameterDeclarations.size(); i++) {
+			printSpace(depth + this->printPadding * 2 + 1);
+			cout << '-';
+			this->parameterDeclarations.at(i - 1)->selfPrint(depth + this->printPadding * 2);
+		}
+		sticks.pop_back();
+		printSpace(depth + this->printPadding * 2);
+		cout << "\\_";
+		this->parameterDeclarations.at(this->parameterDeclarations.size() - 1)->selfPrint(depth + this->printPadding * 2);
 	}
-	printSpace(depth);
-	cout << '⌊';
-	this->body->selfPrint(depth);
+	sticks.pop_back();
+	printSpace(depth + this->printPadding);
+	cout << "\\_";
+	this->body->selfPrint(depth + this->printPadding);
 }
 
 
@@ -171,24 +177,25 @@ void aast::ThisBeginningExpression::selfPrint(unsigned int  depth) {
 	for (int i = 0; i < this->accessesAndCalls.size(); i++) {
 		printSpace(depth + this->printPadding * (i + 1));
 		cout << "\\_";
-		this->accessesAndCalls.at(i)->selfPrint(depth + this->printPadding * (i + 2));
+		this->accessesAndCalls.at(i)->selfPrint(depth + this->printPadding * (i + 1));
 	}
 }
 
 
 void aast::BaseBeginningExpression::selfPrint(unsigned int  depth) {
-	cout << "[base-expression]";
+	cout << "[base-expression]\n";
 	for (int i = 0; i < this->accessesAndCalls.size(); i++) {
 		printSpace(depth + this->printPadding * (i + 1));
-		cout << '⌊';
-		this->accessesAndCalls.at(i)->selfPrint(depth + this->printPadding * (i + 2));
+		cout << "\\_";
+		this->accessesAndCalls.at(i)->selfPrint(depth + this->printPadding * (i + 1));
 	}
 }
 
 
 void aast::LiteralBeginningExpression::selfPrint(unsigned int depth) {
 	cout << "[literal-expression]\n";
-	sticks.push_back(depth + this->printPadding);
+	if (this->accessesAndCalls.size())
+		sticks.push_back(depth + this->printPadding);
 	printSpace(depth + this->printPadding * 2);
 	cout << "[creation-statements]\n";
 	sticks.push_back(depth + this->printPadding * 2);
@@ -200,26 +207,28 @@ void aast::LiteralBeginningExpression::selfPrint(unsigned int depth) {
 	sticks.pop_back();
 	printSpace(depth + this->printPadding * 2);
 	cout << "\\_";
-	this->literalCreationStatements.at(this->literalCreationStatements.size() - 1)->selfPrint(depth + this->printPadding);
-	sticks.pop_back();
-	for (int i = 0; i < this->accessesAndCalls.size(); i++) {
-		printSpace(depth + this->printPadding * (i + 1));
-		cout << "\\_";
-		this->accessesAndCalls.at(i)->selfPrint(depth + this->printPadding * (i + 2));
+	this->literalCreationStatements.at(this->literalCreationStatements.size() - 1)->selfPrint(depth + this->printPadding * 2);
+	if (this->accessesAndCalls.size()) {
+		sticks.pop_back();
+		for (int i = 0; i < this->accessesAndCalls.size(); i++) {
+			printSpace(depth + this->printPadding * (i + 1));
+			cout << "\\_";
+			this->accessesAndCalls.at(i)->selfPrint(depth + this->printPadding * (i + 2));
+		}
 	}
 }
 
 
 void aast::Assignment::selfPrint(unsigned int depth) {
 	cout << "[assignment]\n";
-	sticks.push_back(depth + this->printPadding * 2);
-	printSpace(depth + this->printPadding * 3);
-	cout << "\\_";
-	this->expression2->selfPrint(depth + this->printPadding * 3);
-	sticks.pop_back();
+	sticks.push_back(depth + this->printPadding);
 	printSpace(depth + this->printPadding * 2);
 	cout << "\\_";
-	this->expression1->selfPrint(depth + this->printPadding * 2);
+	this->expression2->selfPrint(depth + this->printPadding * 2);
+	sticks.pop_back();
+	printSpace(depth + this->printPadding);
+	cout << "\\_";
+	this->expression1->selfPrint(depth + this->printPadding);
 }
 
 
@@ -268,16 +277,20 @@ void aast::ReturnStatement::selfPrint(unsigned int depth) {
 void aast::ConstructorDeclaration::selfPrint(unsigned int depth) {
 	cout << "[constructor]\n";
 	sticks.push_back(depth + this->printPadding);
-	printSpace(depth + this->printPadding + 1);
-	cout << "-[parameters]\n";
-	for (int i = 1; i < this->parameterDeclarations.size(); i++) {
-		printSpace(depth + this->printPadding * 2 + 1);
-		cout << (i == this->parameterDeclarations.size() - 1 ? "⌊" : "|-");
-		this->parameterDeclarations.at(i - 1)->selfPrint(depth + this->printPadding * 2);
+	if (this->parameterDeclarations.size()) {
+		printSpace(depth + this->printPadding + 1);
+		cout << "-[parameters]\n";
+		sticks.push_back(depth + this->printPadding * 2);
+		for (int i = 1; i < this->parameterDeclarations.size(); i++) {
+			printSpace(depth + this->printPadding * 2 + 1);
+			cout << '-';
+			this->parameterDeclarations.at(i - 1)->selfPrint(depth + this->printPadding * 2);
+		}
+		sticks.pop_back();
+		printSpace(depth + this->printPadding * 2);
+		cout << "\\_";
+		this->parameterDeclarations.at(this->parameterDeclarations.size() - 1)->selfPrint(depth + this->printPadding * 2);
 	}
-	printSpace(depth + this->printPadding * 2);
-	cout << "\\_";
-	this->parameterDeclarations.at(this->parameterDeclarations.size() - 1)->selfPrint(depth + this->printPadding * 2);
 	sticks.pop_back();
 	printSpace(depth + this->printPadding);
 	cout << "\\_";
