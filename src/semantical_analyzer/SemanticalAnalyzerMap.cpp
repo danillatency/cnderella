@@ -8,11 +8,6 @@
 using namespace std;
 
 
-aast::Program* SemanticalAnalyzer::getTree() {
-    return this->tree;
-}
-
-
 void populateLiteralCreationStatements(aast::LiteralBeginningExpression& expression, Literal* oldLiteral) {
     LiteralInteger* oldLiteralInteger = dynamic_cast<LiteralInteger*>(oldLiteral);
     LiteralBoolean* oldLiteralBoolean = dynamic_cast<LiteralBoolean*>(oldLiteral);
@@ -402,6 +397,10 @@ aast::Entity* SemanticalAnalyzer::mapToAAST(Entity* oldVertex) {
                 aast::Call* newCall = new aast::Call();
                 Expressions* oldExpressions = oldCallAndFurther->expressions;
                 do {
+                    if (!oldExpressions->expression) {
+                        oldExpressions = oldExpressions->expressions;
+                        continue;
+                    }
                     newCall->addExpression(dynamic_cast<aast::Expression*>(this->mapToAAST(oldExpressions->expression)));
                     oldExpressions = oldExpressions->expressions;
                 } while (oldExpressions);
@@ -428,6 +427,10 @@ aast::Entity* SemanticalAnalyzer::mapToAAST(Entity* oldVertex) {
                 aast::Call* newCall = new aast::Call();
                 Expressions* oldExpressions = oldCallAndFurther->expressions;
                 do {
+                    if (!oldExpressions->expression) {
+                        oldExpressions = oldExpressions->expressions;
+                        continue;
+                    }
                     newCall->addExpression(dynamic_cast<aast::Expression*>(this->mapToAAST(oldExpressions->expression)));
                     oldExpressions = oldExpressions->expressions;
                 } while (oldExpressions);
@@ -454,6 +457,10 @@ aast::Entity* SemanticalAnalyzer::mapToAAST(Entity* oldVertex) {
                 aast::Call* newCall = new aast::Call();
                 Expressions* oldExpressions = oldCallAndFurther->expressions;
                 do {
+                    if (!oldExpressions->expression) {
+                        oldExpressions = oldExpressions->expressions;
+                        continue;
+                    }
                     newCall->addExpression(dynamic_cast<aast::Expression*>(this->mapToAAST(oldExpressions->expression)));
                     oldExpressions = oldExpressions->expressions;
                 } while (oldExpressions);
@@ -481,6 +488,10 @@ aast::Entity* SemanticalAnalyzer::mapToAAST(Entity* oldVertex) {
                 aast::Call* newCall = new aast::Call();
                 Expressions* oldExpressions = oldCallAndFurther->expressions;
                 do {
+                    if (!oldExpressions->expression) {
+                        oldExpressions = oldExpressions->expressions;
+                        continue;
+                    }
                     newCall->addExpression(dynamic_cast<aast::Expression*>(this->mapToAAST(oldExpressions->expression)));
                     oldExpressions = oldExpressions->expressions;
                 } while (oldExpressions);
