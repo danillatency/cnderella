@@ -8,7 +8,7 @@
 using namespace std;
 
 
-void populateLiteralCreationStatements(aast::LiteralBeginningExpression& expression, Literal* oldLiteral) {
+static void populateLiteralCreationStatements(aast::LiteralBeginningExpression& expression, Literal* oldLiteral) {
     LiteralInteger* oldLiteralInteger = dynamic_cast<LiteralInteger*>(oldLiteral);
     LiteralBoolean* oldLiteralBoolean = dynamic_cast<LiteralBoolean*>(oldLiteral);
     LiteralFloat* oldLiteralFloat = dynamic_cast<LiteralFloat*>(oldLiteral);
