@@ -14,7 +14,7 @@ namespace aast {
 	public:
 		virtual ~Entity() = default;
 
-		//virtual void selfPrint(unsigned int depth) = 0;
+		virtual void selfPrint(unsigned int depth) = 0;
 	};
 
 
@@ -26,7 +26,7 @@ namespace aast {
 	public:
 		void addClassDeclaration(ClassDeclaration* classDeclaration);
 
-		//void selfPrint(unsigned int depth) override;
+		void selfPrint(unsigned int depth) override;
 	};
 
 
@@ -44,7 +44,7 @@ namespace aast {
 
 		void setClassBody(ClassBody* classBody);
 
-		//void selfPrint(unsigned int depth) override;
+		void selfPrint(unsigned int depth) override;
 	};
 
 
@@ -56,13 +56,13 @@ namespace aast {
 	public:
 		void addClassStatement(ClassStatement* classStatement);
 
-		//void selfPrint(unsigned int depth) override;
+		void selfPrint(unsigned int depth) override;
 	};
 
 
 	class ClassStatement : public Entity {
 	public:
-		//virtual void selfPrint(unsigned int depth) = 0;
+		virtual void selfPrint(unsigned int depth) = 0;
 	};
 
 
@@ -84,7 +84,7 @@ namespace aast {
 
 		void setAnyBody(AnyBody* body);
 
-		//void selfPrint(unsigned int depth) override;
+		void selfPrint(unsigned int depth) override;
 	};
 
 
@@ -98,7 +98,7 @@ namespace aast {
 
 		void setType(string type);
 
-		//void selfPrint(unsigned int depth) override;
+		void selfPrint(unsigned int depth) override;
 	};
 
 
@@ -110,13 +110,13 @@ namespace aast {
 	public:
 		void addStatement(Statement* statement);
 
-		//void selfPrint(unsigned int depth) override;
+		void selfPrint(unsigned int depth) override;
 	};
 
 
 	class Statement : public Entity {
 	public:
-		//virtual void selfPrint(unsigned int depth) = 0;
+		virtual void selfPrint(unsigned int depth) = 0;
 	};
 
 
@@ -131,7 +131,7 @@ namespace aast {
 
 		void setExpression(Expression* expression);
 
-		//void selfPrint(unsigned int depth) override;
+		void selfPrint(unsigned int depth) override;
 	};
 
 
@@ -143,7 +143,7 @@ namespace aast {
 	public:
 		void addAccessOrCall(AccessOrCall* accessOrCall);
 
-		//virtual void selfPrint(unsigned int depth) = 0;
+		virtual void selfPrint(unsigned int depth) = 0;
 	};
 
 
@@ -154,13 +154,13 @@ namespace aast {
 	public:
 		void setIdentifier(string identifier);
 
-		//void selfPrint(unsigned int depth) override;
+		void selfPrint(unsigned int depth) override;
 	};
 
 
 	class AccessOrCall : public Entity {
 	public:
-		//virtual void selfPrint(unsigned int depth) = 0;
+		virtual void selfPrint(unsigned int depth) = 0;
 	};
 
 
@@ -171,7 +171,7 @@ namespace aast {
 	public:
 		void setIdentifier(string identifier);
 
-		//void selfPrint(unsigned int depth) override;
+		void selfPrint(unsigned int depth) override;
 	};
 
 
@@ -182,23 +182,22 @@ namespace aast {
 	public:
 		void addExpression(Expression* expression);
 
-		//void selfPrint(unsigned int depth) override;
+		void selfPrint(unsigned int depth) override;
 	};
 
 
 	class ThisBeginningExpression : public Expression {
 	public:
-		//void selfPrint(unsigned int depth) override;
+		void selfPrint(unsigned int depth) override;
 	};
 
 
 	class BaseBeginningExpression : public Expression {
 	public:
-		//void selfPrint(unsigned int depth) override;
+		void selfPrint(unsigned int depth) override;
 	};
 
 
-	class Assignment;
 	class LiteralBeginningExpression : public Expression {
 	private:
 		vector<Statement*> literalCreationStatements;
@@ -206,7 +205,7 @@ namespace aast {
 	public:
 		void addLiteralCreationStatement(Statement* statement);
 
-		//void selfPrint(unsigned int depth) override;
+		void selfPrint(unsigned int depth) override;
 	};
 
 
@@ -220,7 +219,7 @@ namespace aast {
 
 		void setExpression2(Expression* expression2);
 
-		//void selfPrint(unsigned int depth) override;
+		void selfPrint(unsigned int depth) override;
 	};
 
 
@@ -237,7 +236,7 @@ namespace aast {
 
 		void addFalseStatement(Statement* statement);
 
-		//void selfPrint(unsigned int depth) override;
+		void selfPrint(unsigned int depth) override;
 	};
 
 
@@ -251,7 +250,7 @@ namespace aast {
 
 		void addStatement(Statement* statement);
 
-		//void selfPrint(unsigned int depth) override;
+		void selfPrint(unsigned int depth) override;
 	};
 
 
@@ -262,7 +261,7 @@ namespace aast {
 	public:
 		void setExpression(Expression* expression);
 
-		//void selfPrint(unsigned int depth) override;
+		void selfPrint(unsigned int depth) override;
 	};
 
 
@@ -276,7 +275,7 @@ namespace aast {
 
 		void setAnyBody(AnyBody* body);
 
-		//void selfPrint(unsigned int depth) override;
+		void selfPrint(unsigned int depth) override;
 	};
 
 
@@ -290,7 +289,7 @@ namespace aast {
 
 		void setExpression(Expression* expression);
 
-		//void selfPrint(unsigned int depth) override;
+		void selfPrint(unsigned int depth) override;
 	};
 }
 

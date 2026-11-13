@@ -3,7 +3,7 @@
 #include "ASTreeVertices.h"
 
 
-void printSpace(unsigned int times) {
+static void printSpace(unsigned int times) {
 	for (int i = 0; i != times; i++) cout << ' ';
 }
 

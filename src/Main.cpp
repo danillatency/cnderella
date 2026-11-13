@@ -18,6 +18,7 @@ static string usePlaceholder(int argc, char** argv) {
 
 int main(int argc, char* argv[]) {
 	try {
+		//OolongLexicalAnalyzer standardLexer("builtin_libraries/Standard.oolong");
 		OolongLexicalAnalyzer standardLexer(usePlaceholder(argc, argv));
 		//OolongLexicalAnalyzer lexer(usePlaceholder(argc, argv));
 		standardLexer.analyze();
@@ -35,7 +36,7 @@ int main(int argc, char* argv[]) {
 
 		semanticalAnalyzer.mapToAAST(ground.getProgram());
 
-		//semanticalAnalyzer.getTree();
+		semanticalAnalyzer.visualize();
 
 		cout << "\n";
 		// cin.ignore();

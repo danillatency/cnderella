@@ -15,7 +15,7 @@ private:
 public:
 	aast::Entity* mapToAAST(Entity* vertex);
 
-	aast::Program* getTree();
+	void visualize();
 };
 
 

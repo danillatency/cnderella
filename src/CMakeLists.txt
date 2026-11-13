@@ -6,8 +6,11 @@ set(CPP_PARTS
     "syntactical_analyzer/ASTreeVerticesProductions.cpp"
     "syntactical_analyzer/ASTreeVerticesConstructors.cpp"
     "syntactical_analyzer/ASTreeVerticesVisualization.cpp"
+
     "semantical_analyzer/SemanticalAnalyzerMap.cpp"
-    "semantical_analyzer/AASTreeVertices.cpp"
+    "semantical_analyzer/SemanticalAnalyzerRest.cpp"
+    "semantical_analyzer/AASTreeVerticesCreation.cpp"
+    "semantical_analyzer/AASTreeVerticesVisualization.cpp"
 
     "errors/TerminalErrors.cpp"
     "errors/NonTerminalErrors.cpp"
