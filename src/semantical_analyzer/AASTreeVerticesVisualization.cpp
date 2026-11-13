@@ -143,7 +143,11 @@ void aast::IdentifierBeginningExpression::selfPrint(unsigned int depth) {
 	for (int i = 0; i < this->accessesAndCalls.size(); i++) {
 		printSpace(depth + this->printPadding * (i + 2));
 		cout << "\\_";
+		if (i < this->accessesAndCalls.size() - 1)
+			sticks.push_back(depth + this->printPadding * (i + 3));
 		this->accessesAndCalls.at(i)->selfPrint(depth + this->printPadding * (i + 2));
+		if (i < this->accessesAndCalls.size() - 1)
+			sticks.pop_back();
 	}
 }
 
@@ -156,18 +160,18 @@ void aast::Access::selfPrint(unsigned int depth) {
 void aast::Call::selfPrint(unsigned int depth) {
 	cout << "[call]\n";
 	if (this->expressions.size()) {
-		printSpace(depth + this->printPadding);
+		printSpace(depth + this->printPadding * 2);
 		cout << "\\_[arguments]\n";
-		sticks.push_back(depth + this->printPadding * 2);
+		sticks.push_back(depth + this->printPadding * 3);
 		for (int i = 1; i < this->expressions.size(); i++) {
-			printSpace(depth + this->printPadding * 2 + 1);
+			printSpace(depth + this->printPadding * 3 + 1);
 			cout << '-';
-			this->expressions.at(i - 1)->selfPrint(depth + this->printPadding * 2);
+			this->expressions.at(i - 1)->selfPrint(depth + this->printPadding * 3);
 		}
 		sticks.pop_back();
-		printSpace(depth + this->printPadding * 2);
+		printSpace(depth + this->printPadding * 3);
 		cout << "\\_";
-		this->expressions.at(this->expressions.size() - 1)->selfPrint(depth + this->printPadding * 2);
+		this->expressions.at(this->expressions.size() - 1)->selfPrint(depth + this->printPadding * 3);
 	}
 }
 
@@ -234,42 +238,64 @@ void aast::Assignment::selfPrint(unsigned int depth) {
 
 void aast::IfStatement::selfPrint(unsigned int depth) {
 	cout << "[if]\n";
-	cout << "|-";
+	sticks.push_back(depth + this->printPadding);
+	printSpace(depth + this->printPadding + 1);
+	cout << '-';
 	this->condition->selfPrint(depth + this->printPadding);
-	cout << "[then]\n";
+	printSpace(depth + this->printPadding + 1);
+	cout << "-[then]\n";
+	sticks.push_back(depth + this->printPadding * 2);
 	for (int i = 1; i < this->trueStatements.size(); i++) {
-		printSpace(depth);
-		cout << (i == this->trueStatements.size() - 1 ? "⌊" : "|-");
-		this->trueStatements.at(i - 1)->selfPrint(depth + this->printPadding);
-		cout << endl;
+		printSpace(depth + this->printPadding * 2 + 1);
+		cout << '-';
+		this->trueStatements.at(i - 1)->selfPrint(depth + this->printPadding * 2);
 	}
-	cout << "[else]\n";
+	sticks.pop_back();
+	printSpace(depth + this->printPadding * 2);
+	cout << "\\_";
+	this->trueStatements.at(this->trueStatements.size() - 1)->selfPrint(depth + this->printPadding * 2);
+	sticks.pop_back();
+	printSpace(depth + this->printPadding);
+	cout << "\\_[else]\n";
+	sticks.push_back(depth + this->printPadding * 2);
 	for (int i = 1; i < this->falseStatements.size(); i++) {
-		printSpace(depth);
-		cout << (i == this->falseStatements.size() - 1 ? "⌊" : "|-");
-		this->falseStatements.at(i - 1)->selfPrint(depth + this->printPadding);
-		cout << endl;
+		printSpace(depth + this->printPadding * 2 + 1);
+		cout << '-';
+		this->falseStatements.at(i - 1)->selfPrint(depth + this->printPadding * 2);
 	}
+	sticks.pop_back();
+	printSpace(depth + this->printPadding * 2);
+	cout << "\\_";
+	this->falseStatements.at(this->falseStatements.size() - 1)->selfPrint(depth + this->printPadding * 2);
 }
 
 
 void aast::WhileStatement::selfPrint(unsigned int depth) {
 	cout << "[while]\n";
-	cout << "|-";
+	sticks.push_back(depth + this->printPadding);
+	printSpace(depth + this->printPadding + 1);
+	cout << '-';
 	this->condition->selfPrint(depth + this->printPadding);
-	cout << "[loop]\n";
-	for (int i = 0; i < this->statements.size(); i++) {
-		printSpace(depth);
-		cout << (i == this->statements.size() - 1 ? "⌊" : "|-");
-		this->statements.at(i)->selfPrint(depth + this->printPadding);
-		cout << endl;
+	sticks.pop_back();
+	printSpace(depth + this->printPadding);
+	cout << "\\_[loop]\n";
+	sticks.push_back(depth + this->printPadding * 2);
+	for (int i = 1; i < this->statements.size(); i++) {
+		printSpace(depth + this->printPadding * 2 + 1);
+		cout << '-';
+		this->statements.at(i - 1)->selfPrint(depth + this->printPadding * 2);
 	}
+	sticks.pop_back();
+	printSpace(depth + this->printPadding * 2);
+	cout << "\\_";
+	this->statements.at(this->statements.size() - 1)->selfPrint(depth + this->printPadding * 2);
 }
 
 
 void aast::ReturnStatement::selfPrint(unsigned int depth) {
 	cout << "[return]\n";
-	cout << '⌊';
+	printSpace(depth + this->printPadding);
+	cout << "\\_";
 	this->expression->selfPrint(depth + this->printPadding);
 }
 

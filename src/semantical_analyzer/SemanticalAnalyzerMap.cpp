@@ -518,13 +518,21 @@ aast::Entity* SemanticalAnalyzer::mapToAAST(Entity* oldVertex) {
         newIfStatement->setCondition(dynamic_cast<aast::Expression*>(this->mapToAAST(oldIfStatement->condition)));
         Statements* oldTrueStatements = oldIfStatement->trueStatements;
         do {
-            newIfStatement->addTrueStatement(dynamic_cast<aast::Expression*>(this->mapToAAST(oldTrueStatements->statement)));
+            if (!oldTrueStatements->statement) {
+                oldTrueStatements = oldTrueStatements->statements;
+                continue;
+            }
+            newIfStatement->addTrueStatement(dynamic_cast<aast::Statement*>(this->mapToAAST(oldTrueStatements->statement)));
             oldTrueStatements = oldTrueStatements->statements;
         } while (oldTrueStatements);
         Statements* oldFalseStatements = oldIfStatement->falseStatements;
         if (oldFalseStatements)
         do {
-            newIfStatement->addFalseStatement(dynamic_cast<aast::Expression*>(this->mapToAAST(oldFalseStatements->statement)));
+            if (!oldFalseStatements->statement) {
+                oldFalseStatements = oldFalseStatements->statements;
+                continue;
+            }
+            newIfStatement->addFalseStatement(dynamic_cast<aast::Statement*>(this->mapToAAST(oldFalseStatements->statement)));
             oldFalseStatements = oldFalseStatements->statements;
         } while (oldFalseStatements);
         return newIfStatement;
@@ -535,7 +543,11 @@ aast::Entity* SemanticalAnalyzer::mapToAAST(Entity* oldVertex) {
         newWhileStatement->setCondition(dynamic_cast<aast::Expression*>(this->mapToAAST(oldWhileStatement->condition)));
         Statements* oldStatements = oldWhileStatement->statements;
         do {
-            newWhileStatement->addStatement(dynamic_cast<aast::Expression*>(this->mapToAAST(oldStatements->statement)));
+            if (!oldStatements->statement) {
+                oldStatements = oldStatements->statements;
+                continue;
+            }
+            newWhileStatement->addStatement(dynamic_cast<aast::Statement*>(this->mapToAAST(oldStatements->statement)));
             oldStatements = oldStatements->statements;
         } while (oldStatements);
         return newWhileStatement;
