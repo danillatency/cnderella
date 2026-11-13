@@ -15,6 +15,8 @@ private:
 public:
 	aast::Entity* mapToAAST(Entity* vertex);
 
+	void testFindCinderella();
+
 	void visualize();
 };
 

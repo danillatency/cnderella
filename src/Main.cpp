@@ -12,7 +12,7 @@ using namespace std;
 
 static string usePlaceholder(int argc, char** argv) {
 	if (argc > 1) return argv[1];
-	return "oolong_programs/CelciusToKelvin.oolong";
+	return "oolong_programs/Cindecast.oolong";
 }
 
 
@@ -37,6 +37,8 @@ int main(int argc, char* argv[]) {
 		semanticalAnalyzer.mapToAAST(ground.getProgram());
 
 		semanticalAnalyzer.visualize();
+
+		semanticalAnalyzer.testFindCinderella();
 
 		cout << "\n";
 		// cin.ignore();

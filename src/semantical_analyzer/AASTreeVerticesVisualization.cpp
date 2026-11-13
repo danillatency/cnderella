@@ -245,28 +245,28 @@ void aast::IfStatement::selfPrint(unsigned int depth) {
 	printSpace(depth + this->printPadding + 1);
 	cout << "-[then]\n";
 	sticks.push_back(depth + this->printPadding * 2);
-	for (int i = 1; i < this->trueStatements.size(); i++) {
+	for (int i = 1; i < this->trueBody.getStatements()->size(); i++) {
 		printSpace(depth + this->printPadding * 2 + 1);
 		cout << '-';
-		this->trueStatements.at(i - 1)->selfPrint(depth + this->printPadding * 2);
+		this->trueBody.getStatements()->at(i - 1)->selfPrint(depth + this->printPadding * 2);
 	}
 	sticks.pop_back();
 	printSpace(depth + this->printPadding * 2);
 	cout << "\\_";
-	this->trueStatements.at(this->trueStatements.size() - 1)->selfPrint(depth + this->printPadding * 2);
+	this->trueBody.getStatements()->at(this->trueBody.getStatements()->size() - 1)->selfPrint(depth + this->printPadding * 2);
 	sticks.pop_back();
 	printSpace(depth + this->printPadding);
 	cout << "\\_[else]\n";
 	sticks.push_back(depth + this->printPadding * 2);
-	for (int i = 1; i < this->falseStatements.size(); i++) {
+	for (int i = 1; i < this->falseBody.getStatements()->size(); i++) {
 		printSpace(depth + this->printPadding * 2 + 1);
 		cout << '-';
-		this->falseStatements.at(i - 1)->selfPrint(depth + this->printPadding * 2);
+		this->falseBody.getStatements()->at(i - 1)->selfPrint(depth + this->printPadding * 2);
 	}
 	sticks.pop_back();
 	printSpace(depth + this->printPadding * 2);
 	cout << "\\_";
-	this->falseStatements.at(this->falseStatements.size() - 1)->selfPrint(depth + this->printPadding * 2);
+	this->falseBody.getStatements()->at(this->falseBody.getStatements()->size() - 1)->selfPrint(depth + this->printPadding * 2);
 }
 
 
@@ -280,15 +280,15 @@ void aast::WhileStatement::selfPrint(unsigned int depth) {
 	printSpace(depth + this->printPadding);
 	cout << "\\_[loop]\n";
 	sticks.push_back(depth + this->printPadding * 2);
-	for (int i = 1; i < this->statements.size(); i++) {
+	for (int i = 1; i < this->body.getStatements()->size(); i++) {
 		printSpace(depth + this->printPadding * 2 + 1);
 		cout << '-';
-		this->statements.at(i - 1)->selfPrint(depth + this->printPadding * 2);
+		this->body.getStatements()->at(i - 1)->selfPrint(depth + this->printPadding * 2);
 	}
 	sticks.pop_back();
 	printSpace(depth + this->printPadding * 2);
 	cout << "\\_";
-	this->statements.at(this->statements.size() - 1)->selfPrint(depth + this->printPadding * 2);
+	this->body.getStatements()->at(this->body.getStatements()->size() - 1)->selfPrint(depth + this->printPadding * 2);
 }
 
 

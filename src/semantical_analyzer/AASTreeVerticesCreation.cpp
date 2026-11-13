@@ -9,6 +9,9 @@ void aast::Program::addClassDeclaration(aast::ClassDeclaration* classDeclaration
 void aast::ClassDeclaration::setClassName(string name) {
 	this->name = name;
 }
+string aast::ClassDeclaration::getClassName() {
+	return this->name;
+}
 void aast::ClassDeclaration::setClassBaseName(string baseName) {
 	this->baseName = baseName;
 }
@@ -25,6 +28,9 @@ void aast::ClassBody::addClassStatement(aast::ClassStatement* classStatement) {
 void aast::MethodDeclaration::setName(string name) {
 	this->name = name;
 }
+string aast::MethodDeclaration::getName() {
+	return this->name;
+}
 void aast::MethodDeclaration::setType(string type) {
 	this->type = type;
 }
@@ -34,23 +40,38 @@ void aast::MethodDeclaration::setAnyBody(aast::AnyBody* body) {
 void aast::MethodDeclaration::addParameterDeclaration(aast::ParameterDeclaration* parameterDeclaration) {
 	this->parameterDeclarations.push_back(parameterDeclaration);
 }
+vector<aast::ParameterDeclaration*>* aast::MethodDeclaration::getParameterDeclarations() {
+	return &this->parameterDeclarations;
+}
 
 
 void aast::ParameterDeclaration::setName(string name) {
 	this->name = name;
 }
+string aast::ParameterDeclaration::getName() {
+	return this->name;
+}
 void aast::ParameterDeclaration::setType(string type) {
 	this->type = type;
+}
+string aast::ParameterDeclaration::getType() {
+	return this->type;
 }
 
 
 void aast::AnyBody::addStatement(aast::Statement* statement) {
 	this->statements.push_back(statement);
 }
+vector<aast::Statement*>* aast::AnyBody::getStatements() {
+	return &this->statements;
+}
 
 
 void aast::LocalDeclaration::setName(string name) {
 	this->name = name;
+}
+string aast::LocalDeclaration::getName() {
+	return this->name;
 }
 void aast::LocalDeclaration::setExpression(aast::Expression* expression) {
 	this->expression = expression;
@@ -94,10 +115,10 @@ void aast::IfStatement::setCondition(aast::Expression* condition) {
 	this->condition = condition;
 }
 void aast::IfStatement::addTrueStatement(aast::Statement* statement) {
-	this->trueStatements.push_back(statement);
+	this->trueBody.addStatement(statement);
 }
 void aast::IfStatement::addFalseStatement(aast::Statement* statement) {
-	this->falseStatements.push_back(statement);
+	this->falseBody.addStatement(statement);
 }
 
 
@@ -105,7 +126,7 @@ void aast::WhileStatement::setCondition(aast::Expression* condition) {
 	this->condition = condition;
 }
 void aast::WhileStatement::addStatement(aast::Statement* statement) {
-	this->statements.push_back(statement);
+	this->body.addStatement(statement);
 }
 
 
@@ -120,10 +141,16 @@ void aast::ConstructorDeclaration::setAnyBody(aast::AnyBody* body) {
 void aast::ConstructorDeclaration::addParameterDeclaration(aast::ParameterDeclaration* parameterDeclaration) {
 	this->parameterDeclarations.push_back(parameterDeclaration);
 }
+vector<aast::ParameterDeclaration*>* aast::ConstructorDeclaration::getParameterDeclarations() {
+	return &this->parameterDeclarations;
+}
 
 
 void aast::Declaration::setName(string name) {
 	this->name = name;
+}
+string aast::Declaration::getName() {
+	return this->name;
 }
 void aast::Declaration::setExpression(aast::Expression* expression) {
 	this->expression = expression;

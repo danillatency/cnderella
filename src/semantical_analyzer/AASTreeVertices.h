@@ -7,19 +7,34 @@
 
 
 namespace aast {
+	class EnclosingEntity;
 	class Entity {
 	protected:
 		int printPadding = 4;
+		EnclosingEntity* enclosing;
 
 	public:
 		virtual ~Entity() = default;
 
 		virtual void selfPrint(unsigned int depth) = 0;
+
+		void setEnclosing(EnclosingEntity* entity);
+
+		EnclosingEntity* getEnclosing();
+	};
+
+
+	class ParameterDeclaration;
+	class EnclosingEntity : public Entity {
+	public:
+		virtual Entity* searchHere(string identifier, vector<ParameterDeclaration*>* parameters) = 0;
+
+		virtual Entity* searchEverywhere(string identifier, vector<ParameterDeclaration*>* parameters) = 0;
 	};
 
 
 	class ClassDeclaration;
-	class Program : public Entity {
+	class Program : public EnclosingEntity {
 	private:
 		vector<ClassDeclaration*> classDeclarations;
 
@@ -27,6 +42,10 @@ namespace aast {
 		void addClassDeclaration(ClassDeclaration* classDeclaration);
 
 		void selfPrint(unsigned int depth) override;
+
+		Entity* searchHere(string identifier, vector<ParameterDeclaration*>* parameters) override;
+
+		Entity* searchEverywhere(string identifier, vector<ParameterDeclaration*>* parameters) override;
 	};
 
 
@@ -39,6 +58,7 @@ namespace aast {
 
 	public:
 		void setClassName(string name);
+		string getClassName();
 
 		void setClassBaseName(string baseName);
 
@@ -49,7 +69,7 @@ namespace aast {
 
 
 	class ClassStatement;
-	class ClassBody : public Entity {
+	class ClassBody : public EnclosingEntity {
 	private:
 		vector<ClassStatement*> classStatements;
 
@@ -57,10 +77,14 @@ namespace aast {
 		void addClassStatement(ClassStatement* classStatement);
 
 		void selfPrint(unsigned int depth) override;
+
+		Entity* searchHere(string identifier, vector<ParameterDeclaration*>* parameters) override;
+
+		Entity* searchEverywhere(string identifier, vector<ParameterDeclaration*>* parameters) override;
 	};
 
 
-	class ClassStatement : public Entity {
+	class ClassStatement : public EnclosingEntity {
 	public:
 		virtual void selfPrint(unsigned int depth) = 0;
 	};
@@ -77,14 +101,20 @@ namespace aast {
 
 	public:
 		void setName(string name);
+		string getName();
 
 		void setType(string type);
 
 		void addParameterDeclaration(ParameterDeclaration* parameterDeclaration);
+		vector<ParameterDeclaration*>* getParameterDeclarations();
 
 		void setAnyBody(AnyBody* body);
 
 		void selfPrint(unsigned int depth) override;
+
+		Entity* searchHere(string identifier, vector<ParameterDeclaration*>* parameters) override;
+
+		Entity* searchEverywhere(string identifier, vector<ParameterDeclaration*>* parameters) override;
 	};
 
 
@@ -95,22 +125,29 @@ namespace aast {
 
 	public:
 		void setName(string name);
+		string getName();
 
 		void setType(string type);
+		string getType();
 
 		void selfPrint(unsigned int depth) override;
 	};
 
 
 	class Statement;
-	class AnyBody : public Entity {
+	class AnyBody : public EnclosingEntity {
 	private:
 		vector<Statement*> statements;
 
 	public:
 		void addStatement(Statement* statement);
+		vector<Statement*>* getStatements();
 
 		void selfPrint(unsigned int depth) override;
+
+		Entity* searchHere(string identifier, vector<ParameterDeclaration*>* parameters) override;
+
+		Entity* searchEverywhere(string identifier, vector<ParameterDeclaration*>* parameters) override;
 	};
 
 
@@ -128,6 +165,7 @@ namespace aast {
 
 	public:
 		void setName(string name);
+		string getName();
 
 		void setExpression(Expression* expression);
 
@@ -226,8 +264,8 @@ namespace aast {
 	class IfStatement : public Statement {
 	private:
 		Expression* condition;
-		vector<Statement*> trueStatements;
-		vector<Statement*> falseStatements;
+		AnyBody trueBody;
+		AnyBody falseBody;
 
 	public:
 		void setCondition(Expression* condition);
@@ -243,7 +281,7 @@ namespace aast {
 	class WhileStatement : public Statement {
 	private:
 		Expression* condition;
-		vector<Statement*> statements;
+		AnyBody body;
 
 	public:
 		void setCondition(Expression* condition);
@@ -272,10 +310,15 @@ namespace aast {
 
 	public:
 		void addParameterDeclaration(ParameterDeclaration* parameterDeclaration);
+		vector<ParameterDeclaration*>* getParameterDeclarations();
 
 		void setAnyBody(AnyBody* body);
 
 		void selfPrint(unsigned int depth) override;
+
+		Entity* searchHere(string identifier, vector<ParameterDeclaration*>* parameters) override;
+
+		Entity* searchEverywhere(string identifier, vector<ParameterDeclaration*>* parameters) override;
 	};
 
 
@@ -286,10 +329,15 @@ namespace aast {
 
 	public:
 		void setName(string name);
+		string getName();
 
 		void setExpression(Expression* expression);
 
 		void selfPrint(unsigned int depth) override;
+
+		Entity* searchHere(string identifier, vector<ParameterDeclaration*>* parameters) override;
+
+		Entity* searchEverywhere(string identifier, vector<ParameterDeclaration*>* parameters) override;
 	};
 }
 
