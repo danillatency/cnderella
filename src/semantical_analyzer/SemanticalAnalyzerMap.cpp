@@ -343,6 +343,10 @@ aast::Entity* SemanticalAnalyzer::mapToAAST(Entity* oldVertex) {
         newMethodDeclaration->setAnyBody(newAnyBody);
         ParameterDeclarations* oldParameterDeclarations = oldMethodDeclaration->methodHead->parameterDeclarations;
         do {
+            if (!oldParameterDeclarations->parameterDeclaration) {
+                oldParameterDeclarations = oldParameterDeclarations->parameterDeclarations;
+                continue;
+            }
             aast::ParameterDeclaration* newParameterDeclaration = dynamic_cast<aast::ParameterDeclaration*>(this->mapToAAST(oldParameterDeclarations->parameterDeclaration));
             newMethodDeclaration->addParameterDeclaration(newParameterDeclaration);
             oldParameterDeclarations = oldParameterDeclarations->parameterDeclarations;
@@ -548,6 +552,10 @@ aast::Entity* SemanticalAnalyzer::mapToAAST(Entity* oldVertex) {
         newConstructorDeclaration->setAnyBody(dynamic_cast<aast::AnyBody*>(this->mapToAAST(oldConstructorDeclaration->body)));
         ParameterDeclarations* oldParameterDeclarations = oldConstructorDeclaration->constructorHead->parameterDeclarations;
         do {
+            if (!oldParameterDeclarations->parameterDeclaration) {
+                oldParameterDeclarations = oldParameterDeclarations->parameterDeclarations;
+                continue;
+            }
             newConstructorDeclaration->addParameterDeclaration(dynamic_cast<aast::ParameterDeclaration*>(this->mapToAAST(oldParameterDeclarations->parameterDeclaration)));
             oldParameterDeclarations = oldParameterDeclarations->parameterDeclarations;
         } while (oldParameterDeclarations);
