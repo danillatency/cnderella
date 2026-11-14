@@ -57,7 +57,10 @@ void aast::ClassDeclaration::selfPrint(unsigned int depth) {
 	sticks.pop_back();
 	printSpace(depth);
 	cout << "\\_";
-	this->classBody->selfPrint(depth);
+	if (this->classBody->getClassStatements()->size()) {
+		this->classBody->selfPrint(depth);
+	}
+	else cout << "[class-body]\n";
 }
 
 
