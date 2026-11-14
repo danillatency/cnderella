@@ -116,6 +116,7 @@ void aast::ParameterDeclaration::selfPrint(unsigned int depth) {
 
 void aast::AnyBody::selfPrint(unsigned int depth) {
 	cout << "[body]\n";
+	if (!this->statements.size()) return;
 	sticks.push_back(depth + this->printPadding);
 	for (int i = 0; i < this->statements.size() - 1; i++) {
 		printSpace(depth + this->printPadding + 1);
@@ -248,28 +249,28 @@ void aast::IfStatement::selfPrint(unsigned int depth) {
 	printSpace(depth + this->printPadding + 1);
 	cout << "-[then]\n";
 	sticks.push_back(depth + this->printPadding * 2);
-	for (int i = 1; i < this->trueBody.getStatements()->size(); i++) {
+	for (int i = 1; i < this->trueBody->getStatements()->size(); i++) {
 		printSpace(depth + this->printPadding * 2 + 1);
 		cout << '-';
-		this->trueBody.getStatements()->at(i - 1)->selfPrint(depth + this->printPadding * 2);
+		this->trueBody->getStatements()->at(i - 1)->selfPrint(depth + this->printPadding * 2);
 	}
 	sticks.pop_back();
 	printSpace(depth + this->printPadding * 2);
 	cout << "\\_";
-	this->trueBody.getStatements()->at(this->trueBody.getStatements()->size() - 1)->selfPrint(depth + this->printPadding * 2);
+	this->trueBody->getStatements()->at(this->trueBody->getStatements()->size() - 1)->selfPrint(depth + this->printPadding * 2);
 	sticks.pop_back();
 	printSpace(depth + this->printPadding);
 	cout << "\\_[else]\n";
 	sticks.push_back(depth + this->printPadding * 2);
-	for (int i = 1; i < this->falseBody.getStatements()->size(); i++) {
+	for (int i = 1; i < this->falseBody->getStatements()->size(); i++) {
 		printSpace(depth + this->printPadding * 2 + 1);
 		cout << '-';
-		this->falseBody.getStatements()->at(i - 1)->selfPrint(depth + this->printPadding * 2);
+		this->falseBody->getStatements()->at(i - 1)->selfPrint(depth + this->printPadding * 2);
 	}
 	sticks.pop_back();
 	printSpace(depth + this->printPadding * 2);
 	cout << "\\_";
-	this->falseBody.getStatements()->at(this->falseBody.getStatements()->size() - 1)->selfPrint(depth + this->printPadding * 2);
+	this->falseBody->getStatements()->at(this->falseBody->getStatements()->size() - 1)->selfPrint(depth + this->printPadding * 2);
 }
 
 
@@ -283,15 +284,15 @@ void aast::WhileStatement::selfPrint(unsigned int depth) {
 	printSpace(depth + this->printPadding);
 	cout << "\\_[loop]\n";
 	sticks.push_back(depth + this->printPadding * 2);
-	for (int i = 1; i < this->body.getStatements()->size(); i++) {
+	for (int i = 1; i < this->body->getStatements()->size(); i++) {
 		printSpace(depth + this->printPadding * 2 + 1);
 		cout << '-';
-		this->body.getStatements()->at(i - 1)->selfPrint(depth + this->printPadding * 2);
+		this->body->getStatements()->at(i - 1)->selfPrint(depth + this->printPadding * 2);
 	}
 	sticks.pop_back();
 	printSpace(depth + this->printPadding * 2);
 	cout << "\\_";
-	this->body.getStatements()->at(this->body.getStatements()->size() - 1)->selfPrint(depth + this->printPadding * 2);
+	this->body->getStatements()->at(this->body->getStatements()->size() - 1)->selfPrint(depth + this->printPadding * 2);
 }
 
 

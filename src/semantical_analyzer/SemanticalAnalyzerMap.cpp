@@ -46,11 +46,13 @@ static void populateLiteralCreationStatements(aast::LiteralBeginningExpression& 
         if (oldLiteralInteger) {
             newIdentifierBeginningExpression->setIdentifier("Integer");
             systemAssignmentExpression->setIdentifier("systemAllocateInteger_"s + to_string(oldLiteralInteger->value));
+            expression.setMultiSpan(oldLiteralInteger->multiSpan);
         }
 
         else if (oldLiteralBoolean) {
             newIdentifierBeginningExpression->setIdentifier("Boolean");
             systemAssignmentExpression->setIdentifier("systemAllocateBoolean_"s + to_string(oldLiteralBoolean->value));
+            expression.setMultiSpan(oldLiteralBoolean->multiSpan);
         }
 
         else if (oldLiteralFloat) {
@@ -60,11 +62,13 @@ static void populateLiteralCreationStatements(aast::LiteralBeginningExpression& 
             fractionalPart *= pow(10, 6);
             string identifier = "systemAllocateFloat_"s + to_string(static_cast<int>(integerPart)) + "_"s + to_string(static_cast<int>(fractionalPart));
             systemAssignmentExpression->setIdentifier(identifier);
+            expression.setMultiSpan(oldLiteralFloat->multiSpan);
         }
 
         else if (oldLiteralCharacter) {
             newIdentifierBeginningExpression->setIdentifier("Character");
             systemAssignmentExpression->setIdentifier("systemAllocateCharacter_"s + to_string(oldLiteralCharacter->value));
+            expression.setMultiSpan(oldLiteralCharacter->multiSpan);
         }
     }
 
@@ -87,7 +91,7 @@ static void populateLiteralCreationStatements(aast::LiteralBeginningExpression& 
                 aast::Access* setAccess = new aast::Access();
                 aast::Call* setCall = new aast::Call();
                 aast::LiteralBeginningExpression* iteration = new aast::LiteralBeginningExpression();
-                populateLiteralCreationStatements(*iteration, new LiteralInteger(oldArraySize));
+                populateLiteralCreationStatements(*iteration, new LiteralInteger(oldArraySize, Span(0, 0, 0), Span(0, 0, 0)));
                 setCall->addExpression(iteration);
                 setAccess->setIdentifier("set");
                 thisForNextInitializingAssignment->addAccessOrCall(setAccess);
@@ -95,7 +99,7 @@ static void populateLiteralCreationStatements(aast::LiteralBeginningExpression& 
                 nextInitializingAssignment->setExpression1(thisForNextInitializingAssignment);
 
                 aast::LiteralBeginningExpression* nextValue = new aast::LiteralBeginningExpression();
-                populateLiteralCreationStatements(*nextValue, new LiteralInteger(integers->literalInteger->value));
+                populateLiteralCreationStatements(*nextValue, new LiteralInteger(integers->literalInteger->value, Span(0, 0, 0), Span(0, 0, 0)));
                 nextInitializingAssignment->setExpression2(nextValue);
 
                 oldArraySize++;
@@ -114,7 +118,7 @@ static void populateLiteralCreationStatements(aast::LiteralBeginningExpression& 
                 aast::Access* setAccess = new aast::Access();
                 aast::Call* setCall = new aast::Call();
                 aast::LiteralBeginningExpression* iteration = new aast::LiteralBeginningExpression();
-                populateLiteralCreationStatements(*iteration, new LiteralInteger(oldArraySize));
+                populateLiteralCreationStatements(*iteration, new LiteralInteger(oldArraySize, Span(0, 0, 0), Span(0, 0, 0)));
                 setCall->addExpression(iteration);
                 setAccess->setIdentifier("set");
                 thisForNextInitializingAssignment->addAccessOrCall(setAccess);
@@ -122,7 +126,7 @@ static void populateLiteralCreationStatements(aast::LiteralBeginningExpression& 
                 nextInitializingAssignment->setExpression1(thisForNextInitializingAssignment);
 
                 aast::LiteralBeginningExpression* nextValue = new aast::LiteralBeginningExpression();
-                populateLiteralCreationStatements(*nextValue, new LiteralBoolean(booleans->literalBoolean->value));
+                populateLiteralCreationStatements(*nextValue, new LiteralBoolean(booleans->literalBoolean->value, Span(0, 0, 0), Span(0, 0, 0)));
                 nextInitializingAssignment->setExpression2(nextValue);
 
                 oldArraySize++;
@@ -141,7 +145,7 @@ static void populateLiteralCreationStatements(aast::LiteralBeginningExpression& 
                 aast::Access* setAccess = new aast::Access();
                 aast::Call* setCall = new aast::Call();
                 aast::LiteralBeginningExpression* iteration = new aast::LiteralBeginningExpression();
-                populateLiteralCreationStatements(*iteration, new LiteralInteger(oldArraySize));
+                populateLiteralCreationStatements(*iteration, new LiteralInteger(oldArraySize, Span(0, 0, 0), Span(0, 0, 0)));
                 setCall->addExpression(iteration);
                 setAccess->setIdentifier("set");
                 thisForNextInitializingAssignment->addAccessOrCall(setAccess);
@@ -149,7 +153,7 @@ static void populateLiteralCreationStatements(aast::LiteralBeginningExpression& 
                 nextInitializingAssignment->setExpression1(thisForNextInitializingAssignment);
 
                 aast::LiteralBeginningExpression* nextValue = new aast::LiteralBeginningExpression();
-                populateLiteralCreationStatements(*nextValue, new LiteralFloat(floats->literalFloat->value));
+                populateLiteralCreationStatements(*nextValue, new LiteralFloat(floats->literalFloat->value, Span(0, 0, 0), Span(0, 0, 0)));
                 nextInitializingAssignment->setExpression2(nextValue);
 
                 oldArraySize++;
@@ -168,7 +172,7 @@ static void populateLiteralCreationStatements(aast::LiteralBeginningExpression& 
                 aast::Access* setAccess = new aast::Access();
                 aast::Call* setCall = new aast::Call();
                 aast::LiteralBeginningExpression* iteration = new aast::LiteralBeginningExpression();
-                populateLiteralCreationStatements(*iteration, new LiteralInteger(oldArraySize));
+                populateLiteralCreationStatements(*iteration, new LiteralInteger(oldArraySize, Span(0, 0, 0), Span(0, 0, 0)));
                 setCall->addExpression(iteration);
                 setAccess->setIdentifier("set");
                 thisForNextInitializingAssignment->addAccessOrCall(setAccess);
@@ -176,7 +180,7 @@ static void populateLiteralCreationStatements(aast::LiteralBeginningExpression& 
                 nextInitializingAssignment->setExpression1(thisForNextInitializingAssignment);
 
                 aast::LiteralBeginningExpression* nextValue = new aast::LiteralBeginningExpression();
-                populateLiteralCreationStatements(*nextValue, new LiteralCharacter(characters->literalCharacter->value));
+                populateLiteralCreationStatements(*nextValue, new LiteralCharacter(characters->literalCharacter->value, Span(0, 0, 0), Span(0, 0, 0)));
                 nextInitializingAssignment->setExpression2(nextValue);
 
                 oldArraySize++;
@@ -185,7 +189,7 @@ static void populateLiteralCreationStatements(aast::LiteralBeginningExpression& 
                 expression.addLiteralCreationStatement(nextInitializingAssignment);
             } while (characters);
         }
-        populateLiteralCreationStatements(*arraySize, new LiteralInteger(oldArraySize));
+        populateLiteralCreationStatements(*arraySize, new LiteralInteger(oldArraySize, Span(0, 0, 0), Span(0, 0, 0)));
     }
 
     else if (oldLiteralIntegerList) {
@@ -196,7 +200,7 @@ static void populateLiteralCreationStatements(aast::LiteralBeginningExpression& 
             aast::Access* appendAccess = new aast::Access();
             aast::Call* appendCall = new aast::Call();
             aast::LiteralBeginningExpression* nextValue = new aast::LiteralBeginningExpression();
-            populateLiteralCreationStatements(*nextValue, new LiteralInteger(integers->literalInteger->value));
+            populateLiteralCreationStatements(*nextValue, new LiteralInteger(integers->literalInteger->value, Span(0, 0, 0), Span(0, 0, 0)));
             appendCall->addExpression(nextValue);
             appendAccess->setIdentifier("append");
             thisForNextAppend->addAccessOrCall(appendAccess);
@@ -216,7 +220,7 @@ static void populateLiteralCreationStatements(aast::LiteralBeginningExpression& 
             aast::Access* appendAccess = new aast::Access();
             aast::Call* appendCall = new aast::Call();
             aast::LiteralBeginningExpression* nextValue = new aast::LiteralBeginningExpression();
-            populateLiteralCreationStatements(*nextValue, new LiteralBoolean(booleans->literalBoolean->value));
+            populateLiteralCreationStatements(*nextValue, new LiteralBoolean(booleans->literalBoolean->value, Span(0, 0, 0), Span(0, 0, 0)));
             appendCall->addExpression(nextValue);
             appendAccess->setIdentifier("append");
             thisForNextAppend->addAccessOrCall(appendAccess);
@@ -236,7 +240,7 @@ static void populateLiteralCreationStatements(aast::LiteralBeginningExpression& 
             aast::Access* appendAccess = new aast::Access();
             aast::Call* appendCall = new aast::Call();
             aast::LiteralBeginningExpression* nextValue = new aast::LiteralBeginningExpression();
-            populateLiteralCreationStatements(*nextValue, new LiteralFloat(floats->literalFloat->value));
+            populateLiteralCreationStatements(*nextValue, new LiteralFloat(floats->literalFloat->value, Span(0, 0, 0), Span(0, 0, 0)));
             appendCall->addExpression(nextValue);
             appendAccess->setIdentifier("append");
             thisForNextAppend->addAccessOrCall(appendAccess);
@@ -256,7 +260,7 @@ static void populateLiteralCreationStatements(aast::LiteralBeginningExpression& 
             aast::Access* appendAccess = new aast::Access();
             aast::Call* appendCall = new aast::Call();
             aast::LiteralBeginningExpression* nextValue = new aast::LiteralBeginningExpression();
-            populateLiteralCreationStatements(*nextValue, new LiteralCharacter(characters->literalCharacter->value));
+            populateLiteralCreationStatements(*nextValue, new LiteralCharacter(characters->literalCharacter->value, Span(0, 0, 0), Span(0, 0, 0)));
             appendCall->addExpression(nextValue);
             appendAccess->setIdentifier("append");
             thisForNextAppend->addAccessOrCall(appendAccess);
@@ -314,6 +318,7 @@ aast::Entity* SemanticalAnalyzer::mapToAAST(Entity* oldVertex) {
             newClassDeclaration->setClassBaseName("");
         aast::ClassBody* newBody = dynamic_cast<aast::ClassBody*>(this->mapToAAST(oldClassDeclaration->classBody));
         newClassDeclaration->setClassBody(newBody);
+        newClassDeclaration->setMultiSpan(oldClassDeclaration->multiSpan);
         return newClassDeclaration;
     }
 
@@ -351,6 +356,7 @@ aast::Entity* SemanticalAnalyzer::mapToAAST(Entity* oldVertex) {
             newMethodDeclaration->addParameterDeclaration(newParameterDeclaration);
             oldParameterDeclarations = oldParameterDeclarations->parameterDeclarations;
         } while (oldParameterDeclarations);
+        newMethodDeclaration->setMultiSpan(oldMethodDeclaration->multiSpan);
         return newMethodDeclaration;
     }
 
@@ -373,6 +379,7 @@ aast::Entity* SemanticalAnalyzer::mapToAAST(Entity* oldVertex) {
         aast::ParameterDeclaration* newParameterDeclaration = new aast::ParameterDeclaration();
         newParameterDeclaration->setName(oldParameterDeclaration->name->identifier);
         newParameterDeclaration->setType(oldParameterDeclaration->identifier->identifier);
+        newParameterDeclaration->setMultiSpan(oldParameterDeclaration->multiSpan);
         return newParameterDeclaration;
     }
 
@@ -381,6 +388,7 @@ aast::Entity* SemanticalAnalyzer::mapToAAST(Entity* oldVertex) {
         newLocalDeclaration->setName(oldLocalDeclaration->name->identifier);
         aast::Expression* newExpression = dynamic_cast<aast::Expression*>(this->mapToAAST(oldLocalDeclaration->expression));
         newLocalDeclaration->setExpression(newExpression);
+        newLocalDeclaration->setMultiSpan(oldLocalDeclaration->multiSpan);
         return newLocalDeclaration;
     }
 
@@ -393,6 +401,7 @@ aast::Entity* SemanticalAnalyzer::mapToAAST(Entity* oldVertex) {
                 AccessAndFurther* oldAccessAndFurther = dynamic_cast<AccessAndFurther*>(oldAccessesAndCalls);
                 aast::Access* newAccess = new aast::Access();
                 newAccess->setIdentifier(oldAccessAndFurther->identifier->identifier);
+                newAccess->setMultiSpan(oldAccessAndFurther->multiSpan);
                 newIdentifierBeginningExpression->addAccessOrCall(newAccess);
                 oldAccessesAndCalls = oldAccessAndFurther->accessesAndCalls;
             }
@@ -412,6 +421,7 @@ aast::Entity* SemanticalAnalyzer::mapToAAST(Entity* oldVertex) {
                 oldAccessesAndCalls = oldCallAndFurther->accessesAndCalls;
             }
         } while (oldAccessesAndCalls);
+        newIdentifierBeginningExpression->setMultiSpan(oldIdentifierBeginningExpression->multiSpan);
         return newIdentifierBeginningExpression;
     }
     
@@ -423,6 +433,7 @@ aast::Entity* SemanticalAnalyzer::mapToAAST(Entity* oldVertex) {
                 AccessAndFurther* oldAccessAndFurther = dynamic_cast<AccessAndFurther*>(oldAccessesAndCalls);
                 aast::Access* newAccess = new aast::Access();
                 newAccess->setIdentifier(oldAccessAndFurther->identifier->identifier);
+                newAccess->setMultiSpan(oldAccessAndFurther->multiSpan);
                 newThisBeginningExpression->addAccessOrCall(newAccess);
                 oldAccessesAndCalls = oldAccessAndFurther->accessesAndCalls;
             }
@@ -453,6 +464,7 @@ aast::Entity* SemanticalAnalyzer::mapToAAST(Entity* oldVertex) {
                 AccessAndFurther* oldAccessAndFurther = dynamic_cast<AccessAndFurther*>(oldAccessesAndCalls);
                 aast::Access* newAccess = new aast::Access();
                 newAccess->setIdentifier(oldAccessAndFurther->identifier->identifier);
+                newAccess->setMultiSpan(oldAccessAndFurther->multiSpan);
                 newBaseBeginningExpression->addAccessOrCall(newAccess);
                 oldAccessesAndCalls = oldAccessAndFurther->accessesAndCalls;
             }
@@ -484,6 +496,7 @@ aast::Entity* SemanticalAnalyzer::mapToAAST(Entity* oldVertex) {
                 AccessAndFurther* oldAccessAndFurther = dynamic_cast<AccessAndFurther*>(oldAccessesAndCalls);
                 aast::Access* newAccess = new aast::Access();
                 newAccess->setIdentifier(oldAccessAndFurther->identifier->identifier);
+                newAccess->setMultiSpan(oldAccessAndFurther->multiSpan);
                 newLiteralBeginningExpression->addAccessOrCall(newAccess);
                 oldAccessesAndCalls = oldAccessAndFurther->accessesAndCalls;
             }

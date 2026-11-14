@@ -1,6 +1,14 @@
 #include "AASTreeVertices.h"
 
 
+void aast::Entity::setMultiSpan(MultiSpan multiSpan) {
+	this->multiSpan = new MultiSpan(multiSpan.begin, multiSpan.end);
+}
+MultiSpan aast::Entity::getMultiSpan() {
+	return *this->multiSpan;
+}
+
+
 void aast::Program::addClassDeclaration(aast::ClassDeclaration* classDeclaration) {
 	this->classDeclarations.push_back(classDeclaration);
 }
@@ -17,6 +25,9 @@ void aast::ClassDeclaration::setClassBaseName(string baseName) {
 }
 void aast::ClassDeclaration::setClassBody(aast::ClassBody* classBody) {
 	this->classBody = classBody;
+}
+aast::ClassBody* aast::ClassDeclaration::getClassBody() {
+	return this->classBody;
 }
 
 
@@ -39,6 +50,9 @@ void aast::MethodDeclaration::setType(string type) {
 }
 void aast::MethodDeclaration::setAnyBody(aast::AnyBody* body) {
 	this->body = body;
+}
+aast::AnyBody* aast::MethodDeclaration::getAnyBody() {
+	return this->body;
 }
 void aast::MethodDeclaration::addParameterDeclaration(aast::ParameterDeclaration* parameterDeclaration) {
 	this->parameterDeclarations.push_back(parameterDeclaration);
@@ -118,10 +132,16 @@ void aast::IfStatement::setCondition(aast::Expression* condition) {
 	this->condition = condition;
 }
 void aast::IfStatement::addTrueStatement(aast::Statement* statement) {
-	this->trueBody.addStatement(statement);
+	this->trueBody->addStatement(statement);
+}
+aast::AnyBody* aast::IfStatement::getTrueBody() {
+	return this->trueBody;
 }
 void aast::IfStatement::addFalseStatement(aast::Statement* statement) {
-	this->falseBody.addStatement(statement);
+	this->falseBody->addStatement(statement);
+}
+aast::AnyBody* aast::IfStatement::getFalseBody() {
+	return this->falseBody;
 }
 
 
@@ -129,7 +149,10 @@ void aast::WhileStatement::setCondition(aast::Expression* condition) {
 	this->condition = condition;
 }
 void aast::WhileStatement::addStatement(aast::Statement* statement) {
-	this->body.addStatement(statement);
+	this->body->addStatement(statement);
+}
+aast::AnyBody* aast::WhileStatement::getBody() {
+	return this->body;
 }
 
 
@@ -140,6 +163,9 @@ void aast::ReturnStatement::setExpression(aast::Expression* expression) {
 
 void aast::ConstructorDeclaration::setAnyBody(aast::AnyBody* body) {
 	this->body = body;
+}
+aast::AnyBody* aast::ConstructorDeclaration::getAnyBody() {
+	return this->body;
 }
 void aast::ConstructorDeclaration::addParameterDeclaration(aast::ParameterDeclaration* parameterDeclaration) {
 	this->parameterDeclarations.push_back(parameterDeclaration);

@@ -13,6 +13,7 @@ namespace aast {
 	protected:
 		int printPadding = 4;
 		EnclosingEntity* enclosing;
+		MultiSpan* multiSpan;
 
 	public:
 		virtual ~Entity() = default;
@@ -20,6 +21,9 @@ namespace aast {
 		virtual void selfPrint(unsigned int depth) = 0;
 
 		void setEnclosing(EnclosingEntity* entity);
+
+		void setMultiSpan(MultiSpan multiSpan);
+		MultiSpan getMultiSpan();
 
 		EnclosingEntity* getEnclosing();
 	};
@@ -68,6 +72,7 @@ namespace aast {
 		void setClassBaseName(string baseName);
 
 		void setClassBody(ClassBody* classBody);
+		ClassBody* getClassBody();
 
 		void selfPrint(unsigned int depth) override;
 	};
@@ -117,6 +122,7 @@ namespace aast {
 		vector<ParameterDeclaration*>* getParameterDeclarations();
 
 		void setAnyBody(AnyBody* body);
+		AnyBody* getAnyBody();
 
 		void selfPrint(unsigned int depth) override;
 
@@ -276,15 +282,17 @@ namespace aast {
 	class IfStatement : public Statement {
 	private:
 		Expression* condition;
-		AnyBody trueBody;
-		AnyBody falseBody;
+		AnyBody* trueBody = new AnyBody();
+		AnyBody* falseBody = new AnyBody();
 
 	public:
 		void setCondition(Expression* condition);
 
 		void addTrueStatement(Statement* statement);
+		AnyBody* getTrueBody();
 
 		void addFalseStatement(Statement* statement);
+		AnyBody* getFalseBody();
 
 		void selfPrint(unsigned int depth) override;
 	};
@@ -293,12 +301,13 @@ namespace aast {
 	class WhileStatement : public Statement {
 	private:
 		Expression* condition;
-		AnyBody body;
+		AnyBody* body = new AnyBody();
 
 	public:
 		void setCondition(Expression* condition);
 
 		void addStatement(Statement* statement);
+		AnyBody* getBody();
 
 		void selfPrint(unsigned int depth) override;
 	};
@@ -325,6 +334,7 @@ namespace aast {
 		vector<ParameterDeclaration*>* getParameterDeclarations();
 
 		void setAnyBody(AnyBody* body);
+		AnyBody* getAnyBody();
 
 		void selfPrint(unsigned int depth) override;
 
