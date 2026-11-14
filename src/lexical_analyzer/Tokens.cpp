@@ -51,6 +51,9 @@ Span::Span(unsigned long row, unsigned int beginPosition, unsigned int endPositi
 }
 
 
+MultiSpan::MultiSpan(Span begin, Span end) : begin(begin), end(end) {}
+
+
 string Token::toString() {
 	return "Keyword: " + TOKEN_NAME[this->code];
 }

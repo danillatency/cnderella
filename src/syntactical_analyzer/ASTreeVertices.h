@@ -59,6 +59,13 @@ class Declaration;
 class SyntacticalAnalyzer;
 
 
+class WithMultiSpan {
+public:
+	MultiSpan multiSpan;
+	WithMultiSpan(Span begin, Span end);
+};
+
+
 class Entity {
 protected:
 	int printPadding = 4;
@@ -99,12 +106,12 @@ public:
 };
 
 
-class ClassDeclaration : public Entity {
+class ClassDeclaration : public Entity, public WithMultiSpan {
 public:
 	ClassHead* classHead;
 	ClassBody* classBody;
 
-	ClassDeclaration(ClassHead* classHead, ClassBody* classBody);
+	ClassDeclaration(ClassHead* classHead, ClassBody* classBody, Span begin, Span end);
 
 	void selfPrint(unsigned int depth) override;
 
@@ -176,12 +183,12 @@ public:
 };
 
 
-class MethodDeclaration : public ClassStatement {
+class MethodDeclaration : public ClassStatement, public WithMultiSpan {
 public:
 	MethodHead* methodHead;
 	AnyBody* body;
 
-	MethodDeclaration(MethodHead* methodHead, AnyBody* body);
+	MethodDeclaration(MethodHead* methodHead, AnyBody* body, Span begin, Span end);
 
 	void selfPrint(unsigned int depth) override;
 
@@ -222,12 +229,12 @@ public:
 };
 
 
-class ParameterDeclaration : public Entity {
+class ParameterDeclaration : public Entity, public WithMultiSpan {
 public:
 	Id* name;
 	Id* identifier;
 
-	ParameterDeclaration(Id* name, Id* identifier);
+	ParameterDeclaration(Id* name, Id* identifier, Span begin, Span end);
 
 	void selfPrint(unsigned int depth) override;
 
@@ -272,12 +279,12 @@ public:
 };
 
 
-class LocalDeclaration : public Statement {
+class LocalDeclaration : public Statement, public WithMultiSpan {
 public:
 	Id* name;
 	Expression* expression;
 
-	LocalDeclaration(Id* name, Expression* expression);
+	LocalDeclaration(Id* name, Expression* expression, Span begin, Span end);
 
 	void selfPrint(unsigned int depth) override;
 
@@ -293,14 +300,14 @@ public:
 };
 
 
-class IdBeginningExpression : public Expression {
+class IdBeginningExpression : public Expression, public WithMultiSpan {
 public:
 	Id* identifier;
 	AccessesAndCalls* accessesAndCalls;
 
-	IdBeginningExpression(Id* identifier);
+	IdBeginningExpression(Id* identifier, Span begin, Span end);
 
-	IdBeginningExpression(Id* identifier, AccessesAndCalls* accessesAndCalls);
+	IdBeginningExpression(Id* identifier, AccessesAndCalls* accessesAndCalls, Span begin, Span end);
 
 	void selfPrint(unsigned int depth) override;
 
@@ -316,14 +323,14 @@ public:
 };
 
 
-class AccessAndFurther : public AccessesAndCalls {
+class AccessAndFurther : public AccessesAndCalls, public WithMultiSpan {
 public:
 	Id* identifier;
 	AccessesAndCalls* accessesAndCalls;
 
-	AccessAndFurther(Id* identifier);
+	AccessAndFurther(Id* identifier, Span begin, Span end);
 
-	AccessAndFurther(Id* identifier, AccessesAndCalls* accessesAndCalls);
+	AccessAndFurther(Id* identifier, AccessesAndCalls* accessesAndCalls, Span begin, Span end);
 
 	void selfPrint(unsigned int depth) override;
 
@@ -414,11 +421,11 @@ public:
 };
 
 
-class LiteralInteger : public Literal {
+class LiteralInteger : public Literal, public WithMultiSpan {
 public:
 	int value;
 
-	LiteralInteger(int value);
+	LiteralInteger(int value, Span begin, Span end);
 
 	void selfPrint(unsigned int depth) override;
 
@@ -426,11 +433,11 @@ public:
 };
 
 
-class LiteralBoolean : public Literal {
+class LiteralBoolean : public Literal, public WithMultiSpan {
 public:
 	bool value;
 
-	LiteralBoolean(bool value);
+	LiteralBoolean(bool value, Span begin, Span end);
 
 	void selfPrint(unsigned int depth) override;
 
@@ -438,11 +445,11 @@ public:
 };
 
 
-class LiteralFloat : public Literal {
+class LiteralFloat : public Literal, public WithMultiSpan {
 public:
 	double value;
 
-	LiteralFloat(double value);
+	LiteralFloat(double value, Span begin, Span end);
 
 	void selfPrint(unsigned int depth) override;
 
@@ -450,11 +457,11 @@ public:
 };
 
 
-class LiteralCharacter : public Literal {
+class LiteralCharacter : public Literal, public WithMultiSpan {
 public:
 	char value;
 
-	LiteralCharacter(char value);
+	LiteralCharacter(char value, Span begin, Span end);
 
 	void selfPrint(unsigned int depth) override;
 
@@ -671,12 +678,12 @@ public:
 };
 
 
-class ConstructorDeclaration : public ClassStatement {
+class ConstructorDeclaration : public ClassStatement, public WithMultiSpan {
 public:
 	ConstructorHead* constructorHead;
 	AnyBody* body;
 
-	ConstructorDeclaration(ConstructorHead* constructorHead, AnyBody* body);
+	ConstructorDeclaration(ConstructorHead* constructorHead, AnyBody* body, Span begin, Span end);
 
 	void selfPrint(unsigned int depth) override;
 
@@ -696,12 +703,12 @@ public:
 };
 
 
-class Declaration : public ClassStatement {
+class Declaration : public ClassStatement, public WithMultiSpan {
 public:
 	Id* name;
 	Expression* expression;
 
-	Declaration(Id* name, Expression* expression);
+	Declaration(Id* name, Expression* expression, Span begin, Span end);
 
 	void selfPrint(unsigned int depth) override;
 

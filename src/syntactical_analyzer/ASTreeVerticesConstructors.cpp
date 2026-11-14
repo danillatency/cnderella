@@ -1,6 +1,9 @@
 #include "ASTreeVertices.h"
 
 
+WithMultiSpan::WithMultiSpan(Span begin, Span end) : multiSpan(MultiSpan(begin, end)) {}
+
+
 Program::Program(ClassDeclarations* classDeclarations) : classDeclarations(classDeclarations) {}
 
 
@@ -9,7 +12,7 @@ ClassDeclarations::ClassDeclarations(ClassDeclaration* classDeclaration) : class
 ClassDeclarations::ClassDeclarations(ClassDeclaration* classDeclaration, ClassDeclarations* classDeclarations) : classDeclaration(classDeclaration), classDeclarations(classDeclarations) {}
 
 
-ClassDeclaration::ClassDeclaration(ClassHead* classHead, ClassBody* classBody) : classHead(classHead), classBody(classBody) {}
+ClassDeclaration::ClassDeclaration(ClassHead* classHead, ClassBody* classBody, Span begin, Span end) : WithMultiSpan(begin, end), classHead(classHead), classBody(classBody) {}
 
 
 ClassHead::ClassHead(Id* name) : name(name), baseName(nullptr) {}
@@ -27,7 +30,7 @@ ClassStatements::ClassStatements(ClassStatement* classStatement) : classStatemen
 ClassStatements::ClassStatements(ClassStatement* classStatement, ClassStatements* classStatements) : classStatement(classStatement), classStatements(classStatements) {}
 
 
-MethodDeclaration::MethodDeclaration(MethodHead* methodHead, AnyBody* body) : methodHead(methodHead), body(body) {}
+MethodDeclaration::MethodDeclaration(MethodHead* methodHead, AnyBody* body, Span begin, Span end) : WithMultiSpan(begin, end), methodHead(methodHead), body(body) {}
 
 
 MethodHead::MethodHead(Id* name, ParameterDeclarations* parameterDeclarations) : name(name), parameterDeclarations(parameterDeclarations), returnType(nullptr) {}
@@ -39,7 +42,7 @@ ParameterDeclarations::ParameterDeclarations(ParameterDeclaration* parameterDecl
 ParameterDeclarations::ParameterDeclarations(ParameterDeclaration* parameterDeclaration, ParameterDeclarations* parameterDeclarations) : parameterDeclaration(parameterDeclaration), parameterDeclarations(parameterDeclarations) {}
 
 
-ParameterDeclaration::ParameterDeclaration(Id* name, Id* identifier) : name(name), identifier(identifier) {}
+ParameterDeclaration::ParameterDeclaration(Id* name, Id* identifier, Span begin, Span end) : WithMultiSpan(begin, end), name(name), identifier(identifier) {}
 
 
 AnyBody::AnyBody(Statements* statements) : statements(statements) {}
@@ -50,15 +53,15 @@ Statements::Statements(Statement* statement) : statement(statement), statements(
 Statements::Statements(Statement* statement, Statements* statements) : statement(statement), statements(statements) {}
 
 
-LocalDeclaration::LocalDeclaration(Id* name, Expression* expression) : name(name), expression(expression) {}
+LocalDeclaration::LocalDeclaration(Id* name, Expression* expression, Span begin, Span end) : WithMultiSpan(begin, end), name(name), expression(expression) {}
 
 
-IdBeginningExpression::IdBeginningExpression(Id* identifier) : identifier(identifier), accessesAndCalls(nullptr) {}
-IdBeginningExpression::IdBeginningExpression(Id* identifier, AccessesAndCalls* accessesAndCalls) : identifier(identifier), accessesAndCalls(accessesAndCalls) {}
+IdBeginningExpression::IdBeginningExpression(Id* identifier, Span begin, Span end) : WithMultiSpan(begin, end), identifier(identifier), accessesAndCalls(nullptr) {}
+IdBeginningExpression::IdBeginningExpression(Id* identifier, AccessesAndCalls* accessesAndCalls, Span begin, Span end) : WithMultiSpan(begin, end), identifier(identifier), accessesAndCalls(accessesAndCalls) {}
 
 
-AccessAndFurther::AccessAndFurther(Id* identifier) : identifier(identifier), accessesAndCalls(nullptr) {}
-AccessAndFurther::AccessAndFurther(Id* identifier, AccessesAndCalls* accessesAndCalls) : identifier(identifier), accessesAndCalls(accessesAndCalls) {}
+AccessAndFurther::AccessAndFurther(Id* identifier, Span begin, Span end) : WithMultiSpan(begin, end), identifier(identifier), accessesAndCalls(nullptr) {}
+AccessAndFurther::AccessAndFurther(Id* identifier, AccessesAndCalls* accessesAndCalls, Span begin, Span end) : WithMultiSpan(begin, end), identifier(identifier), accessesAndCalls(accessesAndCalls) {}
 
 
 CallAndFurther::CallAndFurther(Expressions* expressions) : expressions(expressions), accessesAndCalls(nullptr) {}
@@ -82,16 +85,16 @@ LiteralBeginningExpression::LiteralBeginningExpression(Literal* literal) : liter
 LiteralBeginningExpression::LiteralBeginningExpression(Literal* literal, AccessesAndCalls* accessesAndCalls) : literal(literal), accessesAndCalls(accessesAndCalls) {}
 
 
-LiteralInteger::LiteralInteger(int value) : value(value) {}
+LiteralInteger::LiteralInteger(int value, Span begin, Span end) : WithMultiSpan(begin, end), value(value) {}
 
 
-LiteralBoolean::LiteralBoolean(bool value) : value(value) {}
+LiteralBoolean::LiteralBoolean(bool value, Span begin, Span end) : WithMultiSpan(begin, end), value(value) {}
 
 
-LiteralFloat::LiteralFloat(double value) : value(value) {}
+LiteralFloat::LiteralFloat(double value, Span begin, Span end) : WithMultiSpan(begin, end), value(value) {}
 
 
-LiteralCharacter::LiteralCharacter(char value) : value(value) {}
+LiteralCharacter::LiteralCharacter(char value, Span begin, Span end) : WithMultiSpan(begin, end), value(value) {}
 
 
 LiteralIntegerArray::LiteralIntegerArray(LiteralIntegers* literalIntegers) : literalIntegers(literalIntegers) {}
@@ -147,10 +150,10 @@ WhileStatement::WhileStatement(Expression* condition, Statements* statements) : 
 ReturnStatement::ReturnStatement(Expression* expression) : expression(expression) {}
 
 
-ConstructorDeclaration::ConstructorDeclaration(ConstructorHead* constructorHead, AnyBody* body) : constructorHead(constructorHead), body(body) {}
+ConstructorDeclaration::ConstructorDeclaration(ConstructorHead* constructorHead, AnyBody* body, Span begin, Span end) : WithMultiSpan(begin, end), constructorHead(constructorHead), body(body) {}
 
 
 ConstructorHead::ConstructorHead(ParameterDeclarations* parameterDeclarations) : parameterDeclarations(parameterDeclarations) {}
 
 
-Declaration::Declaration(Id* name, Expression* expression) : name(name), expression(expression) {}
+Declaration::Declaration(Id* name, Expression* expression, Span begin, Span end) : WithMultiSpan(begin, end), name(name), expression(expression) {}

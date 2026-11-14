@@ -54,6 +54,15 @@ public:
 };
 
 
+class MultiSpan {
+public:
+	Span begin;
+	Span end;
+
+	MultiSpan(Span begin, Span end);
+};
+
+
 class Token {
 public:
 	TokenCode code;
