@@ -464,4 +464,6 @@ void OolongLexicalAnalyzer::analyze() {
 			this->accumulator = this->currentCharacter;
 		}
 	}
+	if (this->tokenStorage.at(this->tokenStorage.size() - 1)->code == TokenNewLine)
+		this->tokenStorage.pop_back();
 }
