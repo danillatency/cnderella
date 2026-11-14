@@ -9,8 +9,7 @@ void SemanticalAnalyzer::visualize() {
 }
 void SemanticalAnalyzer::checkDeclarationSignatures() {
 	vector<logic_error>* errors = this->tree->checkDeclarationSignatures();
-	if (errors->size())
-		this->errors->insert(this->errors->end(), errors->begin(), errors->end());
+	this->errors->insert(this->errors->end(), errors->begin(), errors->end());
 }
 void SemanticalAnalyzer::throwErrors() {
 	if (!this->errors->size()) return;
