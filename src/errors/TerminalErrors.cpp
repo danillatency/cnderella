@@ -18,3 +18,7 @@ lexer::UnclosedCharacterLiteral::UnclosedCharacterLiteral(Span& span) : logic_er
 
 
 lexer::ConsecutiveMinusSymbols::ConsecutiveMinusSymbols(Span& span) : logic_error("Consecutive Minus symbols"s + rowColumn(span)) {}
+
+
+analyzer::Redeclaration::Redeclaration(string object, Span& previousSpan, Span& span) : logic_error("The "s + object + " on" + rowColumn(previousSpan) + "\nwas redeclared on" + rowColumn(span) + "\n\n") {}
+

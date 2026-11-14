@@ -2,6 +2,7 @@
 #define aastreeverticesheader
 
 #include <vector>
+#include <stdexcept>
 
 #include "../lexical_analyzer/Tokens.h"
 
@@ -30,6 +31,8 @@ namespace aast {
 		virtual Entity* searchHere(string identifier, vector<ParameterDeclaration*>* parameters) = 0;
 
 		virtual Entity* searchEverywhere(string identifier, vector<ParameterDeclaration*>* parameters) = 0;
+
+		virtual vector<logic_error>* checkDeclarationSignatures() = 0;
 	};
 
 
@@ -46,6 +49,8 @@ namespace aast {
 		Entity* searchHere(string identifier, vector<ParameterDeclaration*>* parameters) override;
 
 		Entity* searchEverywhere(string identifier, vector<ParameterDeclaration*>* parameters) override;
+
+		vector<logic_error>* checkDeclarationSignatures() override;
 	};
 
 
@@ -75,12 +80,15 @@ namespace aast {
 
 	public:
 		void addClassStatement(ClassStatement* classStatement);
+		vector<ClassStatement*>* getClassStatements();
 
 		void selfPrint(unsigned int depth) override;
 
 		Entity* searchHere(string identifier, vector<ParameterDeclaration*>* parameters) override;
 
 		Entity* searchEverywhere(string identifier, vector<ParameterDeclaration*>* parameters) override;
+
+		vector<logic_error>* checkDeclarationSignatures() override;
 	};
 
 
@@ -115,6 +123,8 @@ namespace aast {
 		Entity* searchHere(string identifier, vector<ParameterDeclaration*>* parameters) override;
 
 		Entity* searchEverywhere(string identifier, vector<ParameterDeclaration*>* parameters) override;
+
+		vector<logic_error>* checkDeclarationSignatures() override;
 	};
 
 
@@ -148,6 +158,8 @@ namespace aast {
 		Entity* searchHere(string identifier, vector<ParameterDeclaration*>* parameters) override;
 
 		Entity* searchEverywhere(string identifier, vector<ParameterDeclaration*>* parameters) override;
+
+		vector<logic_error>* checkDeclarationSignatures() override;
 	};
 
 
@@ -319,6 +331,8 @@ namespace aast {
 		Entity* searchHere(string identifier, vector<ParameterDeclaration*>* parameters) override;
 
 		Entity* searchEverywhere(string identifier, vector<ParameterDeclaration*>* parameters) override;
+
+		vector<logic_error>* checkDeclarationSignatures() override;
 	};
 
 
@@ -338,6 +352,8 @@ namespace aast {
 		Entity* searchHere(string identifier, vector<ParameterDeclaration*>* parameters) override;
 
 		Entity* searchEverywhere(string identifier, vector<ParameterDeclaration*>* parameters) override;
+
+		vector<logic_error>* checkDeclarationSignatures() override;
 	};
 }
 

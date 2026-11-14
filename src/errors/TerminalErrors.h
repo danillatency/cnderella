@@ -41,4 +41,12 @@ namespace lexer {
 }
 
 
+namespace analyzer {
+	class Redeclaration : public logic_error {
+	public:
+		Redeclaration(string object, Span& previousSpan, Span& span);
+	};
+}
+
+
 #endif

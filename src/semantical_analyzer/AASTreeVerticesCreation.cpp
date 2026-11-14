@@ -23,6 +23,9 @@ void aast::ClassDeclaration::setClassBody(aast::ClassBody* classBody) {
 void aast::ClassBody::addClassStatement(aast::ClassStatement* classStatement) {
 	this->classStatements.push_back(classStatement);
 }
+vector<aast::ClassStatement*>* aast::ClassBody::getClassStatements() {
+	return &this->classStatements;
+}
 
 
 void aast::MethodDeclaration::setName(string name) {

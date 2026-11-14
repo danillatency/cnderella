@@ -11,7 +11,8 @@ set(CPP_PARTS
     "semantical_analyzer/SemanticalAnalyzerRest.cpp"
     "semantical_analyzer/AASTreeVerticesCreation.cpp"
     "semantical_analyzer/AASTreeVerticesVisualization.cpp"
-    "semantical_analyzer/AASTreeVerticesRest.cpp"
+    "semantical_analyzer/AASTreeVerticesScoping.cpp"
+    "semantical_analyzer/AASTreeVerticesValidation.cpp"
 
     "errors/TerminalErrors.cpp"
     "errors/NonTerminalErrors.cpp"
