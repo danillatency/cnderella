@@ -23,6 +23,9 @@ string aast::ClassDeclaration::getClassName() {
 void aast::ClassDeclaration::setClassBaseName(string baseName) {
 	this->baseName = baseName;
 }
+string aast::ClassDeclaration::getClassBaseName() {
+	return this->baseName;
+}
 void aast::ClassDeclaration::setClassBody(aast::ClassBody* classBody) {
 	this->classBody = classBody;
 }
@@ -47,6 +50,9 @@ string aast::MethodDeclaration::getName() {
 }
 void aast::MethodDeclaration::setType(string type) {
 	this->type = type;
+}
+string aast::MethodDeclaration::getType() {
+	return this->type;
 }
 void aast::MethodDeclaration::setAnyBody(aast::AnyBody* body) {
 	this->body = body;
@@ -93,15 +99,27 @@ string aast::LocalDeclaration::getName() {
 void aast::LocalDeclaration::setExpression(aast::Expression* expression) {
 	this->expression = expression;
 }
+aast::Expression* aast::LocalDeclaration::getExpression() {
+	return this->expression;
+}
 
 
 void aast::Expression::addAccessOrCall(aast::AccessOrCall* accessOrCall) {
 	this->accessesAndCalls.push_back(accessOrCall);
 }
+vector<aast::AccessOrCall*>* aast::Expression::getAccessesAndCalls() {
+	return &this->accessesAndCalls;
+}
+string aast::Expression::getType() {
+	return this->type;
+}
 
 
 void aast::IdentifierBeginningExpression::setIdentifier(string identifier) {
 	this->identifier = identifier;
+}
+string aast::IdentifierBeginningExpression::getIdentifier() {
+	return this->identifier;
 }
 
 
@@ -113,10 +131,16 @@ void aast::LiteralBeginningExpression::addLiteralCreationStatement(aast::Stateme
 void aast::Access::setIdentifier(string identifier) {
 	this->identifier = identifier;
 }
+string aast::Access::getIdentifier() {
+	return this->identifier;
+}
 
 
 void aast::Call::addExpression(aast::Expression* expression) {
 	this->expressions.push_back(expression);
+}
+vector<aast::Expression*> aast::Call::getExpressions() {
+	return this->expressions;
 }
 
 
@@ -159,6 +183,9 @@ aast::AnyBody* aast::WhileStatement::getBody() {
 void aast::ReturnStatement::setExpression(aast::Expression* expression) {
 	this->expression = expression;
 }
+aast::Expression* aast::ReturnStatement::getExpression() {
+	return this->expression;
+}
 
 
 void aast::ConstructorDeclaration::setAnyBody(aast::AnyBody* body) {
@@ -183,4 +210,7 @@ string aast::Declaration::getName() {
 }
 void aast::Declaration::setExpression(aast::Expression* expression) {
 	this->expression = expression;
+}
+aast::Expression* aast::Declaration::getExpression() {
+	return this->expression;
 }

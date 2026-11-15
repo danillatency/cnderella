@@ -11,6 +11,17 @@ aast::EnclosingEntity* aast::Entity::getEnclosing() {
 }
 
 
+aast::ClassDeclaration* aast::EnclosingEntity::getThis() {
+	aast::ClassDeclaration* classDeclaration = dynamic_cast<aast::ClassDeclaration*>(this);
+	if (classDeclaration) return classDeclaration;
+	do {
+		EnclosingEntity* entity = this->enclosing;
+		classDeclaration = dynamic_cast<aast::ClassDeclaration*>(entity);
+	} while (!classDeclaration);
+	return classDeclaration;
+}
+
+
 aast::Entity* aast::Program::searchHere(string identifier, vector<aast::ParameterDeclaration*>* parameters) {
 	for (int i = 0; i < this->classDeclarations.size(); i++)
 		if (identifier == this->classDeclarations.at(i)->getClassName())
@@ -18,9 +29,7 @@ aast::Entity* aast::Program::searchHere(string identifier, vector<aast::Paramete
 	return nullptr;
 }
 aast::Entity* aast::Program::searchEverywhere(string identifier, vector<aast::ParameterDeclaration*>* parameters) {
-	Entity* local = this->searchHere(identifier, parameters);
-	if (local) return local;
-	return nullptr;
+	return this->searchHere(identifier, parameters);
 }
 
 
@@ -28,7 +37,7 @@ static bool sameParameters(vector<aast::ParameterDeclaration*>* parameters1, vec
 	if (parameters1->size() != parameters2->size()) return false;
 	bool all = true;
 	for (int i = 0; i < parameters1->size(); i++) {
-		all = all && parameters1->at(i)->getName() == parameters2->at(i)->getName() && parameters1->at(i)->getType() == parameters2->at(i)->getType();
+		all = all && parameters1->at(i)->getType() == parameters2->at(i)->getType();
 		if (!all) break;
 	}
 	return all;
@@ -40,14 +49,16 @@ aast::Entity* aast::ClassBody::searchHere(string identifier, vector<aast::Parame
 			aast::Declaration* declaration = dynamic_cast<aast::Declaration*>(currentStatement);
 			if (identifier == declaration->getName()) return declaration;
 		}
-		else if (dynamic_cast<aast::ConstructorDeclaration*>(currentStatement)) {
-			aast::ConstructorDeclaration* constructorDeclaration = dynamic_cast<aast::ConstructorDeclaration*>(currentStatement);
-			if (sameParameters(constructorDeclaration->getParameterDeclarations(), parameters)) return constructorDeclaration;
-		}
-		else if (dynamic_cast<aast::MethodDeclaration*>(currentStatement)) {
-			aast::MethodDeclaration* methodDeclaration = dynamic_cast<aast::MethodDeclaration*>(currentStatement);
-			if (identifier == methodDeclaration->getName()
-				&& sameParameters(methodDeclaration->getParameterDeclarations(), parameters)) return methodDeclaration;
+		else if (parameters) {
+			if (dynamic_cast<aast::ConstructorDeclaration*>(currentStatement)) {
+				aast::ConstructorDeclaration* constructorDeclaration = dynamic_cast<aast::ConstructorDeclaration*>(currentStatement);
+				if (sameParameters(constructorDeclaration->getParameterDeclarations(), parameters)) return constructorDeclaration;
+			}
+			else if (dynamic_cast<aast::MethodDeclaration*>(currentStatement)) {
+				aast::MethodDeclaration* methodDeclaration = dynamic_cast<aast::MethodDeclaration*>(currentStatement);
+				if (identifier == methodDeclaration->getName()
+					&& sameParameters(methodDeclaration->getParameterDeclarations(), parameters)) return methodDeclaration;
+			}
 		}
 	}
 	return nullptr;

@@ -51,6 +51,16 @@ namespace analyzer {
 	public:
 		Undeclared(string object, Span& span);
 	};
+
+	class IllegalValue : public logic_error {
+	public:
+		IllegalValue(string value, Span& span);
+	};
+
+	class TypesMismatch : public logic_error {
+	public:
+		TypesMismatch(string expected, string met, Span& span);
+	};
 }
 
 

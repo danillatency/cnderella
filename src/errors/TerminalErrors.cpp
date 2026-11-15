@@ -23,4 +23,10 @@ lexer::ConsecutiveMinusSymbols::ConsecutiveMinusSymbols(Span& span) : logic_erro
 analyzer::Redeclaration::Redeclaration(string object, Span& previousSpan, Span& span) : logic_error("The "s + object + " on" + rowColumn(previousSpan) + "\nwas redeclared on" + rowColumn(span) + "\n\n") {}
 
 
-analyzer::Undeclared::Undeclared(string object, Span& span) : logic_error("This "s + object + " is undeclared" + rowColumn(span)) {}
+analyzer::Undeclared::Undeclared(string object, Span& span) : logic_error("This "s + object + " is undeclared" + rowColumn(span) + "\n\n") {}
+
+
+analyzer::IllegalValue::IllegalValue(string value, Span& span) : logic_error("Values of type"s + value + " are not allowed" + rowColumn(span) + "\n\n") {}
+
+
+analyzer::TypesMismatch::TypesMismatch(string expected, string met, Span& span) : logic_error(expected + " was expected, but " + met + " was met" + rowColumn(span) + "\n\n") {}

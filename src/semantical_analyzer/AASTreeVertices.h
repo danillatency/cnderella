@@ -14,6 +14,7 @@ namespace aast {
 		int printPadding = 4;
 		EnclosingEntity* enclosing;
 		MultiSpan* multiSpan;
+		bool typeChecked = false;
 
 	public:
 		virtual ~Entity() = default;
@@ -28,15 +29,22 @@ namespace aast {
 		EnclosingEntity* getEnclosing();
 
 		virtual vector<logic_error>* checkTypes() = 0;
+
+		const bool isTypeChecked();
+
+		void mark();
 	};
 
 
+	class ClassDeclaration;
 	class ParameterDeclaration;
 	class EnclosingEntity : public Entity {
 	public:
 		virtual Entity* searchHere(string identifier, vector<ParameterDeclaration*>* parameters) = 0;
 
 		virtual Entity* searchEverywhere(string identifier, vector<ParameterDeclaration*>* parameters) = 0;
+
+		ClassDeclaration* getThis();
 
 		virtual vector<logic_error>* checkDeclarationSignatures() = 0;
 	};
@@ -74,6 +82,7 @@ namespace aast {
 		string getClassName();
 
 		void setClassBaseName(string baseName);
+		string getClassBaseName();
 
 		void setClassBody(ClassBody* classBody);
 		ClassBody* getClassBody();
@@ -125,6 +134,7 @@ namespace aast {
 		string getName();
 
 		void setType(string type);
+		string getType();
 
 		void addParameterDeclaration(ParameterDeclaration* parameterDeclaration);
 		vector<ParameterDeclaration*>* getParameterDeclarations();
@@ -163,6 +173,7 @@ namespace aast {
 
 
 	class Statement;
+	class ReturnStatement;
 	class AnyBody : public EnclosingEntity {
 	private:
 		vector<Statement*> statements;
@@ -180,6 +191,8 @@ namespace aast {
 		vector<logic_error>* checkDeclarationSignatures() override;
 
 		vector<logic_error>* checkTypes() override;
+
+		ReturnStatement* getReturnStatement();
 	};
 
 
@@ -200,6 +213,7 @@ namespace aast {
 		string getName();
 
 		void setExpression(Expression* expression);
+		Expression* getExpression();
 
 		void selfPrint(unsigned int depth) override;
 
@@ -215,8 +229,11 @@ namespace aast {
 
 	public:
 		void addAccessOrCall(AccessOrCall* accessOrCall);
+		vector<AccessOrCall*>* getAccessesAndCalls();
 
 		virtual void selfPrint(unsigned int depth) = 0;
+
+		string getType();
 	};
 
 
@@ -226,6 +243,7 @@ namespace aast {
 
 	public:
 		void setIdentifier(string identifier);
+		string getIdentifier();
 
 		void selfPrint(unsigned int depth) override;
 
@@ -242,10 +260,10 @@ namespace aast {
 	class Access : public AccessOrCall {
 	private:
 		string identifier;
-		string type = "";
 
 	public:
 		void setIdentifier(string identifier);
+		string getIdentifier();
 
 		void selfPrint(unsigned int depth) override;
 
@@ -259,6 +277,7 @@ namespace aast {
 
 	public:
 		void addExpression(Expression* expression);
+		vector<Expression*> getExpressions();
 
 		void selfPrint(unsigned int depth) override;
 
@@ -355,6 +374,7 @@ namespace aast {
 
 	public:
 		void setExpression(Expression* expression);
+		Expression* getExpression();
 
 		void selfPrint(unsigned int depth) override;
 
@@ -396,6 +416,7 @@ namespace aast {
 		string getName();
 
 		void setExpression(Expression* expression);
+		Expression* getExpression();
 
 		void selfPrint(unsigned int depth) override;
 
