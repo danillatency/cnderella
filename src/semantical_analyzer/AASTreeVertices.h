@@ -26,6 +26,8 @@ namespace aast {
 		MultiSpan getMultiSpan();
 
 		EnclosingEntity* getEnclosing();
+
+		virtual vector<logic_error>* checkTypes() = 0;
 	};
 
 
@@ -55,6 +57,8 @@ namespace aast {
 		Entity* searchEverywhere(string identifier, vector<ParameterDeclaration*>* parameters) override;
 
 		vector<logic_error>* checkDeclarationSignatures() override;
+
+		vector<logic_error>* checkTypes() override;
 	};
 
 
@@ -75,6 +79,8 @@ namespace aast {
 		ClassBody* getClassBody();
 
 		void selfPrint(unsigned int depth) override;
+
+		vector<logic_error>* checkTypes() override;
 	};
 
 
@@ -94,6 +100,8 @@ namespace aast {
 		Entity* searchEverywhere(string identifier, vector<ParameterDeclaration*>* parameters) override;
 
 		vector<logic_error>* checkDeclarationSignatures() override;
+
+		vector<logic_error>* checkTypes() override;
 	};
 
 
@@ -131,6 +139,8 @@ namespace aast {
 		Entity* searchEverywhere(string identifier, vector<ParameterDeclaration*>* parameters) override;
 
 		vector<logic_error>* checkDeclarationSignatures() override;
+
+		vector<logic_error>* checkTypes() override;
 	};
 
 
@@ -147,6 +157,8 @@ namespace aast {
 		string getType();
 
 		void selfPrint(unsigned int depth) override;
+
+		vector<logic_error>* checkTypes() override;
 	};
 
 
@@ -166,6 +178,8 @@ namespace aast {
 		Entity* searchEverywhere(string identifier, vector<ParameterDeclaration*>* parameters) override;
 
 		vector<logic_error>* checkDeclarationSignatures() override;
+
+		vector<logic_error>* checkTypes() override;
 	};
 
 
@@ -188,6 +202,8 @@ namespace aast {
 		void setExpression(Expression* expression);
 
 		void selfPrint(unsigned int depth) override;
+
+		vector<logic_error>* checkTypes() override;
 	};
 
 
@@ -195,6 +211,7 @@ namespace aast {
 	class Expression : public Statement {
 	protected:
 		vector<AccessOrCall*> accessesAndCalls;
+		string type = "";
 
 	public:
 		void addAccessOrCall(AccessOrCall* accessOrCall);
@@ -211,6 +228,8 @@ namespace aast {
 		void setIdentifier(string identifier);
 
 		void selfPrint(unsigned int depth) override;
+
+		vector<logic_error>* checkTypes() override;
 	};
 
 
@@ -223,11 +242,14 @@ namespace aast {
 	class Access : public AccessOrCall {
 	private:
 		string identifier;
+		string type = "";
 
 	public:
 		void setIdentifier(string identifier);
 
 		void selfPrint(unsigned int depth) override;
+
+		vector<logic_error>* checkTypes() override;
 	};
 
 
@@ -239,18 +261,24 @@ namespace aast {
 		void addExpression(Expression* expression);
 
 		void selfPrint(unsigned int depth) override;
+
+		vector<logic_error>* checkTypes() override;
 	};
 
 
 	class ThisBeginningExpression : public Expression {
 	public:
 		void selfPrint(unsigned int depth) override;
+
+		vector<logic_error>* checkTypes() override;
 	};
 
 
 	class BaseBeginningExpression : public Expression {
 	public:
 		void selfPrint(unsigned int depth) override;
+
+		vector<logic_error>* checkTypes() override;
 	};
 
 
@@ -262,6 +290,8 @@ namespace aast {
 		void addLiteralCreationStatement(Statement* statement);
 
 		void selfPrint(unsigned int depth) override;
+
+		vector<logic_error>* checkTypes() override;
 	};
 
 
@@ -276,6 +306,8 @@ namespace aast {
 		void setExpression2(Expression* expression2);
 
 		void selfPrint(unsigned int depth) override;
+
+		vector<logic_error>* checkTypes() override;
 	};
 
 
@@ -295,6 +327,8 @@ namespace aast {
 		AnyBody* getFalseBody();
 
 		void selfPrint(unsigned int depth) override;
+
+		vector<logic_error>* checkTypes() override;
 	};
 
 
@@ -310,6 +344,8 @@ namespace aast {
 		AnyBody* getBody();
 
 		void selfPrint(unsigned int depth) override;
+
+		vector<logic_error>* checkTypes() override;
 	};
 
 
@@ -321,6 +357,8 @@ namespace aast {
 		void setExpression(Expression* expression);
 
 		void selfPrint(unsigned int depth) override;
+
+		vector<logic_error>* checkTypes() override;
 	};
 
 
@@ -343,6 +381,8 @@ namespace aast {
 		Entity* searchEverywhere(string identifier, vector<ParameterDeclaration*>* parameters) override;
 
 		vector<logic_error>* checkDeclarationSignatures() override;
+
+		vector<logic_error>* checkTypes() override;
 	};
 
 
@@ -364,6 +404,8 @@ namespace aast {
 		Entity* searchEverywhere(string identifier, vector<ParameterDeclaration*>* parameters) override;
 
 		vector<logic_error>* checkDeclarationSignatures() override;
+
+		vector<logic_error>* checkTypes() override;
 	};
 }
 

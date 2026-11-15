@@ -40,6 +40,8 @@ int main(int argc, char* argv[]) {
 
 		semanticalAnalyzer.checkDeclarationSignatures();
 		cout << '\n';
+		semanticalAnalyzer.checkTypes();
+		cout << '\n';
 		semanticalAnalyzer.throwErrors();
 
 		cout << "\n";

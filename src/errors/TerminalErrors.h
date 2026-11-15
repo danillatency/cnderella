@@ -46,6 +46,11 @@ namespace analyzer {
 	public:
 		Redeclaration(string object, Span& previousSpan, Span& span);
 	};
+
+	class Undeclared : public logic_error {
+	public:
+		Undeclared(string object, Span& span);
+	};
 }
 
 

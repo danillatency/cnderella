@@ -22,3 +22,5 @@ lexer::ConsecutiveMinusSymbols::ConsecutiveMinusSymbols(Span& span) : logic_erro
 
 analyzer::Redeclaration::Redeclaration(string object, Span& previousSpan, Span& span) : logic_error("The "s + object + " on" + rowColumn(previousSpan) + "\nwas redeclared on" + rowColumn(span) + "\n\n") {}
 
+
+analyzer::Undeclared::Undeclared(string object, Span& span) : logic_error("This "s + object + " is undeclared" + rowColumn(span)) {}

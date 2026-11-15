@@ -7,10 +7,17 @@
 void SemanticalAnalyzer::visualize() {
 	this->tree->selfPrint(0);
 }
+
 void SemanticalAnalyzer::checkDeclarationSignatures() {
 	vector<logic_error>* errors = this->tree->checkDeclarationSignatures();
 	this->errors->insert(this->errors->end(), errors->begin(), errors->end());
 }
+
+void SemanticalAnalyzer::checkTypes() {
+	vector<logic_error>* errors = this->tree->checkTypes();
+	this->errors->insert(this->errors->end(), errors->begin(), errors->end());
+}
+
 void SemanticalAnalyzer::throwErrors() {
 	if (!this->errors->size()) return;
 	string errors;

@@ -22,6 +22,8 @@ public:
 
 	void checkDeclarationSignatures();
 
+	void checkTypes();
+
 	void throwErrors();
 
 	void visualize();

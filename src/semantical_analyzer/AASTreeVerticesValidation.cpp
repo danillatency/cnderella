@@ -16,6 +16,14 @@ vector<logic_error>* aast::Program::checkDeclarationSignatures() {
 	}
 	return errors;
 }
+vector<logic_error>* aast::Program::checkTypes() {
+	vector<logic_error>* errors = new vector<logic_error>();
+	for (int i = 0; i < this->classDeclarations.size(); i++) {
+		vector<logic_error>* nestedErrors = this->classDeclarations.at(i)->checkTypes();
+		errors->insert(errors->end(), nestedErrors->begin(), nestedErrors->end());
+	}
+	return errors;
+}
 
 
 vector<logic_error>* aast::ClassBody::checkDeclarationSignatures() {
@@ -44,6 +52,14 @@ vector<logic_error>* aast::ClassBody::checkDeclarationSignatures() {
 	}
 	return errors;
 }
+vector<logic_error>* aast::ClassBody::checkTypes() {
+	vector<logic_error>* errors = new vector<logic_error>();
+	for (int i = 0; i < this->classStatements.size(); i++) {
+		vector<logic_error>* nestedErrors = this->classStatements.at(i)->checkTypes();
+		errors->insert(errors->end(), nestedErrors->begin(), nestedErrors->end());
+	}
+	return errors;
+}
 
 
 vector<logic_error>* aast::MethodDeclaration::checkDeclarationSignatures() {
@@ -55,6 +71,16 @@ vector<logic_error>* aast::MethodDeclaration::checkDeclarationSignatures() {
 			errors->push_back(analyzer::Redeclaration("parameter", foundParameterDeclaration->getMultiSpan().begin, currentParameterDeclaration->getMultiSpan().begin));
 	}
 	vector<logic_error>* nestedErrors = this->getAnyBody()->checkDeclarationSignatures();
+	errors->insert(errors->end(), nestedErrors->begin(), nestedErrors->end());
+	return errors;
+}
+vector<logic_error>* aast::MethodDeclaration::checkTypes() {
+	vector<logic_error>* errors = new vector<logic_error>();
+	for (int i = 0; i < this->parameterDeclarations.size(); i++) {
+		vector<logic_error>* nestedErrors = this->parameterDeclarations.at(i)->checkTypes();
+		errors->insert(errors->end(), nestedErrors->begin(), nestedErrors->end());
+	}
+	vector<logic_error>* nestedErrors = this->body->checkTypes();
 	errors->insert(errors->end(), nestedErrors->begin(), nestedErrors->end());
 	return errors;
 }
@@ -84,6 +110,9 @@ vector<logic_error>* aast::AnyBody::checkDeclarationSignatures() {
 	}
 	return errors;
 }
+vector<logic_error>* aast::AnyBody::checkTypes() {
+	return new vector<logic_error>();
+}
 
 
 vector<logic_error>* aast::ConstructorDeclaration::checkDeclarationSignatures() {
@@ -103,3 +132,83 @@ vector<logic_error>* aast::ConstructorDeclaration::checkDeclarationSignatures() 
 vector<logic_error>* aast::Declaration::checkDeclarationSignatures() {
 	return new vector<logic_error>();
 }
+
+
+vector<logic_error>* aast::ClassDeclaration::checkTypes() {
+	return this->classBody->checkTypes();
+}
+
+
+vector<logic_error>* aast::ParameterDeclaration::checkTypes() {
+	vector<logic_error>* errors = new vector<logic_error>();
+	aast::ClassDeclaration* type = dynamic_cast<aast::ClassDeclaration*>(this->enclosing->searchEverywhere(this->type, nullptr));
+	if (!type)
+		errors->push_back(analyzer::Undeclared("type of a parameter", this->multiSpan->end));
+	return errors;
+}
+
+
+vector<logic_error>* aast::LocalDeclaration::checkTypes() {
+	return new vector<logic_error>();
+}
+
+
+vector<logic_error>* aast::IdentifierBeginningExpression::checkTypes() {
+	return new vector<logic_error>();
+}
+
+
+vector<logic_error>* aast::ThisBeginningExpression::checkTypes() {
+	return new vector<logic_error>();
+}
+
+
+vector<logic_error>* aast::BaseBeginningExpression::checkTypes() {
+	return new vector<logic_error>();
+}
+
+
+vector<logic_error>* aast::LiteralBeginningExpression::checkTypes() {
+	return new vector<logic_error>();
+}
+
+
+vector<logic_error>* aast::Access::checkTypes() {
+	return new vector<logic_error>();
+}
+
+
+vector<logic_error>* aast::Call::checkTypes() {
+	return new vector<logic_error>();
+}
+
+
+vector<logic_error>* aast::Assignment::checkTypes() {
+	return new vector<logic_error>();
+}
+
+
+vector<logic_error>* aast::IfStatement::checkTypes() {
+	return new vector<logic_error>();
+}
+
+
+vector<logic_error>* aast::WhileStatement::checkTypes() {
+	return new vector<logic_error>();
+}
+
+
+vector<logic_error>* aast::ReturnStatement::checkTypes() {
+	return new vector<logic_error>();
+}
+
+
+vector<logic_error>* aast::ConstructorDeclaration::checkTypes() {
+	return new vector<logic_error>();
+}
+
+
+vector<logic_error>* aast::Declaration::checkTypes() {
+	return new vector<logic_error>();
+}
+
