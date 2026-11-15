@@ -589,7 +589,7 @@ AccessesAndCalls* AccessesAndCalls::parse(SyntacticalAnalyzer* syntacticalAnalyz
 
 
 AccessAndFurther* AccessAndFurther::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
-	Span begin = syntacticalAnalyzer->relativeToken()->span;
+	Span begin = syntacticalAnalyzer->relativeToken(2)->span;
 	int checkpoint = syntacticalAnalyzer->currentTokenIndex();
 	if (syntacticalAnalyzer->nextToken()->code != TokenDot) {
 		syntacticalAnalyzer->back();

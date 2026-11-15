@@ -18,7 +18,7 @@ private:
 	vector<logic_error>* errors = new vector<logic_error>();
 
 public:
-	aast::Entity* mapToAAST(Entity* vertex);
+	aast::Entity* mapToAAST(Entity* vertex, aast::EnclosingEntity* scope = nullptr);
 
 	void checkDeclarationSignatures();
 

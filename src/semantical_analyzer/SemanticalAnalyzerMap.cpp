@@ -274,7 +274,7 @@ static void populateLiteralCreationStatements(aast::LiteralBeginningExpression& 
 }
 
 
-aast::Entity* SemanticalAnalyzer::mapToAAST(Entity* oldVertex) {
+aast::Entity* SemanticalAnalyzer::mapToAAST(Entity* oldVertex, aast::EnclosingEntity* scope) {
     Program* oldProgram = dynamic_cast<Program*>(oldVertex);
     ClassDeclaration* oldClassDeclaration = dynamic_cast<ClassDeclaration*>(oldVertex);
     ClassBody* oldClassBody = dynamic_cast<ClassBody*>(oldVertex);
@@ -372,7 +372,7 @@ aast::Entity* SemanticalAnalyzer::mapToAAST(Entity* oldVertex) {
                 oldStatements = oldStatements->statements;
                 continue;
             }
-            aast::Statement* newStatement = dynamic_cast<aast::Statement*>(this->mapToAAST(oldStatements->statement));
+            aast::Statement* newStatement = dynamic_cast<aast::Statement*>(this->mapToAAST(oldStatements->statement, newAnyBody));
             newStatement->setEnclosing(newAnyBody);
             newAnyBody->addStatement(newStatement);
             oldStatements = oldStatements->statements;
@@ -391,7 +391,8 @@ aast::Entity* SemanticalAnalyzer::mapToAAST(Entity* oldVertex) {
     else if (oldLocalDeclaration) {
         aast::LocalDeclaration* newLocalDeclaration = new aast::LocalDeclaration();
         newLocalDeclaration->setName(oldLocalDeclaration->name->identifier);
-        aast::Expression* newExpression = dynamic_cast<aast::Expression*>(this->mapToAAST(oldLocalDeclaration->expression));
+        aast::Expression* newExpression = dynamic_cast<aast::Expression*>(this->mapToAAST(oldLocalDeclaration->expression, scope));
+        newExpression->setEnclosing(scope);
         newLocalDeclaration->setExpression(newExpression);
         newLocalDeclaration->setMultiSpan(oldLocalDeclaration->multiSpan);
         return newLocalDeclaration;
@@ -399,6 +400,7 @@ aast::Entity* SemanticalAnalyzer::mapToAAST(Entity* oldVertex) {
 
     else if (oldIdentifierBeginningExpression) {
         aast::IdentifierBeginningExpression* newIdentifierBeginningExpression = new aast::IdentifierBeginningExpression();
+        newIdentifierBeginningExpression->setEnclosing(scope);
         newIdentifierBeginningExpression->setIdentifier(oldIdentifierBeginningExpression->identifier->identifier);
         AccessesAndCalls* oldAccessesAndCalls = oldIdentifierBeginningExpression->accessesAndCalls;
         do {
@@ -419,7 +421,7 @@ aast::Entity* SemanticalAnalyzer::mapToAAST(Entity* oldVertex) {
                         oldExpressions = oldExpressions->expressions;
                         continue;
                     }
-                    newCall->addExpression(dynamic_cast<aast::Expression*>(this->mapToAAST(oldExpressions->expression)));
+                    newCall->addExpression(dynamic_cast<aast::Expression*>(this->mapToAAST(oldExpressions->expression, scope)));
                     oldExpressions = oldExpressions->expressions;
                 } while (oldExpressions);
                 newIdentifierBeginningExpression->addAccessOrCall(newCall);
@@ -588,6 +590,7 @@ aast::Entity* SemanticalAnalyzer::mapToAAST(Entity* oldVertex) {
                 continue;
             }
             aast::ParameterDeclaration* newParameterDeclaration = dynamic_cast<aast::ParameterDeclaration*>(this->mapToAAST(oldParameterDeclarations->parameterDeclaration));
+            newParameterDeclaration->setEnclosing(newConstructorDeclaration);
             newConstructorDeclaration->addParameterDeclaration(newParameterDeclaration);
             oldParameterDeclarations = oldParameterDeclarations->parameterDeclarations;
         } while (oldParameterDeclarations);
@@ -598,6 +601,7 @@ aast::Entity* SemanticalAnalyzer::mapToAAST(Entity* oldVertex) {
         aast::Declaration* newDeclaration = new aast::Declaration();
         newDeclaration->setName(oldDeclaration->name->identifier);
         newDeclaration->setExpression(dynamic_cast<aast::Expression*>(this->mapToAAST(oldDeclaration->expression)));
+        newDeclaration->getExpression()->setEnclosing(newDeclaration);
         return newDeclaration;
     }
 }
