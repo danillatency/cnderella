@@ -302,7 +302,10 @@ aast::Entity* SemanticalAnalyzer::mapToAAST(Entity* oldVertex, aast::EnclosingEn
                 continue;
             }
             aast::ClassDeclaration* newDeclaration = dynamic_cast<aast::ClassDeclaration*>(this->mapToAAST(oldDeclarations->classDeclaration));
-            newDeclaration->getClassBody()->setEnclosing(newProgram);
+            newDeclaration->setMultiSpan(oldDeclarations->classDeclaration->multiSpan);
+            newDeclaration->getClassBody()->setMultiSpan(oldDeclarations->classDeclaration->classBody->multiSpan);
+            newDeclaration->getClassBody()->setEnclosing(newDeclaration);
+            newDeclaration->setEnclosing(newProgram);
             newProgram->addClassDeclaration(newDeclaration);
             oldDeclarations = oldDeclarations->classDeclarations;
         } while (oldDeclarations);
@@ -319,7 +322,6 @@ aast::Entity* SemanticalAnalyzer::mapToAAST(Entity* oldVertex, aast::EnclosingEn
             newClassDeclaration->setClassBaseName("");
         aast::ClassBody* newBody = dynamic_cast<aast::ClassBody*>(this->mapToAAST(oldClassDeclaration->classBody));
         newClassDeclaration->setClassBody(newBody);
-        newClassDeclaration->setMultiSpan(oldClassDeclaration->multiSpan);
         return newClassDeclaration;
     }
 
@@ -528,8 +530,8 @@ aast::Entity* SemanticalAnalyzer::mapToAAST(Entity* oldVertex, aast::EnclosingEn
 
     else if (oldAssignment) {
         aast::Assignment* newAssignment = new aast::Assignment();
-        newAssignment->setExpression1(dynamic_cast<aast::Expression*>(this->mapToAAST(oldAssignment->expression1)));
-        newAssignment->setExpression2(dynamic_cast<aast::Expression*>(this->mapToAAST(oldAssignment->expression2)));
+        newAssignment->setExpression1(dynamic_cast<aast::Expression*>(this->mapToAAST(oldAssignment->expression1, scope)));
+        newAssignment->setExpression2(dynamic_cast<aast::Expression*>(this->mapToAAST(oldAssignment->expression2, scope)));
         return newAssignment;
     }
 

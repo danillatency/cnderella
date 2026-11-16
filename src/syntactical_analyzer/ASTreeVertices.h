@@ -146,11 +146,11 @@ public:
 };
 
 
-class ClassBody : public Entity {
+class ClassBody : public Entity, public WithMultiSpan {
 public:
 	ClassStatements* classStatements;
 
-	ClassBody(ClassStatements* classStatements);
+	ClassBody(ClassStatements* classStatements, Span begin, Span end);
 
 	void selfPrint(unsigned int depth) override;
 

@@ -12,13 +12,13 @@ aast::EnclosingEntity* aast::Entity::getEnclosing() {
 
 
 aast::ClassDeclaration* aast::EnclosingEntity::getThis() {
-	aast::ClassDeclaration* classDeclaration = dynamic_cast<aast::ClassDeclaration*>(this);
-	if (classDeclaration) return classDeclaration;
+	aast::ClassBody* classBody = dynamic_cast<aast::ClassBody*>(this);
+	if (classBody) return dynamic_cast<aast::ClassDeclaration*>(classBody->getEnclosing());
 	do {
 		EnclosingEntity* entity = this->enclosing;
-		classDeclaration = dynamic_cast<aast::ClassDeclaration*>(entity);
-	} while (!classDeclaration);
-	return classDeclaration;
+		classBody = dynamic_cast<aast::ClassBody*>(entity);
+	} while (!classBody);
+	return dynamic_cast<aast::ClassDeclaration*>(classBody->getEnclosing());
 }
 
 
@@ -30,6 +30,14 @@ aast::Entity* aast::Program::searchHere(string identifier, vector<aast::Paramete
 }
 aast::Entity* aast::Program::searchEverywhere(string identifier, vector<aast::ParameterDeclaration*>* parameters) {
 	return this->searchHere(identifier, parameters);
+}
+
+
+aast::Entity* aast::ClassDeclaration::searchHere(string identifier, vector<aast::ParameterDeclaration*>* parameters) {
+	return this->classBody->searchHere(identifier, parameters);
+}
+aast::Entity* aast::ClassDeclaration::searchEverywhere(string identifier, vector<aast::ParameterDeclaration*>* parameters) {
+	return this->enclosing->searchEverywhere(identifier, parameters);
 }
 
 
@@ -49,8 +57,8 @@ aast::Entity* aast::ClassBody::searchHere(string identifier, vector<aast::Parame
 			aast::Declaration* declaration = dynamic_cast<aast::Declaration*>(currentStatement);
 			if (identifier == declaration->getName()) return declaration;
 		}
-		else if (parameters) {
-			if (dynamic_cast<aast::ConstructorDeclaration*>(currentStatement)) {
+		else if (parameters != nullptr) {
+			if (identifier.empty() && dynamic_cast<aast::ConstructorDeclaration*>(currentStatement)) {
 				aast::ConstructorDeclaration* constructorDeclaration = dynamic_cast<aast::ConstructorDeclaration*>(currentStatement);
 				if (sameParameters(constructorDeclaration->getParameterDeclarations(), parameters)) return constructorDeclaration;
 			}
@@ -61,7 +69,9 @@ aast::Entity* aast::ClassBody::searchHere(string identifier, vector<aast::Parame
 			}
 		}
 	}
-	return nullptr;
+	if (this->getThis()->getClassBaseName().empty()) return nullptr;
+	aast::Entity* baseBody = this->enclosing->searchEverywhere(this->getThis()->getClassBaseName(), nullptr);
+	return dynamic_cast<aast::ClassDeclaration*>(baseBody)->getClassBody()->searchHere(identifier, parameters);
 }
 aast::Entity* aast::ClassBody::searchEverywhere(string identifier, vector<aast::ParameterDeclaration*>* parameters) {
 	Entity* local = this->searchHere(identifier, parameters);

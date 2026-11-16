@@ -108,6 +108,7 @@ Id* Id::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
 ClassBody* ClassBody::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
 	int checkpoint = syntacticalAnalyzer->currentTokenIndex();
 	syntacticalAnalyzer->skipPossibleNewLines();
+	Span begin = syntacticalAnalyzer->relativeToken()->span;
 	if (syntacticalAnalyzer->nextToken()->code == TokenIs) {
 		ClassStatements* classStatements;
 		try {
@@ -123,7 +124,7 @@ ClassBody* ClassBody::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
 			syntacticalAnalyzer->setToken(checkpoint);
 			throw parser::EndExpected("class body", errorSpan);
 		}
-		return new ClassBody(classStatements);
+		return new ClassBody(classStatements, begin, syntacticalAnalyzer->currentToken()->span);
 	}
 	if (syntacticalAnalyzer->currentToken()->code != TokenArrow) {
 		Span errorSpan = syntacticalAnalyzer->currentToken()->span;
@@ -139,7 +140,7 @@ ClassBody* ClassBody::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
 		syntacticalAnalyzer->setToken(checkpoint);
 		throw parser::RuleParseError("class statement", errorSpan, e.what());
 	}
-	return new ClassBody(new ClassStatements(classStatement));
+	return new ClassBody(new ClassStatements(classStatement), begin, syntacticalAnalyzer->currentToken()->span);
 }
 
 

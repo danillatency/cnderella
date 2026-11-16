@@ -5,7 +5,7 @@
 #include "../errors/TerminalErrors.h"
 
 
-static aast::Access* lastAccess(vector<aast::AccessOrCall*>* here) {
+static aast::Access* extractLastAccess(vector<aast::AccessOrCall*>* here) {
 	for (int i = here->size() - 1; i > -1; i--) {
 		if (dynamic_cast<aast::Access*>(here->at(i)))
 			return dynamic_cast<aast::Access*>(here->at(i));
@@ -13,33 +13,73 @@ static aast::Access* lastAccess(vector<aast::AccessOrCall*>* here) {
 }
 
 
-const bool aast::Entity::isTypeChecked() {
-	return this->typeChecked;
+void combineErrors(vector<logic_error>* errors, vector<logic_error>* nestedErrors) {
+	errors->insert(errors->end(), nestedErrors->begin(), nestedErrors->end());
 }
-void aast::Entity::mark() {
-	this->typeChecked = true;
+
+
+vector<logic_error>* updateBtwType(aast::ClassDeclaration* btwType, string identifier, aast::EnclosingEntity* enclosing) {
+	vector<logic_error>* errors = new vector<logic_error>();
+	aast::Entity* beginIdentifierDeclaration = btwType ? btwType->getClassBody()->searchHere(identifier, nullptr) : enclosing->searchEverywhere(identifier, nullptr);
+	aast::LocalDeclaration* mbLocalDeclaration = dynamic_cast<aast::LocalDeclaration*>(beginIdentifierDeclaration);
+	if (mbLocalDeclaration) {
+		btwType = dynamic_cast<aast::ClassDeclaration*>(enclosing->searchEverywhere(mbLocalDeclaration->getExpression()->getType(), nullptr));
+		if (!btwType) {
+			errors->push_back(analyzer::Undeclared("entity", extractLastAccess(mbLocalDeclaration->getExpression()->getAccessesAndCalls())->getMultiSpan().begin));
+			return errors;
+		}
+		return errors;
+	}
+	aast::Declaration* mbDeclaration = dynamic_cast<aast::Declaration*>(beginIdentifierDeclaration);
+	if (mbDeclaration) {
+		btwType = dynamic_cast<aast::ClassDeclaration*>(enclosing->searchEverywhere(mbDeclaration->getExpression()->getType(), nullptr));
+		if (!btwType) {
+			errors->push_back(analyzer::Undeclared("class", mbDeclaration->getMultiSpan().begin));
+			return errors;
+		}
+		return errors;
+	}
+	aast::ParameterDeclaration* mbParameterDeclaration = dynamic_cast<aast::ParameterDeclaration*>(beginIdentifierDeclaration);
+	if (mbParameterDeclaration) {
+		btwType = dynamic_cast<aast::ClassDeclaration*>(enclosing->searchEverywhere(mbParameterDeclaration->getType(), nullptr));
+		if (!btwType) {
+			errors->push_back(analyzer::Undeclared("parameter class", mbParameterDeclaration->getMultiSpan().begin));
+			return errors;
+		}
+		return errors;
+	}
+	aast::ClassDeclaration* classDeclaration = dynamic_cast<aast::ClassDeclaration*>(beginIdentifierDeclaration);
+	if (!classDeclaration) {
+		errors->push_back(analyzer::Undeclared("identifier class", beginIdentifierDeclaration->getMultiSpan().begin));
+		return errors;
+	}
+	btwType = classDeclaration;
+	return errors;
 }
 
 
 vector<logic_error>* aast::Program::checkDeclarationSignatures() {
 	vector<logic_error>* errors = new vector<logic_error>();
-	for (int i = 0; i < this->classDeclarations.size(); i++) {
-		aast::ClassDeclaration* foundDeclaration = dynamic_cast<aast::ClassDeclaration*>(this->searchHere(this->classDeclarations.at(i)->getClassName(), nullptr));
-		if (foundDeclaration != this->classDeclarations.at(i))
-			errors->push_back(analyzer::Redeclaration("class", foundDeclaration->getMultiSpan().begin, this->classDeclarations.at(i)->getMultiSpan().begin));
-		vector<logic_error>* nestedErrors = this->classDeclarations.at(i)->getClassBody()->checkDeclarationSignatures();
-		errors->insert(errors->end(), nestedErrors->begin(), nestedErrors->end());
-	}
+	for (int i = 0; i < this->classDeclarations.size(); i++)
+		combineErrors(errors, this->classDeclarations.at(i)->checkDeclarationSignatures());
 	return errors;
 }
 vector<logic_error>* aast::Program::checkTypes() {
-	if (this->isTypeChecked()) return new vector<logic_error>();
-	this->mark();
 	vector<logic_error>* errors = new vector<logic_error>();
 	for (int i = 0; i < this->classDeclarations.size(); i++) {
 		vector<logic_error>* nestedErrors = this->classDeclarations.at(i)->checkTypes();
 		errors->insert(errors->end(), nestedErrors->begin(), nestedErrors->end());
 	}
+	return errors;
+}
+
+
+vector<logic_error>* aast::ClassDeclaration::checkDeclarationSignatures() {
+	vector<logic_error>* errors = new vector<logic_error>();
+	aast::ClassDeclaration* foundDeclaration = dynamic_cast<aast::ClassDeclaration*>(this->enclosing->searchHere(this->name, nullptr));
+	if (foundDeclaration != this)
+		errors->push_back(analyzer::Redeclaration("class", foundDeclaration->getMultiSpan().begin, this->getMultiSpan().begin));
+	combineErrors(errors, this->classBody->checkDeclarationSignatures());
 	return errors;
 }
 
@@ -71,8 +111,6 @@ vector<logic_error>* aast::ClassBody::checkDeclarationSignatures() {
 	return errors;
 }
 vector<logic_error>* aast::ClassBody::checkTypes() {
-	if (this->isTypeChecked()) return new vector<logic_error>();
-	this->mark();
 	vector<logic_error>* errors = new vector<logic_error>();
 	for (int i = 0; i < this->classStatements.size(); i++) {
 		vector<logic_error>* nestedErrors = this->classStatements.at(i)->checkTypes();
@@ -95,8 +133,6 @@ vector<logic_error>* aast::MethodDeclaration::checkDeclarationSignatures() {
 	return errors;
 }
 vector<logic_error>* aast::MethodDeclaration::checkTypes() {
-	if (this->isTypeChecked()) return new vector<logic_error>();
-	this->mark();
 	vector<logic_error>* errors = new vector<logic_error>();
 	for (int i = 0; i < this->parameterDeclarations.size(); i++) {
 		vector<logic_error>* nestedErrors = this->parameterDeclarations.at(i)->checkTypes();
@@ -139,8 +175,6 @@ vector<logic_error>* aast::AnyBody::checkDeclarationSignatures() {
 	return errors;
 }
 vector<logic_error>* aast::AnyBody::checkTypes() {
-	if (this->isTypeChecked()) return new vector<logic_error>();
-	this->mark();
 	vector<logic_error>* errors = new vector<logic_error>();
 	for (int i = 0; i < this->statements.size(); i++) {
 		vector<logic_error>* nestedErrors = this->statements.at(i)->checkTypes();
@@ -175,22 +209,16 @@ vector<logic_error>* aast::Declaration::checkDeclarationSignatures() {
 	return new vector<logic_error>();
 }
 vector<logic_error>* aast::Declaration::checkTypes() {
-	if (this->isTypeChecked()) return new vector<logic_error>();
-	this->mark();
 	return this->expression->checkTypes();
 }
 
 
 vector<logic_error>* aast::ClassDeclaration::checkTypes() {
-	if (this->isTypeChecked()) return new vector<logic_error>();
-	this->mark();
 	return this->classBody->checkTypes();
 }
 
 
 vector<logic_error>* aast::ParameterDeclaration::checkTypes() {
-	if (this->isTypeChecked()) return new vector<logic_error>();
-	this->mark();
 	vector<logic_error>* errors = new vector<logic_error>();
 	aast::ClassDeclaration* type = dynamic_cast<aast::ClassDeclaration*>(this->enclosing->searchEverywhere(this->type, nullptr));
 	if (!type)
@@ -200,8 +228,6 @@ vector<logic_error>* aast::ParameterDeclaration::checkTypes() {
 
 
 vector<logic_error>* aast::LocalDeclaration::checkTypes() {
-	if (this->isTypeChecked()) return new vector<logic_error>();
-	this->mark();
 	return this->expression->checkTypes();
 }
 
@@ -216,149 +242,38 @@ static vector<aast::ParameterDeclaration*>* expressionsToParameterDeclarations(v
 	return parameters;
 }
 vector<logic_error>* aast::IdentifierBeginningExpression::checkTypes() {
-	if (this->isTypeChecked()) return new vector<logic_error>();
-	this->mark();
 	vector<logic_error>* errors = new vector<logic_error>();
-	aast::ClassDeclaration* inferredType;
-	aast::Entity* foundDeclaration = this->enclosing->searchEverywhere(this->identifier, nullptr);
-	aast::LocalDeclaration* localDeclaration = dynamic_cast<aast::LocalDeclaration*>(foundDeclaration);
-	if (localDeclaration) {
-		vector<logic_error>* nestedErrors = localDeclaration->checkTypes();
-		errors->insert(errors->end(), nestedErrors->begin(), nestedErrors->end());
-		string targetType = localDeclaration->getExpression()->getType();
-		inferredType = dynamic_cast<aast::ClassDeclaration*>(this->enclosing->searchEverywhere(targetType, nullptr));
-		if (!inferredType) {
-			errors->push_back(analyzer::Undeclared("entity", lastAccess(localDeclaration->getExpression()->getAccessesAndCalls())->getMultiSpan().begin));
-			return errors;
-		}
-	}
-	else {
-		aast::Declaration* declaration = dynamic_cast<aast::Declaration*>(foundDeclaration);
-		if (declaration) {
-			vector<logic_error>* nestedErrors = declaration->checkTypes();
-			errors->insert(errors->end(), nestedErrors->begin(), nestedErrors->end());
-			string targetType = declaration->getExpression()->getType();
-			inferredType = dynamic_cast<aast::ClassDeclaration*>(this->enclosing->searchEverywhere(targetType, nullptr));
-			if (!inferredType) {
-				errors->push_back(analyzer::Undeclared("class", declaration->getMultiSpan().begin));
-				return errors;
-			}
-		}
-		else {
-			aast::ParameterDeclaration* parameterDeclaration = dynamic_cast<aast::ParameterDeclaration*>(foundDeclaration);
-			if (parameterDeclaration) {
-				vector<logic_error>* nestedErrors = parameterDeclaration->checkTypes();
-				errors->insert(errors->end(), nestedErrors->begin(), nestedErrors->end());
-				string targetType = parameterDeclaration->getType();
-				inferredType = dynamic_cast<aast::ClassDeclaration*>(this->enclosing->searchEverywhere(targetType, nullptr));
-				if (!inferredType) {
-					errors->push_back(analyzer::Undeclared("parameter class", parameterDeclaration->getMultiSpan().begin));
-					return errors;
-				}
-			}
-			else {
-				aast::ClassDeclaration* classDeclaration = dynamic_cast<aast::ClassDeclaration*>(foundDeclaration);
-				if (!classDeclaration) {
-					errors->push_back(analyzer::Undeclared("identifier class", foundDeclaration->getMultiSpan().begin));
-					return errors;
-				}
-				inferredType = classDeclaration;
-			}
-		}
-	}
+	if (this->identifier.rfind("system", 0) == 0) return errors;
+	aast::ClassDeclaration* btwType = nullptr;
+	combineErrors(errors, updateBtwType(btwType, this->identifier, this->enclosing));
+	if (errors->size()) return errors;
 	for (int i = 0; i < this->accessesAndCalls.size(); i++) {
 		aast::Access* access = dynamic_cast<aast::Access*>(this->accessesAndCalls.at(i));
 		aast::Call* call = dynamic_cast<aast::Call*>(this->accessesAndCalls.at(i < this->accessesAndCalls.size() - 1 ? i + 1 : i));
-		if (call) {
-			vector<logic_error>* nestedErrors = call->checkTypes();
-			errors->insert(errors->end(), nestedErrors->begin(), nestedErrors->end());
-		}
-		else continue;
+		if (call) combineErrors(errors, call->checkTypes());
 		if (access && call) {
-			aast::Entity* methodFoundInInferredType = inferredType->getClassBody()->searchHere(access->getIdentifier(), expressionsToParameterDeclarations(call->getExpressions()));
-			aast::MethodDeclaration* inferredMethod = dynamic_cast<aast::MethodDeclaration*>(methodFoundInInferredType);
-			if (!inferredMethod) {
+			aast::MethodDeclaration* btwTypeMethod = dynamic_cast<aast::MethodDeclaration*>(btwType->getClassBody()->searchHere(access->getIdentifier(), expressionsToParameterDeclarations(call->getExpressions())));
+			if (!btwTypeMethod) {
 				errors->push_back(analyzer::Undeclared("method", access->getMultiSpan().begin));
 				return errors;
 			}
-			aast::ReturnStatement* methodReturn = inferredMethod->getAnyBody()->getReturnStatement();
+			aast::ReturnStatement* methodReturn = btwTypeMethod->getAnyBody()->getReturnStatement();
 			if (!methodReturn) {
-				inferredType = nullptr;
+				btwType = nullptr;
 				continue;
 			}
-			vector<logic_error>* nestedErrors = methodReturn->checkTypes();
-			errors->insert(errors->end(), nestedErrors->begin(), nestedErrors->end());
-			aast::Entity* foundType = this->enclosing->searchEverywhere(methodReturn->getExpression()->getType(), nullptr);
-			inferredType = dynamic_cast<aast::ClassDeclaration*>(foundType);
-			if (!inferredType) {
-				vector<aast::AccessOrCall*>* chain = methodReturn->getExpression()->getAccessesAndCalls();
-				int lastAccessIndex = methodReturn->getExpression()->getAccessesAndCalls()->size() - 1;
-				for (; lastAccessIndex > 0; lastAccessIndex--)
-					if (dynamic_cast<aast::Access*>(chain->at(lastAccessIndex)))
-						break;
-				errors->push_back(analyzer::Undeclared("element", chain->at(lastAccessIndex)->getMultiSpan().begin));
-				return errors;
-			}
+			btwType = dynamic_cast<aast::ClassDeclaration*>(this->enclosing->searchEverywhere(methodReturn->getExpression()->getType(), nullptr));
 			continue;
 		}
-		aast::Entity* foundIdentifier = this->enclosing->searchEverywhere(access->getIdentifier(), nullptr);
-		aast::LocalDeclaration* localDeclaration = dynamic_cast<aast::LocalDeclaration*>(foundIdentifier);
-		aast::Declaration* declaration = dynamic_cast<aast::Declaration*>(foundIdentifier);
-		aast::ParameterDeclaration* parameterDeclaration = dynamic_cast<aast::ParameterDeclaration*>(foundIdentifier);
-		aast::ClassDeclaration* classDeclaration = dynamic_cast<aast::ClassDeclaration*>(foundIdentifier);
-		aast::ClassDeclaration* inferredType;
-		if (localDeclaration) {
-			vector<logic_error>* nestedErrors = localDeclaration->getExpression()->checkTypes();
-			errors->insert(errors->end(), nestedErrors->begin(), nestedErrors->end());
-			aast::Entity* foundType = localDeclaration->getEnclosing()->searchEverywhere(localDeclaration->getExpression()->getType(), nullptr);
-			inferredType = dynamic_cast<aast::ClassDeclaration*>(foundType);
-			if (!inferredType) {
-				vector<aast::AccessOrCall*>* chain = localDeclaration->getExpression()->getAccessesAndCalls();
-				int lastAccessIndex = localDeclaration->getExpression()->getAccessesAndCalls()->size() - 1;
-				for (; lastAccessIndex > 0; lastAccessIndex--) {
-					if (dynamic_cast<aast::Access*>(chain->at(lastAccessIndex)))
-						break;
-				}
-				errors->push_back(analyzer::Undeclared("element", chain->at(lastAccessIndex)->getMultiSpan().begin));
-				return errors;
-			}
-		}
-		else if (declaration) {
-			vector<logic_error>* nestedErrors = declaration->getExpression()->checkTypes();
-			errors->insert(errors->end(), nestedErrors->begin(), nestedErrors->end());
-			aast::Entity* foundType = declaration->getEnclosing()->searchEverywhere(declaration->getExpression()->getType(), nullptr);
-			inferredType = dynamic_cast<aast::ClassDeclaration*>(foundType);
-			if (!inferredType) {
-				vector<aast::AccessOrCall*>* chain = declaration->getExpression()->getAccessesAndCalls();
-				int lastAccessIndex = declaration->getExpression()->getAccessesAndCalls()->size() - 1;
-				for (; lastAccessIndex > 0; lastAccessIndex--)
-					if (dynamic_cast<aast::Access*>(chain->at(lastAccessIndex)))
-						break;
-				errors->push_back(analyzer::Undeclared("element", chain->at(lastAccessIndex)->getMultiSpan().begin));
-				return errors;
-			}
-		}
-		else if (parameterDeclaration) {
-			aast::Entity* foundType = parameterDeclaration->getEnclosing()->searchEverywhere(parameterDeclaration->getType(), nullptr);
-			inferredType = dynamic_cast<aast::ClassDeclaration*>(foundType);
-			if (!inferredType) {
-				errors->push_back(analyzer::Undeclared("class", parameterDeclaration->getMultiSpan().end));
-				return errors;
-			}
-		}
-		else if (!classDeclaration) {
-			errors->push_back(analyzer::Undeclared("element", this->multiSpan->begin));
-			return errors;
-		}
+		vector<logic_error>* nestedErrors = new vector<logic_error>();
+		combineErrors(errors, updateBtwType(btwType, access->getIdentifier(), nullptr));
 	}
-	this->type = inferredType->getClassName();
+	this->type = btwType->getClassName();
 	return errors;
 }
 
 
 vector<logic_error>* aast::ThisBeginningExpression::checkTypes() {
-	if (this->isTypeChecked()) return new vector<logic_error>();
-	this->mark();
 	vector<logic_error>* errors = new vector<logic_error>();
 	if (!this->accessesAndCalls.size()) {
 		this->type = this->enclosing->getThis()->getClassName();
@@ -489,8 +404,6 @@ vector<logic_error>* aast::ThisBeginningExpression::checkTypes() {
 
 
 vector<logic_error>* aast::BaseBeginningExpression::checkTypes() {
-	if (this->isTypeChecked()) return new vector<logic_error>();
-	this->mark();
 	vector<logic_error>* errors = new vector<logic_error>();
 	if (!this->accessesAndCalls.size()) {
 		this->type = this->enclosing->getThis()->getClassBaseName();
@@ -627,8 +540,6 @@ vector<logic_error>* aast::BaseBeginningExpression::checkTypes() {
 
 
 vector<logic_error>* aast::LiteralBeginningExpression::checkTypes() {
-	if (this->isTypeChecked()) return new vector<logic_error>();
-	this->mark();
 	vector<logic_error>* errors = new vector<logic_error>();
 	string type = dynamic_cast<aast::IdentifierBeginningExpression*>(dynamic_cast<aast::LocalDeclaration*>(this->literalCreationStatements.at(0))->getExpression())->getIdentifier();
 	if (!this->accessesAndCalls.size()) {
@@ -727,22 +638,16 @@ vector<logic_error>* aast::LiteralBeginningExpression::checkTypes() {
 
 
 vector<logic_error>* aast::Access::checkTypes() {
-	if (this->isTypeChecked()) return new vector<logic_error>();
-	this->mark();
 	return new vector<logic_error>();
 }
 
 
 vector<logic_error>* aast::Call::checkTypes() {
-	if (this->isTypeChecked()) return new vector<logic_error>();
-	this->mark();
 	return new vector<logic_error>();
 }
 
 
 vector<logic_error>* aast::Assignment::checkTypes() {
-	if (this->isTypeChecked()) return new vector<logic_error>();
-	this->mark();
 	vector<logic_error>* errors = new vector<logic_error>();
 	vector<logic_error>* nestedErrors1 = this->expression1->checkTypes();
 	vector<logic_error>* nestedErrors2 = this->expression2->checkTypes();
@@ -755,8 +660,6 @@ vector<logic_error>* aast::Assignment::checkTypes() {
 
 
 vector<logic_error>* aast::IfStatement::checkTypes() {
-	if (this->isTypeChecked()) return new vector<logic_error>();
-	this->mark();
 	vector<logic_error>* errors = new vector<logic_error>();
 	vector<logic_error>* nestedErrorsCondition = this->condition->checkTypes();
 	if (this->condition->getType() != "Boolean") {
@@ -777,8 +680,6 @@ vector<logic_error>* aast::IfStatement::checkTypes() {
 
 
 vector<logic_error>* aast::WhileStatement::checkTypes() {
-	if (this->isTypeChecked()) return new vector<logic_error>();
-	this->mark();
 	vector<logic_error>* errors = new vector<logic_error>();
 	vector<logic_error>* nestedErrorsCondition = this->condition->checkTypes();
 	if (this->condition->getType() != "Boolean") {
@@ -797,15 +698,11 @@ vector<logic_error>* aast::WhileStatement::checkTypes() {
 
 
 vector<logic_error>* aast::ReturnStatement::checkTypes() {
-	if (this->isTypeChecked()) return new vector<logic_error>();
-	this->mark();
 	return this->expression->checkTypes();
 }
 
 
 vector<logic_error>* aast::ConstructorDeclaration::checkTypes() {
-	if (this->isTypeChecked()) return new vector<logic_error>();
-	this->mark();
 	vector<logic_error>* errors = new vector<logic_error>();
 	for (int i = 0; i < this->parameterDeclarations.size(); i++) {
 		vector<logic_error>* nestedErrors = this->parameterDeclarations.at(i)->checkTypes();

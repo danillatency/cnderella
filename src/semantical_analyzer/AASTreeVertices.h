@@ -14,7 +14,6 @@ namespace aast {
 		int printPadding = 4;
 		EnclosingEntity* enclosing;
 		MultiSpan* multiSpan;
-		bool typeChecked = false;
 
 	public:
 		virtual ~Entity() = default;
@@ -29,8 +28,6 @@ namespace aast {
 		EnclosingEntity* getEnclosing();
 
 		virtual vector<logic_error>* checkTypes() = 0;
-
-		const bool isTypeChecked();
 
 		void mark();
 	};
@@ -71,7 +68,7 @@ namespace aast {
 
 
 	class ClassBody;
-	class ClassDeclaration : public Entity {
+	class ClassDeclaration : public EnclosingEntity {
 	private:
 		string name;
 		string baseName;
@@ -89,7 +86,12 @@ namespace aast {
 
 		void selfPrint(unsigned int depth) override;
 
+		Entity* searchHere(string identifier, vector<aast::ParameterDeclaration*>* parameters) override;
+		Entity* searchEverywhere(string identifier, vector<aast::ParameterDeclaration*>* parameters) override;
+
 		vector<logic_error>* checkTypes() override;
+
+		vector<logic_error>* checkDeclarationSignatures() override;
 	};
 
 

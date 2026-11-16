@@ -22,7 +22,7 @@ ClassHead::ClassHead(Id* name, Id* baseName) : name(name), baseName(baseName) {}
 Id::Id(string identifier) : identifier(identifier) {}
 
 
-ClassBody::ClassBody(ClassStatements* classStatements) : classStatements(classStatements) {}
+ClassBody::ClassBody(ClassStatements* classStatements, Span begin, Span end) : WithMultiSpan(begin, end), classStatements(classStatements) {}
 
 
 ClassStatements::ClassStatements() : classStatement(nullptr), classStatements(nullptr) {}
