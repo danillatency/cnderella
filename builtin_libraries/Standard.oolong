@@ -7,6 +7,9 @@ class Class is
 end
 
 
+class System : Class is end
+
+
 class AnyValue : Class is
     var dynamic_type := "AnyValue"
 end
@@ -248,6 +251,11 @@ class Character : AnyValue is
 
     method print() => systemPrintCharacter(this.value)
     method print-line() => systemPrintLineCharacter(this.value)
+    method equal(other: Character) is
+        var temp := Boolean()
+        temp.value := systemCharacterEqual(this.value, other.value)
+        return temp
+    end
 end
 
 
@@ -255,6 +263,13 @@ class AnyReference : Class is
     var dynamic_type := "AnyReference"
     var length := Integer()
     var memory := systemAllocateMemory()
+
+    method is-empty() => if this.length.equal(Integer()) then return true else return false end
+    method as-list(): AnyList => return systemCast(this)
+    method as-list-of-integers(): ListOfIntegers => return systemCast(this)
+    method as-list-of-booleans(): ListOfBooleans => return systemCast(this)
+    method as-list-of-floats(): ListOfFloats => return systemCast(this)
+    method as-list-of-characters(): ListOfCharacters => return systemCast(this)
 end
 
 
@@ -281,7 +296,7 @@ class AnyArray : AnyReference is
 end
 
 
-class ArrayOfIntegers : AnyReference is
+class ArrayOfIntegers : AnyArray is
     var dynamic_type := "ArrayOfIntegers"
 
     this(length: Integer) => base(length)
@@ -291,7 +306,7 @@ class ArrayOfIntegers : AnyReference is
 end
 
 
-class ArrayOfBooleans : AnyReference is
+class ArrayOfBooleans : AnyArray is
     var dynamic_type := "ArrayOfBooleans"
 
     this(length: Integer) => base(length)
@@ -301,7 +316,7 @@ class ArrayOfBooleans : AnyReference is
 end
 
 
-class ArrayOfFloats : AnyReference is
+class ArrayOfFloats : AnyArray is
     var dynamic_type := "ArrayOfFloats"
 
     this(length: Integer) => base(length)
@@ -311,13 +326,22 @@ class ArrayOfFloats : AnyReference is
 end
 
 
-class ArrayOfCharacters : AnyReference is
+class ArrayOfCharacters : AnyArray is
     var dynamic_type := "ArrayOfCharacters"
 
     this(length: Integer) => base(length)
     
     method get(shift: Integer) : Character => return systemShiftMemory(this.address, shift.value)
     method set(shift: Integer, character: Character) => systemShiftMemory(this.address, shift.value) := character
+    method equal(other: ArrayOfCharacters) => if this.length.equal(other.length).not() then false
+        else
+           var i := 0
+           while i.equal(this.length).not() loop
+               if this.get(i).equal(other.get(i)).not() then return false end
+               i := i.plus(1)
+           end
+           return true
+        end
 end
 
 
@@ -331,9 +355,9 @@ class AnyList : AnyReference is
             systemMemoryPrint(this.memory)
             var next := this.next_list
             while next.is-empty().not() loop
-                next.memory.print()
+                systemPrintMemory(next.memory)
                 ", ".print()
-                next := next.next_list
+                next := next.as-list().next_list
             end
             '}'.print()
         end
@@ -343,10 +367,6 @@ class AnyList : AnyReference is
         this.print()
         '
 '.print()
-    end
-    method is-empty() is
-        var temp := Boolean()
-        if this.length.equal(Integer()) then temp.not() else temp end
     end
 end
 
@@ -366,9 +386,9 @@ class ListOfIntegers : AnyList is
             var next := this.next_list
             while next.is-empty().not() loop
                 next.length := next.length.plus(1)
-                next := next.next_list
+                next := next.as-list().next_list
             end
-            next.append(integer)
+            next.as-list-of-integers().append(integer)
         end
 
     method head(): Integer => return this.memory
@@ -392,9 +412,9 @@ class ListOfBooleans : AnyList is
             var next := this.next_list
             while next.is-empty().not() loop
                 next.length := next.length.plus(1)
-                next := next.next_list
+                next := next.as-list().next_list
             end
-            next.append(boolean)
+            next.as-list-of-booleans().append(boolean)
         end
 
     method head(): Boolean => return this.memory
@@ -418,9 +438,9 @@ class ListOfFloats : AnyList is
             var next := this.next_list
             while next.is-empty().not() loop
                 next.length := next.length.plus(1)
-                next := next.next_list
+                next := next.as-list().next_list
             end
-            next.append(float)
+            next.as-list-of-floats().append(float)
         end
 
     method head(): Float => return this.memory
@@ -444,9 +464,9 @@ class ListOfCharacters : AnyList is
             var next := this.next_list
             while next.is-empty().not() loop
                 next.length := next.length.plus(1)
-                next := next.next_list
+                next := next.as-list().next_list
             end
-            next.append(character)
+            next.as-list-of-characters().append(character)
         end
 
     method head(): Character => return this.memory

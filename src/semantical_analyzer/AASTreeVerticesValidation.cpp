@@ -67,7 +67,7 @@ static vector<logic_error>* updateBtwType(aast::ClassDeclaration*& btwType, stri
 	}
 	aast::ClassDeclaration* classDeclaration = dynamic_cast<aast::ClassDeclaration*>(beginIdentifierDeclaration);
 	if (!classDeclaration) {
-		errors->push_back(analyzer::Undeclared(identifier, Span(0, 0, 0)));
+		errors->push_back(analyzer::Undeclared(identifier, okEnclosing->getMultiSpan().begin));
 		return errors;
 	}
 	btwType = classDeclaration;
@@ -78,6 +78,7 @@ static vector<logic_error>* updateBtwType(aast::ClassDeclaration*& btwType, stri
 static vector<logic_error>* chainUpdateBtwType(aast::ClassDeclaration*& btwType, vector<aast::AccessOrCall*>& accessesAndCalls, aast::EnclosingEntity* enclosing) {
 	vector<logic_error>* errors = new vector<logic_error>();
 	for (int i = 0; i < accessesAndCalls.size(); i++) {
+		if (btwType->getClassName() == "System") break;
 		aast::Access* access = dynamic_cast<aast::Access*>(accessesAndCalls.at(i));
 		aast::Call* call = dynamic_cast<aast::Call*>(accessesAndCalls.at(i));
 		aast::Call* furtherCall = dynamic_cast<aast::Call*>(accessesAndCalls.at(i < accessesAndCalls.size() - 1 ? i + 1 : i));
@@ -94,6 +95,10 @@ static vector<logic_error>* chainUpdateBtwType(aast::ClassDeclaration*& btwType,
 				errors->push_back(analyzer::Undeclared("method", access->getMultiSpan().begin));
 				return errors;
 			}
+			if (!btwTypeMethod->getType().empty()) {
+				btwType = dynamic_cast<aast::ClassDeclaration*>(enclosing->searchEverywhere(btwTypeMethod->getType(), nullptr));
+				continue;
+			}
 			aast::ReturnStatement* methodReturn = btwTypeMethod->getAnyBody()->getReturnStatement();
 			if (!methodReturn) {
 				btwType = nullptr;
@@ -107,6 +112,7 @@ static vector<logic_error>* chainUpdateBtwType(aast::ClassDeclaration*& btwType,
 		if (call) continue;
 		combineErrors(errors, updateBtwType(btwType, access->getIdentifier(), nullptr));
 	}
+	return errors;
 }
 
 
@@ -195,11 +201,11 @@ vector<logic_error>* aast::MethodDeclaration::checkTypes() {
 	for (int i = 0; i < this->parameterDeclarations.size(); i++)
 		combineErrors(errors, this->parameterDeclarations.at(i)->checkTypes());
 	combineErrors(errors, this->body->checkTypes());
-	if (this->body->getReturnStatement() && !this->body->getReturnStatement()->getExpression()->getType().empty()) {
+	if (this->body->getReturnStatement() && this->body->getReturnStatement()->getExpression()->getType() != "System") {
 		if (this->type.empty())
 			this->type = this->body->getReturnStatement()->getExpression()->getType();
 		if (!isInheritedFrom(this->type, this->body->getReturnStatement()->getExpression()->getType(), this->enclosing))
-			errors->push_back(analyzer::TypesMismatch(this->type, this->body->getReturnStatement()->getExpression()->getType(), this->body->getReturnStatement()->getExpression()->getAccessesAndCalls()->at(0)->getMultiSpan().begin));
+			errors->push_back(analyzer::TypesMismatch(this->type, this->body->getReturnStatement()->getExpression()->getType(), this->body->getReturnStatement()->getExpression()->getMultiSpan().begin));
 	}
 	return errors;
 }
@@ -236,6 +242,17 @@ vector<logic_error>* aast::AnyBody::checkTypes() {
 aast::ReturnStatement* aast::AnyBody::getReturnStatement() {
 	for (int i = 0; i < this->statements.size(); i++) {
 		aast::ReturnStatement* statement = dynamic_cast<aast::ReturnStatement*>(this->statements.at(i));
+		if (statement) return statement;
+		aast::IfStatement* ifStatement = dynamic_cast<aast::IfStatement*>(this->statements.at(i));
+		if (ifStatement) {
+			statement = ifStatement->getFalseBody()->getReturnStatement();
+			if (statement) return statement;
+			statement = ifStatement->getTrueBody()->getReturnStatement();
+			if (statement) return statement;
+		}
+		aast::WhileStatement* whileStatement = dynamic_cast<aast::WhileStatement*>(this->statements.at(i));
+		if (whileStatement)
+			statement = whileStatement->getBody()->getReturnStatement();
 		if (statement) return statement;
 	}
 	return nullptr;
@@ -285,13 +302,18 @@ vector<logic_error>* aast::LocalDeclaration::checkTypes() {
 
 vector<logic_error>* aast::IdentifierBeginningExpression::checkTypes() {
 	vector<logic_error>* errors = new vector<logic_error>();
-	if (this->identifier.rfind("system", 0) == 0) return errors;
+	if (this->identifier.rfind("system", 0) == 0) { 
+		this->type = "System";
+		return errors;
+	}
 	aast::ClassDeclaration* btwType = nullptr;
 	combineErrors(errors, updateBtwType(btwType, this->identifier, this->enclosing));
 	if (errors->size()) return errors;
 	combineErrors(errors, chainUpdateBtwType(btwType, this->accessesAndCalls, this->enclosing));
 	if (btwType)
 		this->type = btwType->getClassName();
+	else
+		this->type = "";
 	return errors;
 }
 
@@ -306,6 +328,8 @@ vector<logic_error>* aast::ThisBeginningExpression::checkTypes() {
 	combineErrors(errors, chainUpdateBtwType(btwType, this->accessesAndCalls, this->enclosing));
 	if (btwType)
 		this->type = btwType->getClassName();
+	else
+		this->type = "";
 	return errors;
 }
 
@@ -320,6 +344,8 @@ vector<logic_error>* aast::BaseBeginningExpression::checkTypes() {
 	combineErrors(errors, chainUpdateBtwType(btwType, this->accessesAndCalls, this->enclosing));
 	if (btwType)
 		this->type = btwType->getClassName();
+	else
+		this->type = "";
 	return errors;
 }
 
@@ -332,6 +358,8 @@ vector<logic_error>* aast::LiteralBeginningExpression::checkTypes() {
 	combineErrors(errors, chainUpdateBtwType(btwType, this->accessesAndCalls, this->enclosing));
 	if (btwType)
 		this->type = btwType->getClassName();
+	else
+		this->type = "";
 	return errors;
 }
 
@@ -353,8 +381,10 @@ vector<logic_error>* aast::Assignment::checkTypes() {
 	vector<logic_error>* errors = new vector<logic_error>();
 	combineErrors(errors, this->expression1->checkTypes());
 	combineErrors(errors, this->expression2->checkTypes());
-	if (!this->expression1->getType().empty() && !this->expression2->getType().empty() && !isInheritedFrom(this->expression2->getType(), this->expression1->getType(), this->enclosing))
-		errors->push_back(analyzer::TypesMismatch(this->expression1->getType(), this->expression2->getType(), this->expression1->getMultiSpan().begin));
+	if (this->expression1->getType() != "System")
+		if (this->expression2->getType() != "System")
+			if (!isInheritedFrom(this->expression2->getType(), this->expression1->getType(), this->enclosing))
+				errors->push_back(analyzer::TypesMismatch(this->expression1->getType(), this->expression2->getType(), this->expression1->getMultiSpan().begin));
 	return errors;
 }
 
@@ -363,12 +393,8 @@ vector<logic_error>* aast::IfStatement::checkTypes() {
 	vector<logic_error>* errors = new vector<logic_error>();
 	combineErrors(errors, this->condition->checkTypes());
 	if (this->condition->getType() != "Boolean") {
-		vector<aast::AccessOrCall*>* chain = this->condition->getAccessesAndCalls();
-		int lastAccessIndex = this->condition->getAccessesAndCalls()->size() - 1;
-		for (; lastAccessIndex > 0; lastAccessIndex--)
-			if (dynamic_cast<aast::Access*>(chain->at(lastAccessIndex)))
-				break;
-		errors->push_back(analyzer::Undeclared("element", chain->at(lastAccessIndex)->getMultiSpan().begin));
+		aast::Access* lastAccess = extractLastAccess(this->getCondition()->getAccessesAndCalls());
+		errors->push_back(analyzer::Undeclared("element", lastAccess ? lastAccess->getMultiSpan().begin : this->getCondition()->getMultiSpan().begin));
 		return errors;
 	}
 	combineErrors(errors, this->trueBody->checkTypes());
@@ -381,12 +407,7 @@ vector<logic_error>* aast::WhileStatement::checkTypes() {
 	vector<logic_error>* errors = new vector<logic_error>();
 	combineErrors(errors, this->condition->checkTypes());
 	if (this->condition->getType() != "Boolean") {
-		vector<aast::AccessOrCall*>* chain = this->condition->getAccessesAndCalls();
-		int lastAccessIndex = this->condition->getAccessesAndCalls()->size() - 1;
-		for (; lastAccessIndex > 0; lastAccessIndex--)
-			if (dynamic_cast<aast::Access*>(chain->at(lastAccessIndex)))
-				break;
-		errors->push_back(analyzer::Undeclared("element", chain->at(lastAccessIndex)->getMultiSpan().begin));
+		errors->push_back(analyzer::TypesMismatch("Boolean", this->condition->getType(), this->condition->getMultiSpan().begin));
 		return errors;
 	}
 	combineErrors(errors, this->body->checkTypes());
