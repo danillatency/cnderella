@@ -1,0 +1,8 @@
+class UselessIfStatement is
+    this() => 
+        if true then 
+            true.print-line()
+        else  
+            false.print-line()
+        end
+end

@@ -12,18 +12,18 @@ using namespace std;
 
 static string usePlaceholder(int argc, char** argv) {
 	if (argc > 1) return argv[1];
-	return "oolong_programs/CelciusToKelvin.oolong";
+	return "oolong_programs/UselessIfStatement.oolong";
 }
 
 
 int main(int argc, char* argv[]) {
 	try {
-		//OolongLexicalAnalyzer standardLexer("builtin_libraries/Standard.oolong");
-		OolongLexicalAnalyzer standardLexer(usePlaceholder(argc, argv));
-		//OolongLexicalAnalyzer lexer(usePlaceholder(argc, argv));
+		OolongLexicalAnalyzer standardLexer("builtin_libraries/Standard.oolong");
+		//OolongLexicalAnalyzer standardLexer(usePlaceholder(argc, argv));
+		OolongLexicalAnalyzer lexer(usePlaceholder(argc, argv));
 		standardLexer.analyze();
-		//lexer.analyze();
-		//standardLexer += lexer;
+		lexer.analyze();
+		standardLexer += lexer;
 
 		standardLexer.printTokens();
 
@@ -39,12 +39,11 @@ int main(int argc, char* argv[]) {
 		semanticalAnalyzer.visualize();
 
 		semanticalAnalyzer.checkDeclarationSignatures();
-		cout << '\n';
 		semanticalAnalyzer.checkTypes();
-		cout << '\n';
 		semanticalAnalyzer.throwErrors();
-
 		cout << "\n";
+		semanticalAnalyzer.optimize();
+		semanticalAnalyzer.visualize();
 		// cin.ignore();
 	}
 	catch (const exception& e) {

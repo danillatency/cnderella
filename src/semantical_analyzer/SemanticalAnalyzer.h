@@ -27,6 +27,8 @@ public:
 	void throwErrors();
 
 	void visualize();
+
+	void optimize();
 };
 
 

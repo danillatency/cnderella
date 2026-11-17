@@ -126,6 +126,9 @@ string aast::IdentifierBeginningExpression::getIdentifier() {
 void aast::LiteralBeginningExpression::addLiteralCreationStatement(aast::Statement* statement) {
 	this->literalCreationStatements.push_back(statement);
 }
+vector<aast::Statement*>* aast::LiteralBeginningExpression::getLiteralCreationStatements() {
+	return &this->literalCreationStatements;
+}
 
 
 void aast::Access::setIdentifier(string identifier) {
@@ -150,10 +153,16 @@ void aast::Assignment::setExpression1(aast::Expression* expression1) {
 void aast::Assignment::setExpression2(aast::Expression* expression2) {
 	this->expression2 = expression2;
 }
+aast::Expression* aast::Assignment::getExpression2() {
+	return this->expression2;
+}
 
 
 void aast::IfStatement::setCondition(aast::Expression* condition) {
 	this->condition = condition;
+}
+aast::Expression* aast::IfStatement::getCondition() {
+	return this->condition;
 }
 void aast::IfStatement::addTrueStatement(aast::Statement* statement) {
 	this->trueBody->addStatement(statement);

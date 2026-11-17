@@ -30,6 +30,8 @@ namespace aast {
 
 		virtual vector<logic_error>* checkTypes() = 0;
 
+		virtual void optimize();
+
 		// extract to another class
 		// bool isInheritedFrom(Expression* entity);
 	};
@@ -66,6 +68,8 @@ namespace aast {
 		vector<logic_error>* checkDeclarationSignatures() override;
 
 		vector<logic_error>* checkTypes() override;
+
+		void optimize() override;
 	};
 
 
@@ -94,6 +98,8 @@ namespace aast {
 		vector<logic_error>* checkTypes() override;
 
 		vector<logic_error>* checkDeclarationSignatures() override;
+
+		void optimize() override;
 	};
 
 
@@ -117,6 +123,8 @@ namespace aast {
 		vector<logic_error>* checkTypes() override;
 
 		void setEnclosing(EnclosingEntity* entity) override;
+
+		void optimize() override;
 	};
 
 
@@ -159,6 +167,8 @@ namespace aast {
 		vector<logic_error>* checkTypes() override;
 
 		void setEnclosing(EnclosingEntity* entity) override;
+
+		void optimize() override;
 	};
 
 
@@ -203,6 +213,8 @@ namespace aast {
 		ReturnStatement* getReturnStatement();
 
 		void setEnclosing(EnclosingEntity* entity) override;
+
+		void optimize() override;
 	};
 
 
@@ -323,6 +335,7 @@ namespace aast {
 
 	public:
 		void addLiteralCreationStatement(Statement* statement);
+		vector<Statement*>* getLiteralCreationStatements();
 
 		void selfPrint(unsigned int depth) override;
 
@@ -339,6 +352,7 @@ namespace aast {
 		void setExpression1(Expression* expression1);
 
 		void setExpression2(Expression* expression2);
+		aast::Expression* getExpression2();
 
 		void selfPrint(unsigned int depth) override;
 
@@ -356,6 +370,7 @@ namespace aast {
 
 	public:
 		void setCondition(Expression* condition);
+		aast::Expression* getCondition();
 
 		void addTrueStatement(Statement* statement);
 		AnyBody* getTrueBody();
@@ -387,6 +402,8 @@ namespace aast {
 		vector<logic_error>* checkTypes() override;
 
 		void setEnclosing(EnclosingEntity* entity) override;
+
+		void optimize() override;
 	};
 
 
@@ -429,6 +446,8 @@ namespace aast {
 		vector<logic_error>* checkTypes() override;
 
 		void setEnclosing(EnclosingEntity* entity) override;
+
+		void optimize() override;
 	};
 
 

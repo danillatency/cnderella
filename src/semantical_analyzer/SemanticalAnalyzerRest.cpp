@@ -25,3 +25,7 @@ void SemanticalAnalyzer::throwErrors() {
 		errors += this->errors->at(i).what();
 	throw logic_error(errors);
 }
+
+void SemanticalAnalyzer::optimize() {
+	this->tree->optimize();
+}
