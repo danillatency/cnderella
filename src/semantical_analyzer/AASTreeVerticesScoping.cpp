@@ -1,21 +1,107 @@
 #include <vector>
 
 #include "AASTreeVertices.h"
+#include "../errors/TerminalErrors.h"
 
 
 void aast::Entity::setEnclosing(aast::EnclosingEntity* entity) {
 	this->enclosing = entity;
 }
+
 aast::EnclosingEntity* aast::Entity::getEnclosing() {
 	return this->enclosing;
+}
+
+
+void aast::ClassBody::setEnclosing(aast::EnclosingEntity* entity) {
+	this->enclosing = entity;
+	for (int i = 0; i < this->classStatements.size(); i++)
+		this->classStatements.at(i)->setEnclosing(this);
+}
+
+
+void aast::MethodDeclaration::setEnclosing(aast::EnclosingEntity* entity) {
+	this->enclosing = entity;
+	for (int i = 0; i < this->parameterDeclarations.size(); i++)
+		this->parameterDeclarations.at(i)->setEnclosing(this);
+	this->body->setEnclosing(this);
+}
+
+
+void aast::ConstructorDeclaration::setEnclosing(aast::EnclosingEntity* entity) {
+	this->enclosing = entity;
+	this->body->setEnclosing(this);
+	for (int i = 0; i < this->parameterDeclarations.size(); i++)
+		this->parameterDeclarations.at(i)->setEnclosing(this);
+}
+
+
+void aast::Declaration::setEnclosing(aast::EnclosingEntity* entity) {
+	this->enclosing = entity;
+	this->expression->setEnclosing(entity);
+}
+
+
+void aast::AnyBody::setEnclosing(aast::EnclosingEntity* entity) {
+	this->enclosing = entity;
+	for (int i = 0; i < this->statements.size(); i++)
+		this->statements.at(i)->setEnclosing(this);
+}
+
+
+void aast::ReturnStatement::setEnclosing(aast::EnclosingEntity* entity) {
+	this->enclosing = entity;
+	this->expression->setEnclosing(entity);
+}
+
+
+void aast::Expression::setEnclosing(aast::EnclosingEntity* entity) {
+	this->enclosing = entity;
+	for (int i = 0; i < this->accessesAndCalls.size(); i++)
+		this->accessesAndCalls.at(i)->setEnclosing(entity);
+}
+
+
+void aast::Call::setEnclosing(aast::EnclosingEntity* entity) {
+	this->enclosing = entity;
+	for (int i = 0; i < this->expressions.size(); i++)
+		this->expressions.at(i)->setEnclosing(entity);
+}
+
+
+void aast::LocalDeclaration::setEnclosing(aast::EnclosingEntity* entity) {
+	this->enclosing = entity;
+	this->expression->setEnclosing(entity);
+}
+
+
+void aast::Assignment::setEnclosing(aast::EnclosingEntity* entity) {
+	this->enclosing = entity;
+	this->expression1->setEnclosing(entity);
+	this->expression2->setEnclosing(entity);
+}
+
+
+void aast::IfStatement::setEnclosing(aast::EnclosingEntity* entity) {
+	this->enclosing = entity;
+	this->condition->setEnclosing(entity);
+	this->trueBody->setEnclosing(entity);
+	this->falseBody->setEnclosing(entity);
+}
+
+void aast::WhileStatement::setEnclosing(aast::EnclosingEntity* entity) {
+	this->enclosing = entity;
+	this->condition->setEnclosing(entity);
+	this->body->setEnclosing(entity);
 }
 
 
 aast::ClassDeclaration* aast::EnclosingEntity::getThis() {
 	aast::ClassBody* classBody = dynamic_cast<aast::ClassBody*>(this);
 	if (classBody) return dynamic_cast<aast::ClassDeclaration*>(classBody->getEnclosing());
+	EnclosingEntity* entity = this;
 	do {
-		EnclosingEntity* entity = this->enclosing;
+		entity = entity->enclosing;
 		classBody = dynamic_cast<aast::ClassBody*>(entity);
 	} while (!classBody);
 	return dynamic_cast<aast::ClassDeclaration*>(classBody->getEnclosing());
@@ -71,6 +157,7 @@ aast::Entity* aast::ClassBody::searchHere(string identifier, vector<aast::Parame
 	}
 	if (this->getThis()->getClassBaseName().empty()) return nullptr;
 	aast::Entity* baseBody = this->enclosing->searchEverywhere(this->getThis()->getClassBaseName(), nullptr);
+	if (!baseBody) throw analyzer::Undeclared("base class", this->getThis()->getMultiSpan().begin);
 	return dynamic_cast<aast::ClassDeclaration*>(baseBody)->getClassBody()->searchHere(identifier, parameters);
 }
 aast::Entity* aast::ClassBody::searchEverywhere(string identifier, vector<aast::ParameterDeclaration*>* parameters) {

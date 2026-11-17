@@ -302,8 +302,6 @@ aast::Entity* SemanticalAnalyzer::mapToAAST(Entity* oldVertex, aast::EnclosingEn
                 continue;
             }
             aast::ClassDeclaration* newDeclaration = dynamic_cast<aast::ClassDeclaration*>(this->mapToAAST(oldDeclarations->classDeclaration));
-            newDeclaration->setMultiSpan(oldDeclarations->classDeclaration->multiSpan);
-            newDeclaration->getClassBody()->setMultiSpan(oldDeclarations->classDeclaration->classBody->multiSpan);
             newDeclaration->getClassBody()->setEnclosing(newDeclaration);
             newDeclaration->setEnclosing(newProgram);
             newProgram->addClassDeclaration(newDeclaration);
@@ -322,6 +320,7 @@ aast::Entity* SemanticalAnalyzer::mapToAAST(Entity* oldVertex, aast::EnclosingEn
             newClassDeclaration->setClassBaseName("");
         aast::ClassBody* newBody = dynamic_cast<aast::ClassBody*>(this->mapToAAST(oldClassDeclaration->classBody));
         newClassDeclaration->setClassBody(newBody);
+        newClassDeclaration->setMultiSpan(oldClassDeclaration->multiSpan);
         return newClassDeclaration;
     }
 
@@ -334,10 +333,10 @@ aast::Entity* SemanticalAnalyzer::mapToAAST(Entity* oldVertex, aast::EnclosingEn
                 continue;
             }
             aast::ClassStatement* newClassStatement = dynamic_cast<aast::ClassStatement*>(this->mapToAAST(oldClassStatements->classStatement));
-            newClassStatement->setEnclosing(newClassBody);
             newClassBody->addClassStatement(newClassStatement);
             oldClassStatements = oldClassStatements->classStatements;
         } while (oldClassStatements);
+        newClassBody->setMultiSpan(oldClassBody->multiSpan);
         return newClassBody;
     }
 
@@ -349,7 +348,6 @@ aast::Entity* SemanticalAnalyzer::mapToAAST(Entity* oldVertex, aast::EnclosingEn
         else
             newMethodDeclaration->setType("");
         aast::AnyBody* newAnyBody = dynamic_cast<aast::AnyBody*>(this->mapToAAST(oldMethodDeclaration->body));
-        newAnyBody->setEnclosing(newMethodDeclaration);
         newMethodDeclaration->setAnyBody(newAnyBody);
         ParameterDeclarations* oldParameterDeclarations = oldMethodDeclaration->methodHead->parameterDeclarations;
         do {
@@ -358,7 +356,6 @@ aast::Entity* SemanticalAnalyzer::mapToAAST(Entity* oldVertex, aast::EnclosingEn
                 continue;
             }
             aast::ParameterDeclaration* newParameterDeclaration = dynamic_cast<aast::ParameterDeclaration*>(this->mapToAAST(oldParameterDeclarations->parameterDeclaration));
-            newParameterDeclaration->setEnclosing(newMethodDeclaration);
             newMethodDeclaration->addParameterDeclaration(newParameterDeclaration);
             oldParameterDeclarations = oldParameterDeclarations->parameterDeclarations;
         } while (oldParameterDeclarations);
@@ -375,7 +372,6 @@ aast::Entity* SemanticalAnalyzer::mapToAAST(Entity* oldVertex, aast::EnclosingEn
                 continue;
             }
             aast::Statement* newStatement = dynamic_cast<aast::Statement*>(this->mapToAAST(oldStatements->statement, newAnyBody));
-            newStatement->setEnclosing(newAnyBody);
             newAnyBody->addStatement(newStatement);
             oldStatements = oldStatements->statements;
         } while (oldStatements);
@@ -394,7 +390,6 @@ aast::Entity* SemanticalAnalyzer::mapToAAST(Entity* oldVertex, aast::EnclosingEn
         aast::LocalDeclaration* newLocalDeclaration = new aast::LocalDeclaration();
         newLocalDeclaration->setName(oldLocalDeclaration->name->identifier);
         aast::Expression* newExpression = dynamic_cast<aast::Expression*>(this->mapToAAST(oldLocalDeclaration->expression, scope));
-        newExpression->setEnclosing(scope);
         newLocalDeclaration->setExpression(newExpression);
         newLocalDeclaration->setMultiSpan(oldLocalDeclaration->multiSpan);
         return newLocalDeclaration;
@@ -402,7 +397,6 @@ aast::Entity* SemanticalAnalyzer::mapToAAST(Entity* oldVertex, aast::EnclosingEn
 
     else if (oldIdentifierBeginningExpression) {
         aast::IdentifierBeginningExpression* newIdentifierBeginningExpression = new aast::IdentifierBeginningExpression();
-        newIdentifierBeginningExpression->setEnclosing(scope);
         newIdentifierBeginningExpression->setIdentifier(oldIdentifierBeginningExpression->identifier->identifier);
         AccessesAndCalls* oldAccessesAndCalls = oldIdentifierBeginningExpression->accessesAndCalls;
         do {
@@ -584,7 +578,6 @@ aast::Entity* SemanticalAnalyzer::mapToAAST(Entity* oldVertex, aast::EnclosingEn
     else if (oldConstructorDeclaration) {
         aast::ConstructorDeclaration* newConstructorDeclaration = new aast::ConstructorDeclaration();
         newConstructorDeclaration->setAnyBody(dynamic_cast<aast::AnyBody*>(this->mapToAAST(oldConstructorDeclaration->body)));
-        newConstructorDeclaration->getAnyBody()->setEnclosing(newConstructorDeclaration);
         ParameterDeclarations* oldParameterDeclarations = oldConstructorDeclaration->constructorHead->parameterDeclarations;
         do {
             if (!oldParameterDeclarations->parameterDeclaration) {
@@ -592,10 +585,10 @@ aast::Entity* SemanticalAnalyzer::mapToAAST(Entity* oldVertex, aast::EnclosingEn
                 continue;
             }
             aast::ParameterDeclaration* newParameterDeclaration = dynamic_cast<aast::ParameterDeclaration*>(this->mapToAAST(oldParameterDeclarations->parameterDeclaration));
-            newParameterDeclaration->setEnclosing(newConstructorDeclaration);
             newConstructorDeclaration->addParameterDeclaration(newParameterDeclaration);
             oldParameterDeclarations = oldParameterDeclarations->parameterDeclarations;
         } while (oldParameterDeclarations);
+        newConstructorDeclaration->setMultiSpan(oldConstructorDeclaration->multiSpan);
         return newConstructorDeclaration;
     }
 
@@ -603,7 +596,7 @@ aast::Entity* SemanticalAnalyzer::mapToAAST(Entity* oldVertex, aast::EnclosingEn
         aast::Declaration* newDeclaration = new aast::Declaration();
         newDeclaration->setName(oldDeclaration->name->identifier);
         newDeclaration->setExpression(dynamic_cast<aast::Expression*>(this->mapToAAST(oldDeclaration->expression)));
-        newDeclaration->getExpression()->setEnclosing(newDeclaration);
+        newDeclaration->setMultiSpan(oldDeclaration->multiSpan);
         return newDeclaration;
     }
 }
