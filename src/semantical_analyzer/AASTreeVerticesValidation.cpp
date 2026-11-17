@@ -65,7 +65,7 @@ static vector<logic_error>* updateBtwType(aast::ClassDeclaration*& btwType, stri
 	}
 	aast::ClassDeclaration* classDeclaration = dynamic_cast<aast::ClassDeclaration*>(beginIdentifierDeclaration);
 	if (!classDeclaration) {
-		errors->push_back(analyzer::Undeclared("identifier class", beginIdentifierDeclaration->getMultiSpan().begin));
+		errors->push_back(analyzer::Undeclared(identifier, Span(0, 0, 0)));
 		return errors;
 	}
 	btwType = classDeclaration;
@@ -80,6 +80,10 @@ static vector<logic_error>* chainUpdateBtwType(aast::ClassDeclaration*& btwType,
 		aast::Call* call = dynamic_cast<aast::Call*>(accessesAndCalls.at(i < accessesAndCalls.size() - 1 ? i + 1 : i));
 		if (call) combineErrors(errors, call->checkTypes());
 		if (access && call) {
+			if (!btwType) {
+				errors->push_back(analyzer::Undeclared("class with " + access->getIdentifier(), access->getMultiSpan().begin));
+				return errors;
+			}
 			i++;
 			aast::MethodDeclaration* btwTypeMethod = dynamic_cast<aast::MethodDeclaration*>(btwType->getClassBody()->searchHere(access->getIdentifier(), expressionsToParameterDeclarations(call->getExpressions())));
 			if (!btwTypeMethod) {
@@ -108,7 +112,7 @@ static bool isInheritedFrom(string type1, string type2, aast::EnclosingEntity* e
 	do {
 		classDeclaration = dynamic_cast<aast::ClassDeclaration*>(classDeclaration->getEnclosing()->searchEverywhere(classDeclaration->getClassBaseName(), nullptr));
 	}
-	while (classDeclaration && classDeclaration->getClassBaseName() != type2);
+	while (classDeclaration && classDeclaration->getClassName() != type2);
 	if (classDeclaration) return true;
 	return false;
 }
