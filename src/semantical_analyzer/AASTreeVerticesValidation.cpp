@@ -366,7 +366,7 @@ vector<logic_error>* aast::Assignment::checkTypes() {
 	errors->insert(errors->end(), nestedErrors1->begin(), nestedErrors1->end());
 	errors->insert(errors->end(), nestedErrors2->begin(), nestedErrors2->end());
 	if (!this->expression1->getType().empty() && !this->expression2->getType().empty() && !isInheritedFrom(this->expression2->getType(), this->expression1->getType(), this->enclosing))
-		errors->push_back(analyzer::TypesMismatch(this->expression1->getType(), this->expression2->getType(), this->expression1->getAccessesAndCalls()->at(0)->getMultiSpan().begin));
+		errors->push_back(analyzer::TypesMismatch(this->expression1->getType(), this->expression2->getType(), this->expression1->getMultiSpan().begin));
 	return errors;
 }
 
