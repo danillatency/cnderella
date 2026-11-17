@@ -1,5 +1,5 @@
 class IsSimple is
-    this(number: Integer) => is-simple(number).print-line()
+    this(number: Integer) => this.is-simple(number).print-line()
 
     method is-simple(number: Integer) is
         var i := number.minus(1)

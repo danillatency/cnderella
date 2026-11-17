@@ -1,6 +1,6 @@
 class Math is
-    method to-digits(number: Integer): IntegerList is
-        var digits := IntegerList()
+    method to-digits(number: Integer): ListOfIntegers is
+        var digits := ListOfIntegers()
         while number.greater(0) loop
             digits.append(number.division-reminder(10))
             number := number.division(10)
@@ -8,7 +8,7 @@ class Math is
         return digits.reversed()
     end
 
-    method to-digits(number: Float): IntegerList =>
+    method to-digits(number: Float): ListOfIntegers =>
         return this.to-digits(number.to-integer())
 end
 
