@@ -328,7 +328,7 @@ class AnyList : AnyReference is
     method print() is
         '{'.print()
         if this.length.equal(Integer()).not() then
-            this.memory.print()
+            systemMemoryPrint(this.memory)
             var next := this.next_list
             while next.is-empty().not() loop
                 next.memory.print()
@@ -351,7 +351,7 @@ class AnyList : AnyReference is
 end
 
 
-class ListOfIntegers : AnyReference is
+class ListOfIntegers : AnyList is
     var dynamic_type := "ListOfIntegers"
 
     this() is end
@@ -377,7 +377,7 @@ class ListOfIntegers : AnyReference is
 end
 
 
-class ListOfBooleans : AnyReference is
+class ListOfBooleans : AnyList is
     var dynamic_type := "ListOfBooleans"
 
     this() is end
@@ -403,7 +403,7 @@ class ListOfBooleans : AnyReference is
 end
 
 
-class ListOfFloats : AnyReference is
+class ListOfFloats : AnyList is
     var dynamic_type := "ListOfFloats"
 
     this() is end
@@ -429,7 +429,7 @@ class ListOfFloats : AnyReference is
 end
 
 
-class ListOfCharacters : AnyReference is
+class ListOfCharacters : AnyList is
     var dynamic_type := "ListOfCharacters"
 
     this() is end

@@ -1,5 +1,6 @@
 #include <vector>
 #include <stdexcept>
+#include <iostream>
 
 #include "AASTreeVertices.h"
 #include "../errors/TerminalErrors.h"
@@ -29,12 +30,14 @@ static vector<aast::ParameterDeclaration*>* expressionsToParameterDeclarations(v
 }
 
 
-static vector<logic_error>* updateBtwType(aast::ClassDeclaration* btwType, string identifier, aast::EnclosingEntity* enclosing) {
+static vector<logic_error>* updateBtwType(aast::ClassDeclaration*& btwType, string identifier, aast::EnclosingEntity* enclosing) {
 	vector<logic_error>* errors = new vector<logic_error>();
+	aast::EnclosingEntity* okEnclosing = btwType ? btwType->getClassBody() : enclosing;
 	aast::Entity* beginIdentifierDeclaration = btwType ? btwType->getClassBody()->searchHere(identifier, nullptr) : enclosing->searchEverywhere(identifier, nullptr);
 	aast::LocalDeclaration* mbLocalDeclaration = dynamic_cast<aast::LocalDeclaration*>(beginIdentifierDeclaration);
 	if (mbLocalDeclaration) {
-		btwType = dynamic_cast<aast::ClassDeclaration*>(enclosing->searchEverywhere(mbLocalDeclaration->getExpression()->getType(), nullptr));
+		mbLocalDeclaration->getExpression()->checkTypes();
+		btwType = dynamic_cast<aast::ClassDeclaration*>(okEnclosing->searchEverywhere(mbLocalDeclaration->getExpression()->getType(), nullptr));
 		if (!btwType) {
 			errors->push_back(analyzer::Undeclared("entity", extractLastAccess(mbLocalDeclaration->getExpression()->getAccessesAndCalls())->getMultiSpan().begin));
 			return errors;
@@ -43,7 +46,8 @@ static vector<logic_error>* updateBtwType(aast::ClassDeclaration* btwType, strin
 	}
 	aast::Declaration* mbDeclaration = dynamic_cast<aast::Declaration*>(beginIdentifierDeclaration);
 	if (mbDeclaration) {
-		btwType = dynamic_cast<aast::ClassDeclaration*>(enclosing->searchEverywhere(mbDeclaration->getExpression()->getType(), nullptr));
+		mbDeclaration->getExpression()->checkTypes();
+		btwType = dynamic_cast<aast::ClassDeclaration*>(okEnclosing->searchEverywhere(mbDeclaration->getExpression()->getType(), nullptr));
 		if (!btwType) {
 			errors->push_back(analyzer::Undeclared("class", mbDeclaration->getMultiSpan().begin));
 			return errors;
@@ -52,7 +56,7 @@ static vector<logic_error>* updateBtwType(aast::ClassDeclaration* btwType, strin
 	}
 	aast::ParameterDeclaration* mbParameterDeclaration = dynamic_cast<aast::ParameterDeclaration*>(beginIdentifierDeclaration);
 	if (mbParameterDeclaration) {
-		btwType = dynamic_cast<aast::ClassDeclaration*>(enclosing->searchEverywhere(mbParameterDeclaration->getType(), nullptr));
+		btwType = dynamic_cast<aast::ClassDeclaration*>(okEnclosing->searchEverywhere(mbParameterDeclaration->getType(), nullptr));
 		if (!btwType) {
 			errors->push_back(analyzer::Undeclared("parameter class", mbParameterDeclaration->getMultiSpan().begin));
 			return errors;
@@ -69,13 +73,14 @@ static vector<logic_error>* updateBtwType(aast::ClassDeclaration* btwType, strin
 }
 
 
-static vector<logic_error>* chainUpdateBtwType(aast::ClassDeclaration* btwType, vector<aast::AccessOrCall*>& accessesAndCalls, aast::EnclosingEntity* enclosing) {
+static vector<logic_error>* chainUpdateBtwType(aast::ClassDeclaration*& btwType, vector<aast::AccessOrCall*>& accessesAndCalls, aast::EnclosingEntity* enclosing) {
 	vector<logic_error>* errors = new vector<logic_error>();
 	for (int i = 0; i < accessesAndCalls.size(); i++) {
 		aast::Access* access = dynamic_cast<aast::Access*>(accessesAndCalls.at(i));
 		aast::Call* call = dynamic_cast<aast::Call*>(accessesAndCalls.at(i < accessesAndCalls.size() - 1 ? i + 1 : i));
 		if (call) combineErrors(errors, call->checkTypes());
 		if (access && call) {
+			i++;
 			aast::MethodDeclaration* btwTypeMethod = dynamic_cast<aast::MethodDeclaration*>(btwType->getClassBody()->searchHere(access->getIdentifier(), expressionsToParameterDeclarations(call->getExpressions())));
 			if (!btwTypeMethod) {
 				errors->push_back(analyzer::Undeclared("method", access->getMultiSpan().begin));
@@ -86,6 +91,8 @@ static vector<logic_error>* chainUpdateBtwType(aast::ClassDeclaration* btwType, 
 				btwType = nullptr;
 				continue;
 			}
+			// forward declaration
+			methodReturn->checkTypes();
 			btwType = dynamic_cast<aast::ClassDeclaration*>(enclosing->searchEverywhere(methodReturn->getExpression()->getType(), nullptr));
 			continue;
 		}
@@ -178,11 +185,11 @@ vector<logic_error>* aast::MethodDeclaration::checkTypes() {
 	}
 	vector<logic_error>* nestedErrors = this->body->checkTypes();
 	errors->insert(errors->end(), nestedErrors->begin(), nestedErrors->end());
-	if (this->body->getReturnStatement()) {
+	if (this->body->getReturnStatement() && !this->body->getReturnStatement()->getExpression()->getType().empty()) {
 		if (this->type.empty())
 			this->type = this->body->getReturnStatement()->getExpression()->getType();
 		if (this->type != this->body->getReturnStatement()->getExpression()->getType())
-			errors->push_back(analyzer::TypesMismatch(this->type, this->body->getReturnStatement()->getExpression()->getType(), this->body->getReturnStatement()->getMultiSpan().begin));
+			errors->push_back(analyzer::TypesMismatch(this->type, this->body->getReturnStatement()->getExpression()->getType(), this->body->getReturnStatement()->getExpression()->getAccessesAndCalls()->at(0)->getMultiSpan().begin));
 	}
 	return errors;
 }
@@ -278,7 +285,8 @@ vector<logic_error>* aast::IdentifierBeginningExpression::checkTypes() {
 	combineErrors(errors, updateBtwType(btwType, this->identifier, this->enclosing));
 	if (errors->size()) return errors;
 	chainUpdateBtwType(btwType, this->accessesAndCalls, this->enclosing);
-	this->type = btwType->getClassName();
+	if (btwType)
+		this->type = btwType->getClassName();
 	return errors;
 }
 
@@ -291,7 +299,8 @@ vector<logic_error>* aast::ThisBeginningExpression::checkTypes() {
 	}
 	aast::ClassDeclaration* btwType = this->enclosing->getThis();
 	chainUpdateBtwType(btwType, this->accessesAndCalls, this->enclosing);
-	this->type = btwType->getClassName();
+	if (btwType)
+		this->type = btwType->getClassName();
 	return errors;
 }
 
@@ -304,7 +313,8 @@ vector<logic_error>* aast::BaseBeginningExpression::checkTypes() {
 	}
 	aast::ClassDeclaration* btwType = dynamic_cast<aast::ClassDeclaration*>(this->enclosing->searchEverywhere(this->enclosing->getThis()->getClassBaseName(), nullptr));
 	chainUpdateBtwType(btwType, this->accessesAndCalls, this->enclosing);
-	this->type = btwType->getClassName();
+	if (btwType)
+		this->type = btwType->getClassName();
 	return errors;
 }
 
@@ -315,7 +325,8 @@ vector<logic_error>* aast::LiteralBeginningExpression::checkTypes() {
 	if (!this->accessesAndCalls.size()) return errors;
 	aast::ClassDeclaration* btwType = dynamic_cast<aast::ClassDeclaration*>(this->enclosing->searchEverywhere(type, nullptr));
 	chainUpdateBtwType(btwType, this->accessesAndCalls, this->enclosing);
-	this->type = btwType->getClassName();
+	if (btwType)
+		this->type = btwType->getClassName();
 	return errors;
 }
 
@@ -326,7 +337,10 @@ vector<logic_error>* aast::Access::checkTypes() {
 
 
 vector<logic_error>* aast::Call::checkTypes() {
-	return new vector<logic_error>();
+	vector<logic_error>* errors = new vector<logic_error>();
+	for (int i = 0; i < this->expressions.size(); i++)
+		combineErrors(errors, this->expressions.at(i)->checkTypes());
+	return errors;
 }
 
 
@@ -336,8 +350,8 @@ vector<logic_error>* aast::Assignment::checkTypes() {
 	vector<logic_error>* nestedErrors2 = this->expression2->checkTypes();
 	errors->insert(errors->end(), nestedErrors1->begin(), nestedErrors1->end());
 	errors->insert(errors->end(), nestedErrors2->begin(), nestedErrors2->end());
-	if (this->expression1->getType() != this->expression2->getType())
-		errors->push_back(analyzer::TypesMismatch(this->expression1->getType(), this->expression2->getType(), this->getMultiSpan().begin));
+	if (!this->expression1->getType().empty() && !this->expression2->getType().empty() && this->expression1->getType() != this->expression2->getType())
+		errors->push_back(analyzer::TypesMismatch(this->expression1->getType(), this->expression2->getType(), this->expression1->getAccessesAndCalls()->at(0)->getMultiSpan().begin));
 	return errors;
 }
 

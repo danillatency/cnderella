@@ -20,7 +20,7 @@ namespace aast {
 
 		virtual void selfPrint(unsigned int depth) = 0;
 
-		void setEnclosing(EnclosingEntity* entity);
+		virtual void setEnclosing(EnclosingEntity* entity);
 
 		void setMultiSpan(MultiSpan multiSpan);
 		MultiSpan getMultiSpan();
@@ -28,8 +28,6 @@ namespace aast {
 		EnclosingEntity* getEnclosing();
 
 		virtual vector<logic_error>* checkTypes() = 0;
-
-		void mark();
 	};
 
 
@@ -113,6 +111,8 @@ namespace aast {
 		vector<logic_error>* checkDeclarationSignatures() override;
 
 		vector<logic_error>* checkTypes() override;
+
+		void setEnclosing(EnclosingEntity* entity) override;
 	};
 
 
@@ -153,6 +153,8 @@ namespace aast {
 		vector<logic_error>* checkDeclarationSignatures() override;
 
 		vector<logic_error>* checkTypes() override;
+
+		void setEnclosing(EnclosingEntity* entity) override;
 	};
 
 
@@ -195,6 +197,8 @@ namespace aast {
 		vector<logic_error>* checkTypes() override;
 
 		ReturnStatement* getReturnStatement();
+
+		void setEnclosing(EnclosingEntity* entity) override;
 	};
 
 
@@ -220,6 +224,8 @@ namespace aast {
 		void selfPrint(unsigned int depth) override;
 
 		vector<logic_error>* checkTypes() override;
+
+		void setEnclosing(EnclosingEntity* entity) override;
 	};
 
 
@@ -236,6 +242,8 @@ namespace aast {
 		virtual void selfPrint(unsigned int depth) = 0;
 
 		string getType();
+
+		void setEnclosing(EnclosingEntity* entity) override;
 	};
 
 
@@ -284,6 +292,8 @@ namespace aast {
 		void selfPrint(unsigned int depth) override;
 
 		vector<logic_error>* checkTypes() override;
+
+		void setEnclosing(EnclosingEntity* entity) override;
 	};
 
 
@@ -329,6 +339,8 @@ namespace aast {
 		void selfPrint(unsigned int depth) override;
 
 		vector<logic_error>* checkTypes() override;
+
+		void setEnclosing(EnclosingEntity* entity) override;
 	};
 
 
@@ -350,6 +362,8 @@ namespace aast {
 		void selfPrint(unsigned int depth) override;
 
 		vector<logic_error>* checkTypes() override;
+
+		void setEnclosing(EnclosingEntity* entity) override;
 	};
 
 
@@ -367,6 +381,8 @@ namespace aast {
 		void selfPrint(unsigned int depth) override;
 
 		vector<logic_error>* checkTypes() override;
+
+		void setEnclosing(EnclosingEntity* entity) override;
 	};
 
 
@@ -381,6 +397,8 @@ namespace aast {
 		void selfPrint(unsigned int depth) override;
 
 		vector<logic_error>* checkTypes() override;
+
+		void setEnclosing(EnclosingEntity* entity) override;
 	};
 
 
@@ -405,6 +423,8 @@ namespace aast {
 		vector<logic_error>* checkDeclarationSignatures() override;
 
 		vector<logic_error>* checkTypes() override;
+
+		void setEnclosing(EnclosingEntity* entity) override;
 	};
 
 
@@ -429,6 +449,8 @@ namespace aast {
 		vector<logic_error>* checkDeclarationSignatures() override;
 
 		vector<logic_error>* checkTypes() override;
+
+		void setEnclosing(EnclosingEntity* entity) override;
 	};
 }
 
