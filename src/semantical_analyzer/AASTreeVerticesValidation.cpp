@@ -130,10 +130,8 @@ vector<logic_error>* aast::Program::checkDeclarationSignatures() {
 }
 vector<logic_error>* aast::Program::checkTypes() {
 	vector<logic_error>* errors = new vector<logic_error>();
-	for (int i = 0; i < this->classDeclarations.size(); i++) {
-		vector<logic_error>* nestedErrors = this->classDeclarations.at(i)->checkTypes();
-		errors->insert(errors->end(), nestedErrors->begin(), nestedErrors->end());
-	}
+	for (int i = 0; i < this->classDeclarations.size(); i++)
+		combineErrors(errors, this->classDeclarations.at(i)->checkTypes());
 	return errors;
 }
 
@@ -169,17 +167,14 @@ vector<logic_error>* aast::ClassBody::checkDeclarationSignatures() {
 			if (foundDeclaration != currentDeclaration)
 				errors->push_back(analyzer::Redeclaration("declaration", foundDeclaration->getMultiSpan().begin, currentDeclaration->getMultiSpan().begin));
 		}
-		vector<logic_error>* nestedErrors = this->classStatements.at(i)->checkDeclarationSignatures();
-		errors->insert(errors->end(), nestedErrors->begin(), nestedErrors->end());
+		combineErrors(errors, this->classStatements.at(i)->checkDeclarationSignatures());
 	}
 	return errors;
 }
 vector<logic_error>* aast::ClassBody::checkTypes() {
 	vector<logic_error>* errors = new vector<logic_error>();
-	for (int i = 0; i < this->classStatements.size(); i++) {
-		vector<logic_error>* nestedErrors = this->classStatements.at(i)->checkTypes();
-		errors->insert(errors->end(), nestedErrors->begin(), nestedErrors->end());
-	}
+	for (int i = 0; i < this->classStatements.size(); i++)
+		combineErrors(errors, this->classStatements.at(i)->checkTypes());
 	return errors;
 }
 
@@ -192,18 +187,14 @@ vector<logic_error>* aast::MethodDeclaration::checkDeclarationSignatures() {
 		if (foundParameterDeclaration != currentParameterDeclaration)
 			errors->push_back(analyzer::Redeclaration("parameter", foundParameterDeclaration->getMultiSpan().begin, currentParameterDeclaration->getMultiSpan().begin));
 	}
-	vector<logic_error>* nestedErrors = this->getAnyBody()->checkDeclarationSignatures();
-	errors->insert(errors->end(), nestedErrors->begin(), nestedErrors->end());
+	combineErrors(errors, this->getAnyBody()->checkDeclarationSignatures());
 	return errors;
 }
 vector<logic_error>* aast::MethodDeclaration::checkTypes() {
 	vector<logic_error>* errors = new vector<logic_error>();
-	for (int i = 0; i < this->parameterDeclarations.size(); i++) {
-		vector<logic_error>* nestedErrors = this->parameterDeclarations.at(i)->checkTypes();
-		errors->insert(errors->end(), nestedErrors->begin(), nestedErrors->end());
-	}
-	vector<logic_error>* nestedErrors = this->body->checkTypes();
-	errors->insert(errors->end(), nestedErrors->begin(), nestedErrors->end());
+	for (int i = 0; i < this->parameterDeclarations.size(); i++)
+		combineErrors(errors, this->parameterDeclarations.at(i)->checkTypes());
+	combineErrors(errors, this->body->checkTypes());
 	if (this->body->getReturnStatement() && !this->body->getReturnStatement()->getExpression()->getType().empty()) {
 		if (this->type.empty())
 			this->type = this->body->getReturnStatement()->getExpression()->getType();
@@ -226,24 +217,20 @@ vector<logic_error>* aast::AnyBody::checkDeclarationSignatures() {
 		}
 		aast::IfStatement* currentIfStatement = dynamic_cast<aast::IfStatement*>(this->statements.at(i));
 		if (currentIfStatement) {
-			vector<logic_error>* nestedErrors = currentIfStatement->getTrueBody()->checkDeclarationSignatures();
-			errors->insert(errors->end(), nestedErrors->begin(), nestedErrors->end());
+			combineErrors(errors, currentIfStatement->getTrueBody()->checkDeclarationSignatures());
 			continue;
 		}
 		aast::WhileStatement* currentWhileStatement = dynamic_cast<aast::WhileStatement*>(this->statements.at(i));
 		if (currentWhileStatement) {
-			vector<logic_error>* nestedErrors = currentWhileStatement->getBody()->checkDeclarationSignatures();
-			errors->insert(errors->end(), nestedErrors->begin(), nestedErrors->end());
+			combineErrors(errors, currentWhileStatement->getBody()->checkDeclarationSignatures());
 		}
 	}
 	return errors;
 }
 vector<logic_error>* aast::AnyBody::checkTypes() {
 	vector<logic_error>* errors = new vector<logic_error>();
-	for (int i = 0; i < this->statements.size(); i++) {
-		vector<logic_error>* nestedErrors = this->statements.at(i)->checkTypes();
-		errors->insert(errors->end(), nestedErrors->begin(), nestedErrors->end());
-	}
+	for (int i = 0; i < this->statements.size(); i++)
+		combineErrors(errors, this->statements.at(i)->checkTypes());
 	return errors;
 }
 aast::ReturnStatement* aast::AnyBody::getReturnStatement() {
@@ -263,8 +250,7 @@ vector<logic_error>* aast::ConstructorDeclaration::checkDeclarationSignatures() 
 		if (foundParameterDeclaration != currentParameterDeclaration)
 			errors->push_back(analyzer::Redeclaration("parameter", foundParameterDeclaration->getMultiSpan().begin, currentParameterDeclaration->getMultiSpan().begin));
 	}
-	vector<logic_error>* nestedErrors = this->getAnyBody()->checkDeclarationSignatures();
-	errors->insert(errors->end(), nestedErrors->begin(), nestedErrors->end());
+	combineErrors(errors, this->getAnyBody()->checkDeclarationSignatures());
 	return errors;
 }
 
@@ -303,7 +289,7 @@ vector<logic_error>* aast::IdentifierBeginningExpression::checkTypes() {
 	aast::ClassDeclaration* btwType = nullptr;
 	combineErrors(errors, updateBtwType(btwType, this->identifier, this->enclosing));
 	if (errors->size()) return errors;
-	chainUpdateBtwType(btwType, this->accessesAndCalls, this->enclosing);
+	combineErrors(errors, chainUpdateBtwType(btwType, this->accessesAndCalls, this->enclosing));
 	if (btwType)
 		this->type = btwType->getClassName();
 	return errors;
@@ -317,7 +303,7 @@ vector<logic_error>* aast::ThisBeginningExpression::checkTypes() {
 		return errors;
 	}
 	aast::ClassDeclaration* btwType = this->enclosing->getThis();
-	chainUpdateBtwType(btwType, this->accessesAndCalls, this->enclosing);
+	combineErrors(errors, chainUpdateBtwType(btwType, this->accessesAndCalls, this->enclosing));
 	if (btwType)
 		this->type = btwType->getClassName();
 	return errors;
@@ -331,7 +317,7 @@ vector<logic_error>* aast::BaseBeginningExpression::checkTypes() {
 		return errors;
 	}
 	aast::ClassDeclaration* btwType = dynamic_cast<aast::ClassDeclaration*>(this->enclosing->searchEverywhere(this->enclosing->getThis()->getClassBaseName(), nullptr));
-	chainUpdateBtwType(btwType, this->accessesAndCalls, this->enclosing);
+	combineErrors(errors, chainUpdateBtwType(btwType, this->accessesAndCalls, this->enclosing));
 	if (btwType)
 		this->type = btwType->getClassName();
 	return errors;
@@ -343,7 +329,7 @@ vector<logic_error>* aast::LiteralBeginningExpression::checkTypes() {
 	this->type = dynamic_cast<aast::IdentifierBeginningExpression*>(dynamic_cast<aast::LocalDeclaration*>(this->literalCreationStatements.at(0))->getExpression())->getIdentifier();
 	if (!this->accessesAndCalls.size()) return errors;
 	aast::ClassDeclaration* btwType = dynamic_cast<aast::ClassDeclaration*>(this->enclosing->searchEverywhere(type, nullptr));
-	chainUpdateBtwType(btwType, this->accessesAndCalls, this->enclosing);
+	combineErrors(errors, chainUpdateBtwType(btwType, this->accessesAndCalls, this->enclosing));
 	if (btwType)
 		this->type = btwType->getClassName();
 	return errors;
@@ -365,10 +351,8 @@ vector<logic_error>* aast::Call::checkTypes() {
 
 vector<logic_error>* aast::Assignment::checkTypes() {
 	vector<logic_error>* errors = new vector<logic_error>();
-	vector<logic_error>* nestedErrors1 = this->expression1->checkTypes();
-	vector<logic_error>* nestedErrors2 = this->expression2->checkTypes();
-	errors->insert(errors->end(), nestedErrors1->begin(), nestedErrors1->end());
-	errors->insert(errors->end(), nestedErrors2->begin(), nestedErrors2->end());
+	combineErrors(errors, this->expression1->checkTypes());
+	combineErrors(errors, this->expression2->checkTypes());
 	if (!this->expression1->getType().empty() && !this->expression2->getType().empty() && !isInheritedFrom(this->expression2->getType(), this->expression1->getType(), this->enclosing))
 		errors->push_back(analyzer::TypesMismatch(this->expression1->getType(), this->expression2->getType(), this->expression1->getMultiSpan().begin));
 	return errors;
@@ -377,7 +361,7 @@ vector<logic_error>* aast::Assignment::checkTypes() {
 
 vector<logic_error>* aast::IfStatement::checkTypes() {
 	vector<logic_error>* errors = new vector<logic_error>();
-	vector<logic_error>* nestedErrorsCondition = this->condition->checkTypes();
+	combineErrors(errors, this->condition->checkTypes());
 	if (this->condition->getType() != "Boolean") {
 		vector<aast::AccessOrCall*>* chain = this->condition->getAccessesAndCalls();
 		int lastAccessIndex = this->condition->getAccessesAndCalls()->size() - 1;
@@ -387,17 +371,15 @@ vector<logic_error>* aast::IfStatement::checkTypes() {
 		errors->push_back(analyzer::Undeclared("element", chain->at(lastAccessIndex)->getMultiSpan().begin));
 		return errors;
 	}
-	vector<logic_error>* nestedErrorsTrue = this->trueBody->checkTypes();
-	vector<logic_error>* nestedErrorsFalse = this->falseBody->checkTypes();
-	errors->insert(errors->end(), nestedErrorsTrue->begin(), nestedErrorsTrue->begin());
-	errors->insert(errors->end(), nestedErrorsFalse->begin(), nestedErrorsFalse->begin());
+	combineErrors(errors, this->trueBody->checkTypes());
+	combineErrors(errors, this->falseBody->checkTypes());
 	return errors;
 }
 
 
 vector<logic_error>* aast::WhileStatement::checkTypes() {
 	vector<logic_error>* errors = new vector<logic_error>();
-	vector<logic_error>* nestedErrorsCondition = this->condition->checkTypes();
+	combineErrors(errors, this->condition->checkTypes());
 	if (this->condition->getType() != "Boolean") {
 		vector<aast::AccessOrCall*>* chain = this->condition->getAccessesAndCalls();
 		int lastAccessIndex = this->condition->getAccessesAndCalls()->size() - 1;
@@ -407,8 +389,7 @@ vector<logic_error>* aast::WhileStatement::checkTypes() {
 		errors->push_back(analyzer::Undeclared("element", chain->at(lastAccessIndex)->getMultiSpan().begin));
 		return errors;
 	}
-	vector<logic_error>* nestedErrors = this->body->checkTypes();
-	errors->insert(errors->end(), nestedErrors->begin(), nestedErrors->begin());
+	combineErrors(errors, this->body->checkTypes());
 	return errors;
 }
 
@@ -420,11 +401,8 @@ vector<logic_error>* aast::ReturnStatement::checkTypes() {
 
 vector<logic_error>* aast::ConstructorDeclaration::checkTypes() {
 	vector<logic_error>* errors = new vector<logic_error>();
-	for (int i = 0; i < this->parameterDeclarations.size(); i++) {
-		vector<logic_error>* nestedErrors = this->parameterDeclarations.at(i)->checkTypes();
-		errors->insert(errors->end(), nestedErrors->begin(), nestedErrors->end());
-	}
-	vector<logic_error>* nestedErrors = this->body->checkTypes();
-	errors->insert(errors->end(), nestedErrors->begin(), nestedErrors->end());
+	for (int i = 0; i < this->parameterDeclarations.size(); i++)
+		combineErrors(errors, this->parameterDeclarations.at(i)->checkTypes());
+	combineErrors(errors, this->body->checkTypes());
 	return errors;
 }
