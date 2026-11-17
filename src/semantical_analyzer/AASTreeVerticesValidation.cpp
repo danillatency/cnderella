@@ -11,6 +11,7 @@ static aast::Access* extractLastAccess(vector<aast::AccessOrCall*>* here) {
 		if (dynamic_cast<aast::Access*>(here->at(i)))
 			return dynamic_cast<aast::Access*>(here->at(i));
 	}
+	return nullptr;
 }
 
 
@@ -39,7 +40,8 @@ static vector<logic_error>* updateBtwType(aast::ClassDeclaration*& btwType, stri
 		mbLocalDeclaration->getExpression()->checkTypes();
 		btwType = dynamic_cast<aast::ClassDeclaration*>(okEnclosing->searchEverywhere(mbLocalDeclaration->getExpression()->getType(), nullptr));
 		if (!btwType) {
-			errors->push_back(analyzer::Undeclared("entity", extractLastAccess(mbLocalDeclaration->getExpression()->getAccessesAndCalls())->getMultiSpan().begin));
+			aast::Access* lastAccess = extractLastAccess(mbLocalDeclaration->getExpression()->getAccessesAndCalls());
+			errors->push_back(analyzer::Undeclared("entity", lastAccess ? lastAccess->getMultiSpan().begin : mbLocalDeclaration->getExpression()->getMultiSpan().begin));
 			return errors;
 		}
 		return errors;
@@ -77,15 +79,17 @@ static vector<logic_error>* chainUpdateBtwType(aast::ClassDeclaration*& btwType,
 	vector<logic_error>* errors = new vector<logic_error>();
 	for (int i = 0; i < accessesAndCalls.size(); i++) {
 		aast::Access* access = dynamic_cast<aast::Access*>(accessesAndCalls.at(i));
-		aast::Call* call = dynamic_cast<aast::Call*>(accessesAndCalls.at(i < accessesAndCalls.size() - 1 ? i + 1 : i));
+		aast::Call* call = dynamic_cast<aast::Call*>(accessesAndCalls.at(i));
+		aast::Call* furtherCall = dynamic_cast<aast::Call*>(accessesAndCalls.at(i < accessesAndCalls.size() - 1 ? i + 1 : i));
 		if (call) combineErrors(errors, call->checkTypes());
-		if (access && call) {
+		if (furtherCall) combineErrors(errors, furtherCall->checkTypes());
+		if (access && furtherCall) {
 			if (!btwType) {
 				errors->push_back(analyzer::Undeclared("class with " + access->getIdentifier(), access->getMultiSpan().begin));
 				return errors;
 			}
 			i++;
-			aast::MethodDeclaration* btwTypeMethod = dynamic_cast<aast::MethodDeclaration*>(btwType->getClassBody()->searchHere(access->getIdentifier(), expressionsToParameterDeclarations(call->getExpressions())));
+			aast::MethodDeclaration* btwTypeMethod = dynamic_cast<aast::MethodDeclaration*>(btwType->getClassBody()->searchHere(access->getIdentifier(), expressionsToParameterDeclarations(furtherCall->getExpressions())));
 			if (!btwTypeMethod) {
 				errors->push_back(analyzer::Undeclared("method", access->getMultiSpan().begin));
 				return errors;
