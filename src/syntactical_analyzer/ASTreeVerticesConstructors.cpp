@@ -73,16 +73,16 @@ Expressions::Expressions(Expression* expression) : expression(expression), expre
 Expressions::Expressions(Expression* expression, Expressions* expressions) : expression(expression), expressions(expressions) {}
 
 
-ThisBeginningExpression::ThisBeginningExpression() : accessesAndCalls(nullptr) {}
-ThisBeginningExpression::ThisBeginningExpression(AccessesAndCalls* accessesAndCalls) : accessesAndCalls(accessesAndCalls) {}
+ThisBeginningExpression::ThisBeginningExpression(Span begin, Span end) : WithMultiSpan(begin, end), accessesAndCalls(nullptr) {}
+ThisBeginningExpression::ThisBeginningExpression(AccessesAndCalls* accessesAndCalls, Span begin, Span end) : WithMultiSpan(begin, end), accessesAndCalls(accessesAndCalls) {}
 
 
-BaseBeginningExpression::BaseBeginningExpression() : accessesAndCalls(nullptr) {}
-BaseBeginningExpression::BaseBeginningExpression(AccessesAndCalls* accessesAndCalls) : accessesAndCalls(accessesAndCalls) {}
+BaseBeginningExpression::BaseBeginningExpression(Span begin, Span end) : WithMultiSpan(begin, end), accessesAndCalls(nullptr) {}
+BaseBeginningExpression::BaseBeginningExpression(AccessesAndCalls* accessesAndCalls, Span begin, Span end) : WithMultiSpan(begin, end), accessesAndCalls(accessesAndCalls) {}
 
 
-LiteralBeginningExpression::LiteralBeginningExpression(Literal* literal) : literal(literal), accessesAndCalls(nullptr) {}
-LiteralBeginningExpression::LiteralBeginningExpression(Literal* literal, AccessesAndCalls* accessesAndCalls) : literal(literal), accessesAndCalls(accessesAndCalls) {}
+LiteralBeginningExpression::LiteralBeginningExpression(Literal* literal, Span begin, Span end) : WithMultiSpan(begin, end), literal(literal), accessesAndCalls(nullptr) {}
+LiteralBeginningExpression::LiteralBeginningExpression(Literal* literal, AccessesAndCalls* accessesAndCalls, Span begin, Span end) : WithMultiSpan(begin, end), literal(literal), accessesAndCalls(accessesAndCalls) {}
 
 
 LiteralInteger::LiteralInteger(int value, Span begin, Span end) : WithMultiSpan(begin, end), value(value) {}

@@ -370,13 +370,13 @@ public:
 };
 
 
-class ThisBeginningExpression : public Expression {
+class ThisBeginningExpression : public Expression, public WithMultiSpan {
 public:
 	AccessesAndCalls* accessesAndCalls;
 
-	ThisBeginningExpression();
+	ThisBeginningExpression(Span begin, Span end);
 
-	ThisBeginningExpression(AccessesAndCalls* accessesAndCalls);
+	ThisBeginningExpression(AccessesAndCalls* accessesAndCalls, Span begin, Span end);
 
 	void selfPrint(unsigned int depth) override;
 
@@ -384,13 +384,13 @@ public:
 };
 
 
-class BaseBeginningExpression : public Expression {
+class BaseBeginningExpression : public Expression, public WithMultiSpan {
 public:
 	AccessesAndCalls* accessesAndCalls;
 
-	BaseBeginningExpression();
+	BaseBeginningExpression(Span begin, Span end);
 
-	BaseBeginningExpression(AccessesAndCalls* accessesAndCalls);
+	BaseBeginningExpression(AccessesAndCalls* accessesAndCalls, Span begin, Span end);
 
 	void selfPrint(unsigned int depth) override;
 
@@ -398,14 +398,14 @@ public:
 };
 
 
-class LiteralBeginningExpression : public Expression {
+class LiteralBeginningExpression : public Expression, public WithMultiSpan {
 public:
 	Literal* literal;
 	AccessesAndCalls* accessesAndCalls;
 
-	LiteralBeginningExpression(Literal* literal);
+	LiteralBeginningExpression(Literal* literal, Span begin, Span end);
 
-	LiteralBeginningExpression(Literal* literal, AccessesAndCalls* accessesAndCalls);
+	LiteralBeginningExpression(Literal* literal, AccessesAndCalls* accessesAndCalls, Span begin, Span end);
 
 	void selfPrint(unsigned int depth) override;
 

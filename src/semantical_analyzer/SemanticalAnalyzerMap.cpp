@@ -373,6 +373,7 @@ aast::Entity* SemanticalAnalyzer::mapToAAST(Entity* oldVertex, aast::EnclosingEn
             }
             aast::Statement* newStatement = dynamic_cast<aast::Statement*>(this->mapToAAST(oldStatements->statement, newAnyBody));
             newAnyBody->addStatement(newStatement);
+            if (dynamic_cast<aast::ReturnStatement*>(newStatement)) break;
             oldStatements = oldStatements->statements;
         } while (oldStatements);
         return newAnyBody;
@@ -456,6 +457,7 @@ aast::Entity* SemanticalAnalyzer::mapToAAST(Entity* oldVertex, aast::EnclosingEn
                 oldAccessesAndCalls = oldCallAndFurther->accessesAndCalls;
             }
         } while (oldAccessesAndCalls);
+        newThisBeginningExpression->setMultiSpan(oldThisBeginningExpression->multiSpan);
         return newThisBeginningExpression;
     }
 
@@ -487,6 +489,7 @@ aast::Entity* SemanticalAnalyzer::mapToAAST(Entity* oldVertex, aast::EnclosingEn
                 oldAccessesAndCalls = oldCallAndFurther->accessesAndCalls;
             }
         } while (oldAccessesAndCalls);
+        newBaseBeginningExpression->setMultiSpan(oldBaseBeginningExpression->multiSpan);
         return newBaseBeginningExpression;
     }
 
@@ -519,6 +522,7 @@ aast::Entity* SemanticalAnalyzer::mapToAAST(Entity* oldVertex, aast::EnclosingEn
                 oldAccessesAndCalls = oldCallAndFurther->accessesAndCalls;
             }
         } while (oldAccessesAndCalls);
+        newLiteralBeginningExpression->setMultiSpan(oldLiteralBeginningExpression->multiSpan);
         return newLiteralBeginningExpression;
     }
 

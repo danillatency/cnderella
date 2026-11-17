@@ -684,6 +684,7 @@ Expressions* Expressions::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
 
 ThisBeginningExpression* ThisBeginningExpression::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
 	int checkpoint = syntacticalAnalyzer->currentTokenIndex();
+	Span begin = syntacticalAnalyzer->relativeToken()->span;
 	if (syntacticalAnalyzer->nextToken()->code != TokenThis) {
 		syntacticalAnalyzer->back();
 		throw parser::ThisExpected("expression", syntacticalAnalyzer->relativeToken()->span);
@@ -693,18 +694,19 @@ ThisBeginningExpression* ThisBeginningExpression::parse(SyntacticalAnalyzer* syn
 		accessesAndCalls = AccessesAndCalls::parse(syntacticalAnalyzer);
 	}
 	catch (const parser::EnumerationEnd& e) {
-		return new ThisBeginningExpression();
+		return new ThisBeginningExpression(begin, syntacticalAnalyzer->currentToken()->span);
 	}
 	catch (const domain_error& e) {
 		syntacticalAnalyzer->setToken(checkpoint);
 		throw e;
 	}
-	return new ThisBeginningExpression(accessesAndCalls);
+	return new ThisBeginningExpression(accessesAndCalls, begin, syntacticalAnalyzer->currentToken()->span);
 }
 
 
 BaseBeginningExpression* BaseBeginningExpression::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
 	int checkpoint = syntacticalAnalyzer->currentTokenIndex();
+	Span begin = syntacticalAnalyzer->relativeToken()->span;
 	if (syntacticalAnalyzer->nextToken()->code != TokenBase) {
 		syntacticalAnalyzer->back();
 		throw parser::BaseExpected(syntacticalAnalyzer->relativeToken()->span);
@@ -714,18 +716,19 @@ BaseBeginningExpression* BaseBeginningExpression::parse(SyntacticalAnalyzer* syn
 		accessesAndCalls = AccessesAndCalls::parse(syntacticalAnalyzer);
 	}
 	catch (const parser::EnumerationEnd& e) {
-		return new BaseBeginningExpression();
+		return new BaseBeginningExpression(begin, syntacticalAnalyzer->currentToken()->span);
 	}
 	catch (const domain_error& e) {
 		syntacticalAnalyzer->setToken(checkpoint);
 		throw e;
 	}
-	return new BaseBeginningExpression(accessesAndCalls);
+	return new BaseBeginningExpression(accessesAndCalls, begin, syntacticalAnalyzer->currentToken()->span);
 }
 
 
 LiteralBeginningExpression* LiteralBeginningExpression::parse(SyntacticalAnalyzer* syntacticalAnalyzer) {
 	int checkpoint = syntacticalAnalyzer->currentTokenIndex();
+	Span begin = syntacticalAnalyzer->relativeToken()->span;
 	Literal* literal;
 	try {
 		literal = Literal::parse(syntacticalAnalyzer);
@@ -738,13 +741,13 @@ LiteralBeginningExpression* LiteralBeginningExpression::parse(SyntacticalAnalyze
 		accessesAndCalls = AccessesAndCalls::parse(syntacticalAnalyzer);
 	}
 	catch (const parser::EnumerationEnd& e) {
-		return new LiteralBeginningExpression(literal);
+		return new LiteralBeginningExpression(literal, begin, syntacticalAnalyzer->currentToken()->span);
 	}
 	catch (const domain_error& e) {
 		syntacticalAnalyzer->setToken(checkpoint);
 		throw e;
 	}
-	return new LiteralBeginningExpression(literal, accessesAndCalls);
+	return new LiteralBeginningExpression(literal, accessesAndCalls, begin, syntacticalAnalyzer->currentToken()->span);
 }
 
 
