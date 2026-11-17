@@ -78,7 +78,7 @@ static vector<logic_error>* updateBtwType(aast::ClassDeclaration*& btwType, stri
 static vector<logic_error>* chainUpdateBtwType(aast::ClassDeclaration*& btwType, vector<aast::AccessOrCall*>& accessesAndCalls, aast::EnclosingEntity* enclosing) {
 	vector<logic_error>* errors = new vector<logic_error>();
 	for (int i = 0; i < accessesAndCalls.size(); i++) {
-		if (btwType->getClassName() == "System") break;
+		if (btwType && btwType->getClassName() == "System") break;
 		aast::Access* access = dynamic_cast<aast::Access*>(accessesAndCalls.at(i));
 		aast::Call* call = dynamic_cast<aast::Call*>(accessesAndCalls.at(i));
 		aast::Call* furtherCall = dynamic_cast<aast::Call*>(accessesAndCalls.at(i < accessesAndCalls.size() - 1 ? i + 1 : i));

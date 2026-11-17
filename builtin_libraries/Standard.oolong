@@ -25,6 +25,11 @@ class Integer : AnyValue is
     this(literal: Integer) => this.value := literal.value
     this(literal: Float) => this.value := systemFloatToInteger(literal.value)
 
+    method input() is
+        var temp := Integer()
+        temp.value := systemIntegerInput()
+        return temp
+    end
     method print() => systemPrintInteger(this.value)
     method print-line() => systemPrintLineInteger(this.value)
     method to-float() => return Float(this)
