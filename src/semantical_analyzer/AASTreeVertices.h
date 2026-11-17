@@ -8,6 +8,7 @@
 
 
 namespace aast {
+	class Expression;
 	class EnclosingEntity;
 	class Entity {
 	protected:
@@ -28,6 +29,9 @@ namespace aast {
 		EnclosingEntity* getEnclosing();
 
 		virtual vector<logic_error>* checkTypes() = 0;
+
+		// extract to another class
+		// bool isInheritedFrom(Expression* entity);
 	};
 
 

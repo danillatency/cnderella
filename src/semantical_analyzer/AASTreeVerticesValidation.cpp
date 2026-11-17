@@ -99,7 +99,18 @@ static vector<logic_error>* chainUpdateBtwType(aast::ClassDeclaration*& btwType,
 		if (call) continue;
 		combineErrors(errors, updateBtwType(btwType, access->getIdentifier(), nullptr));
 	}
+}
 
+
+static bool isInheritedFrom(string type1, string type2, aast::EnclosingEntity* enclosing) {
+	if (type1 == type2) return true;
+	aast::ClassDeclaration* classDeclaration = dynamic_cast<aast::ClassDeclaration*>(enclosing->searchEverywhere(type1, nullptr));
+	do {
+		classDeclaration = dynamic_cast<aast::ClassDeclaration*>(classDeclaration->getEnclosing()->searchEverywhere(classDeclaration->getClassBaseName(), nullptr));
+	}
+	while (classDeclaration && classDeclaration->getClassBaseName() != type2);
+	if (classDeclaration) return true;
+	return false;
 }
 
 
@@ -188,7 +199,7 @@ vector<logic_error>* aast::MethodDeclaration::checkTypes() {
 	if (this->body->getReturnStatement() && !this->body->getReturnStatement()->getExpression()->getType().empty()) {
 		if (this->type.empty())
 			this->type = this->body->getReturnStatement()->getExpression()->getType();
-		if (this->type != this->body->getReturnStatement()->getExpression()->getType())
+		if (!isInheritedFrom(this->type, this->body->getReturnStatement()->getExpression()->getType(), this->enclosing))
 			errors->push_back(analyzer::TypesMismatch(this->type, this->body->getReturnStatement()->getExpression()->getType(), this->body->getReturnStatement()->getExpression()->getAccessesAndCalls()->at(0)->getMultiSpan().begin));
 	}
 	return errors;
@@ -350,7 +361,7 @@ vector<logic_error>* aast::Assignment::checkTypes() {
 	vector<logic_error>* nestedErrors2 = this->expression2->checkTypes();
 	errors->insert(errors->end(), nestedErrors1->begin(), nestedErrors1->end());
 	errors->insert(errors->end(), nestedErrors2->begin(), nestedErrors2->end());
-	if (!this->expression1->getType().empty() && !this->expression2->getType().empty() && this->expression1->getType() != this->expression2->getType())
+	if (!this->expression1->getType().empty() && !this->expression2->getType().empty() && !isInheritedFrom(this->expression2->getType(), this->expression1->getType(), this->enclosing))
 		errors->push_back(analyzer::TypesMismatch(this->expression1->getType(), this->expression2->getType(), this->expression1->getAccessesAndCalls()->at(0)->getMultiSpan().begin));
 	return errors;
 }
